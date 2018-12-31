@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="com.github._1c_syntax.sonar-bsl-plugin-community.main" target="1.8" />
+      <module name="com.github._1c_syntax.sonar-bsl-plugin-community.test" target="1.8" />
+      <module name="com.github.nixel2007.sonar-bsl-plugin-community.main" target="1.8" />
+      <module name="com.github.nixel2007.sonar-bsl-plugin-community.test" target="1.8" />
+      <module name="com.github.nixel2007.sonar-bsl-plugin.main" target="1.8" />
+      <module name="com.github.nixel2007.sonar-bsl-plugin.test" target="1.8" />
+      <module name="org.github.nixel2007.sonar-bsl-plugin.main" target="1.8" />
+      <module name="org.github.nixel2007.sonar-bsl-plugin.test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

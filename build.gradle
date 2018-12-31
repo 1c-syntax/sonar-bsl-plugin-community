@@ -1,0 +1,97 @@
+//import java.util.Calendar
+
+plugins {
+    id("jacoco")
+    id("java")
+    // doesn"t work with sonar-packaging
+    // id("maven")
+    id("com.github.hierynomus.license") version "0.14.0"
+    id("com.iadams.sonar-packaging") version "1.0-RC1"
+}
+
+group = "com.github.1c-syntax"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "https://jitpack.io"
+    }
+}
+
+dependencies {
+    provided("org.sonarsource.sonarqube:sonar-plugin-api:7.4")
+
+    compile("com.github.1c-syntax:bsl-language-server:0.1.2")
+    compile("com.fasterxml.jackson.core:jackson-databind:2.9.4")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.2.0")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.2.0")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+}
+
+jar {
+    configurations["compile"].forEach {
+        from(zipTree(it.absoluteFile)) {
+            exclude("META-INF/MANIFEST.MF")
+            exclude("META-INF/*.SF")
+            exclude("META-INF/*.DSA")
+            exclude("META-INF/*.RSA")
+        }
+    }
+}
+
+compileJava {
+    options.encoding = "UTF-8"
+}
+
+test {
+    useJUnitPlatform()
+
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+
+    reports {
+        html.setEnabled(true)
+    }
+
+}
+
+jacocoTestReport {
+    reports {
+        xml.setEnabled(true)
+    }
+}
+
+license {
+    header = rootProject.file("license/HEADER.txt")
+    ext["year"] = Calendar.getInstance().get(Calendar.YEAR)
+    ext["name"] = "Nikita Gryzlov <nixel2007@gmail.com>"
+    ext["project"] = "SonarQube 1C (BSL) Community Plugin"
+    strictCheck = true
+    mapping("java", "SLASHSTAR_STYLE")
+    exclude("**/*.properties")
+    exclude("**/*.bsl")
+}
+
+sonarPackaging {
+    pluginKey = "communitybsl"
+    pluginClass = "com.github._1c_syntax.sonar.bsl.BSLPlugin"
+    pluginName = "1C (BSL) Community Plugin"
+    pluginDescription = "Adds support of 1C (BSL) language."
+
+    pluginLicense = "GNU LGPL v3"
+
+    pluginUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-comunity"
+    pluginIssueTrackerUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-comunity/issues"
+    pluginSourceUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-comunity"
+    pluginDevelopers = "Nikita Gryzlov"
+
+    serverUrl = "http://localhost:9000"
+    pluginDir = "d:/docker/volumes/sonarqube/plugins"
+
+}
