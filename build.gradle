@@ -90,8 +90,12 @@ pluginPackaging {
     dependsOn(jar)
 }
 
+localDeploy {
+    dependsOn(pluginPackaging)
+}
+
 task buildAndLocalDeploy() {
-    dependsOn(pluginPackaging, localDeploy)
+    dependsOn(localDeploy)
     doLast {
         exec {
             executable = "curl"
