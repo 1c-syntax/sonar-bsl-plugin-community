@@ -30,6 +30,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.github._1c_syntax.intellij.bsl.lsp.server.diagnostics.FileInfo;
 import org.github._1c_syntax.intellij.bsl.lsp.server.diagnostics.reporter.AnalysisInfo;
+import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -49,7 +50,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,17 +58,19 @@ import java.util.Optional;
 public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
 
     private final SensorContext context;
+    private final Map<DiagnosticSeverity, Severity> severityMap;
 
     private static final Logger LOGGER = Loggers.get(LanguageServerDiagnosticsLoaderSensor.class);
 
     public LanguageServerDiagnosticsLoaderSensor(final SensorContext context) {
         this.context = context;
+        this.severityMap = createDiagnosticSeverityMap();
     }
 
     @Override
     public void describe(SensorDescriptor descriptor) {
         descriptor.onlyOnLanguage(BSLLanguage.KEY);
-        descriptor.name("1C (BSL) Community sensor");
+        descriptor.name("BSL Language Server diagnostics loader");
     }
 
     @Override
@@ -84,6 +87,73 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     private void parseAndSaveResults(File analysisResultsFile) {
         LOGGER.info("Parsing 'BSL Language Server' analysis results");
 
+        AnalysisInfo analysisInfo = getAnalysisInfo(analysisResultsFile);
+        if (analysisInfo == null) {
+            return;
+        }
+
+        List<FileInfo> fileinfos = analysisInfo.getFileinfos();
+        for (FileInfo fileInfo : fileinfos) {
+            processFileInfo(fileInfo);
+        }
+    }
+
+    private void processFileInfo(FileInfo fileInfo) {
+        FileSystem fileSystem = context.fileSystem();
+        Path path = fileInfo.getPath();
+        InputFile inputFile = fileSystem.inputFile(
+                fileSystem.predicates().and(
+                        fileSystem.predicates().hasLanguage(BSLLanguage.KEY),
+                        fileSystem.predicates().hasAbsolutePath(path.toAbsolutePath().toString())
+                )
+        );
+
+        if (inputFile == null) {
+            LOGGER.warn("Can't find inputFile for absolute path", path);
+            return;
+        }
+
+        Diagnostic[] diagnostics = fileInfo.getDiagnostics();
+        for (Diagnostic diagnostic : diagnostics) {
+            processDiagnostic(inputFile, diagnostic);
+        }
+    }
+
+    private void processDiagnostic(InputFile inputFile, Diagnostic diagnostic) {
+        NewExternalIssue issue = context.newExternalIssue();
+
+        Range range = diagnostic.getRange();
+        Position start = range.getStart();
+        Position end = range.getEnd();
+        TextRange textRange = inputFile.newRange(
+                start.getLine() + 1,
+                start.getCharacter(),
+                end.getLine() + 1,
+                end.getCharacter()
+        );
+
+        NewIssueLocation location = issue.newLocation();
+        location.on(inputFile);
+        location.at(textRange);
+        location.message(diagnostic.getMessage());
+
+        issue.engineId("bsl-language-server");
+        issue.ruleId(diagnostic.getCode());
+        issue.type(RuleType.CODE_SMELL);
+        issue.severity(severityMap.get(diagnostic.getSeverity()));
+        issue.at(location);
+
+        issue.save();
+    }
+
+
+    private String getReportPath() {
+        Optional<String> reportPath = context.config().get(BSLCommunityProperties.LANG_SERVER_REPORT_PATH_KEY);
+        return reportPath.orElse("");
+    }
+
+    @Nullable
+    private AnalysisInfo getAnalysisInfo(File analysisResultsFile) {
         ObjectMapper objectMapper = new ObjectMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         objectMapper.setDateFormat(df);
@@ -93,71 +163,24 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
             json = FileUtils.readFileToString(analysisResultsFile, Charset.forName("UTF-8"));
         } catch (IOException e) {
             LOGGER.error("Can't read analysis report file", e);
-            return;
+            return null;
         }
-        AnalysisInfo analysisInfo;
+
         try {
-            analysisInfo = objectMapper.readValue(json, AnalysisInfo.class);
+            return objectMapper.readValue(json, AnalysisInfo.class);
         } catch (IOException e) {
             LOGGER.error("Can't parse analysis report file", e);
-            return;
-        }
-
-        Map<DiagnosticSeverity, Severity> severityMap = new HashMap<>();
-        severityMap.put(DiagnosticSeverity.Warning, Severity.MAJOR);
-        severityMap.put(DiagnosticSeverity.Information, Severity.MINOR);
-        severityMap.put(DiagnosticSeverity.Hint, Severity.INFO);
-        severityMap.put(DiagnosticSeverity.Error, Severity.CRITICAL);
-
-        List<FileInfo> fileinfos = analysisInfo.getFileinfos();
-        FileSystem fileSystem = context.fileSystem();
-
-        for (FileInfo fileInfo : fileinfos) {
-            Path path = fileInfo.getPath();
-            InputFile inputFile = fileSystem.inputFile(
-                    fileSystem.predicates().and(
-                            fileSystem.predicates().hasLanguage(BSLLanguage.KEY),
-                            fileSystem.predicates().hasAbsolutePath(path.toAbsolutePath().toString())
-                    )
-            );
-
-            if (inputFile == null) {
-                LOGGER.warn("Can't find inputFile for absolute path", path);
-                continue;
-            }
-
-            Diagnostic[] diagnostics = fileInfo.getDiagnostics();
-            for (Diagnostic diagnostic : diagnostics) {
-                NewExternalIssue issue = context.newExternalIssue();
-
-                issue.engineId("bsl-language-server");
-                issue.ruleId(diagnostic.getCode());
-                issue.type(RuleType.CODE_SMELL);
-                issue.severity(severityMap.get(diagnostic.getSeverity()));
-
-                Range range = diagnostic.getRange();
-                Position start = range.getStart();
-                Position end = range.getEnd();
-                TextRange textRange = inputFile.newRange(
-                        start.getLine() + 1,
-                        start.getCharacter(),
-                        end.getLine() + 1,
-                        end.getCharacter()
-                );
-                NewIssueLocation location = issue.newLocation();
-                location.on(inputFile);
-                location.at(textRange);
-                location.message(diagnostic.getMessage());
-
-                issue.at(location);
-
-                issue.save();
-            }
+            return null;
         }
     }
 
-    private String getReportPath() {
-        Optional<String> reportPath = context.config().get(BSLCommunityProperties.LANG_SERVER_REPORT_PATH_KEY);
-        return reportPath.orElse("");
+    private Map<DiagnosticSeverity, Severity> createDiagnosticSeverityMap() {
+        Map<DiagnosticSeverity, Severity> map = new EnumMap<>(DiagnosticSeverity.class);
+        map.put(DiagnosticSeverity.Warning, Severity.MAJOR);
+        map.put(DiagnosticSeverity.Information, Severity.MINOR);
+        map.put(DiagnosticSeverity.Hint, Severity.INFO);
+        map.put(DiagnosticSeverity.Error, Severity.CRITICAL);
+
+        return map;
     }
 }
