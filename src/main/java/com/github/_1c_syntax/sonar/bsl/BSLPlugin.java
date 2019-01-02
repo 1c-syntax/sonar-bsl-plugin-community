@@ -32,6 +32,7 @@ public class BSLPlugin implements Plugin {
         context.addExtension(BSLLanguage.class);
         context.addExtension(BSLQualityProfile.class);
 
+        context.addExtension(BSLCoreSensor.class);
         context.addExtension(LanguageServerDiagnosticsLoaderSensor.class);
 
         context.addExtensions(BSLCommunityProperties.getProperties());
