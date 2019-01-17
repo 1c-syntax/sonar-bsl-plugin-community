@@ -73,10 +73,10 @@ public class BSLCoreSensor implements Sensor {
     );
 
 
-    Stream<InputFile> stream = StreamSupport.stream(inputFiles.spliterator(), false);
+    Stream<InputFile> stream = StreamSupport.stream(inputFiles.spliterator(), true);
     stream.forEach(inputFile -> fileTrees.put(inputFile, parseInputFile(inputFile)));
 
-    fileTrees.entrySet().parallelStream()
+    fileTrees.entrySet().stream()
       .filter(Objects::nonNull)
       .forEach(entry -> {
 
