@@ -35,6 +35,8 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
+import org.sonar.api.batch.sensor.measure.NewMeasure;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -50,10 +52,15 @@ import java.util.stream.StreamSupport;
 public class BSLCoreSensor implements Sensor {
 
   private static final Logger LOGGER = Loggers.get(BSLCoreSensor.class);
+  private final SensorContext context;
 
   private Map<InputFile, BSLParser.FileContext> fileTrees = new HashMap<>();
   private final BSLLexer lexer = new BSLLexer(null);
   private final BSLParser parser = new BSLParser(null);
+
+  public BSLCoreSensor(SensorContext context) {
+    this.context = context;
+  }
 
   @Override
   public void describe(SensorDescriptor descriptor) {
@@ -72,9 +79,37 @@ public class BSLCoreSensor implements Sensor {
       )
     );
 
+    StreamSupport.stream(inputFiles.spliterator(), true)
+      .forEach(inputFile -> fileTrees.put(inputFile, parseInputFile(inputFile)));
 
-    Stream<InputFile> stream = StreamSupport.stream(inputFiles.spliterator(), true);
-    stream.forEach(inputFile -> fileTrees.put(inputFile, parseInputFile(inputFile)));
+    saveMeasures();
+    saveCpd();
+
+  }
+
+  private void saveMeasures() {
+
+    fileTrees.entrySet().stream()
+      .filter(Objects::nonNull)
+      .forEach(entry -> {
+        InputFile inputFile = entry.getKey();
+        BSLParser.FileContext fileContext = entry.getValue();
+
+        int ncloc = (int) fileContext.getTokens().stream()
+          .map(Token::getLine)
+          .distinct()
+          .count();
+
+        NewMeasure<Integer> measure = context.newMeasure();
+        measure.on(inputFile)
+          .forMetric(CoreMetrics.NCLOC)
+          .withValue(ncloc)
+          .save();
+      });
+
+  }
+
+  private void saveCpd() {
 
     fileTrees.entrySet().stream()
       .filter(Objects::nonNull)
@@ -106,7 +141,6 @@ public class BSLCoreSensor implements Sensor {
 
         cpdTokens.save();
       });
-
   }
 
   // TODO: To separate class. BSL Parser itself?
