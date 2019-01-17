@@ -94,9 +94,6 @@ public class BSLCoreSensor implements Sensor {
             int line = token.getLine();
             int charPositionInLine = token.getCharPositionInLine();
             String tokenText = token.getText();
-            if (tokenText == null) {
-              tokenText = "";
-            }
             cpdTokens.addToken(
               line,
               charPositionInLine,
