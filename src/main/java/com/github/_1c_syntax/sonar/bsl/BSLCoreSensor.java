@@ -88,6 +88,9 @@ public class BSLCoreSensor implements Sensor {
 
         List<Token> tokens = fileContext.getTokens();
         tokens.forEach(token -> {
+            if (token.getType() == Token.EOF) {
+              return;
+            }
             int line = token.getLine();
             int charPositionInLine = token.getCharPositionInLine();
             String tokenText = token.getText();
