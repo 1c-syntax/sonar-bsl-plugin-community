@@ -24,10 +24,9 @@ package com.github._1c_syntax.sonar.bsl;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.github._1c_syntax.parser.BSLLexer;
-import org.github._1c_syntax.parser.BSLParser;
+import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -35,6 +34,8 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.log.Logger;
@@ -42,11 +43,11 @@ import org.sonar.api.utils.log.Loggers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class BSLCoreSensor implements Sensor {
@@ -54,9 +55,8 @@ public class BSLCoreSensor implements Sensor {
   private static final Logger LOGGER = Loggers.get(BSLCoreSensor.class);
   private final SensorContext context;
 
-  private Map<InputFile, BSLParser.FileContext> fileTrees = new HashMap<>();
+  private Map<InputFile, List<? extends Token>> fileTokens = new HashMap<>();
   private final BSLLexer lexer = new BSLLexer(null);
-  private final BSLParser parser = new BSLParser(null);
 
   public BSLCoreSensor(SensorContext context) {
     this.context = context;
@@ -80,22 +80,23 @@ public class BSLCoreSensor implements Sensor {
     );
 
     StreamSupport.stream(inputFiles.spliterator(), true)
-      .forEach(inputFile -> fileTrees.put(inputFile, parseInputFile(inputFile)));
+      .forEach(inputFile -> fileTokens.put(inputFile, getTokens(inputFile)));
 
     saveMeasures();
     saveCpd();
+    saveHighlighting();
 
   }
 
   private void saveMeasures() {
 
-    fileTrees.entrySet().stream()
-      .filter(Objects::nonNull)
+    fileTokens.entrySet().stream()
       .forEach(entry -> {
         InputFile inputFile = entry.getKey();
-        BSLParser.FileContext fileContext = entry.getValue();
+        List<? extends Token> tokens = entry.getValue();
 
-        int ncloc = (int) fileContext.getTokens().stream()
+        int ncloc = (int) tokens.stream()
+          .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL)
           .map(Token::getLine)
           .distinct()
           .count();
@@ -111,60 +112,186 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveCpd() {
 
-    fileTrees.entrySet().stream()
-      .filter(Objects::nonNull)
+    fileTokens.entrySet().stream()
       .forEach(entry -> {
 
         InputFile inputFile = entry.getKey();
-        BSLParser.FileContext fileContext = entry.getValue();
+        List<? extends Token> tokens = entry.getValue();
 
         NewCpdTokens cpdTokens = context.newCpdTokens();
         cpdTokens.onFile(inputFile);
 
-        List<Token> tokens = fileContext.getTokens();
-        tokens.forEach(token -> {
-            if (token.getType() == Token.EOF) {
-              return;
+        tokens.stream()
+          .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL)
+          .forEach(token -> {
+              int line = token.getLine();
+              int charPositionInLine = token.getCharPositionInLine();
+              String tokenText = token.getText();
+              cpdTokens.addToken(
+                line,
+                charPositionInLine,
+                line,
+                charPositionInLine + tokenText.length(),
+                tokenText
+              );
             }
-            int line = token.getLine();
-            int charPositionInLine = token.getCharPositionInLine();
-            String tokenText = token.getText();
-            cpdTokens.addToken(
-              line,
-              charPositionInLine,
-              line,
-              charPositionInLine + tokenText.length(),
-              tokenText
-            );
-          }
-        );
+          );
 
         cpdTokens.save();
       });
   }
 
-  // TODO: To separate class. BSL Parser itself?
-  private BSLParser.FileContext parseInputFile(InputFile inputFile) {
+  private void saveHighlighting() {
+
+    fileTokens.entrySet().stream()
+      .filter(Objects::nonNull)
+      .forEach(entry -> {
+
+          InputFile inputFile = entry.getKey();
+          List<? extends Token> tokens = entry.getValue();
+
+          NewHighlighting highlighting = context.newHighlighting();
+          highlighting.onFile(inputFile);
+
+          tokens.forEach(token -> {
+              TypeOfText typeOfText = getTypeOfText(token.getType());
+              if (typeOfText == null) {
+                return;
+              }
+              int line = token.getLine();
+              int charPositionInLine = token.getCharPositionInLine();
+              String tokenText = token.getText();
+              highlighting.highlight(
+                line,
+                charPositionInLine,
+                line,
+                charPositionInLine + tokenText.length(),
+                typeOfText
+              );
+            }
+          );
+
+          highlighting.save();
+        }
+      );
+
+  }
+
+  @Nullable
+  private TypeOfText getTypeOfText(int tokenType) {
+
+    TypeOfText typeOfText = null;
+
+    switch (tokenType) {
+      case BSLLexer.PROCEDURE_KEYWORD:
+      case BSLLexer.FUNCTION_KEYWORD:
+      case BSLLexer.ENDPROCEDURE_KEYWORD:
+      case BSLLexer.ENDFUNCTION_KEYWORD:
+      case BSLLexer.EXPORT_KEYWORD:
+      case BSLLexer.VAL_KEYWORD:
+      case BSLLexer.ENDIF_KEYWORD:
+      case BSLLexer.ENDDO_KEYWORD:
+      case BSLLexer.IF_KEYWORD:
+      case BSLLexer.ELSIF_KEYWORD:
+      case BSLLexer.ELSE_KEYWORD:
+      case BSLLexer.THEN_KEYWORD:
+      case BSLLexer.WHILE_KEYWORD:
+      case BSLLexer.DO_KEYWORD:
+      case BSLLexer.FOR_KEYWORD:
+      case BSLLexer.TO_KEYWORD:
+      case BSLLexer.EACH_KEYWORD:
+      case BSLLexer.FROM_KEYWORD:
+      case BSLLexer.TRY_KEYWORD:
+      case BSLLexer.EXCEPT_KEYWORD:
+      case BSLLexer.ENDTRY_KEYWORD:
+      case BSLLexer.RETURN_KEYWORD:
+      case BSLLexer.CONTINUE_KEYWORD:
+      case BSLLexer.RAISE_KEYWORD:
+      case BSLLexer.VAR_KEYWORD:
+      case BSLLexer.NOT_KEYWORD:
+      case BSLLexer.OR_KEYWORD:
+      case BSLLexer.AND_KEYWORD:
+      case BSLLexer.NEW_KEYWORD:
+      case BSLLexer.GOTO_KEYWORD:
+      case BSLLexer.BREAK_KEYWORD:
+      case BSLLexer.EXECUTE_KEYWORD:
+        typeOfText = TypeOfText.KEYWORD;
+        break;
+      case BSLLexer.TRUE:
+      case BSLLexer.FALSE:
+      case BSLLexer.UNDEFINED:
+      case BSLLexer.NULL:
+        typeOfText = TypeOfText.CONSTANT;
+        break;
+      case BSLLexer.DECIMAL:
+      case BSLLexer.FLOAT:
+        typeOfText = TypeOfText.CONSTANT;
+        break;
+      case BSLLexer.STRING:
+      case BSLLexer.STRINGSTART:
+      case BSLLexer.STRINGPART:
+      case BSLLexer.STRINGTAIL:
+      case BSLLexer.PREPROC_STRING:
+        typeOfText = TypeOfText.STRING;
+        break;
+      case BSLLexer.DATETIME:
+        typeOfText = TypeOfText.CONSTANT;
+        break;
+      case BSLLexer.LINE_COMMENT:
+        typeOfText = TypeOfText.COMMENT;
+        break;
+      case BSLLexer.HASH:
+      case BSLLexer.PREPROC_USE_KEYWORD:
+      case BSLLexer.PREPROC_REGION:
+      case BSLLexer.PREPROC_END_REGION:
+      case BSLLexer.PREPROC_AND_KEYWORD:
+      case BSLLexer.PREPROC_OR_KEYWORD:
+      case BSLLexer.PREPROC_NOT_KEYWORD:
+      case BSLLexer.PREPROC_IF_KEYWORD:
+      case BSLLexer.PREPROC_THEN_KEYWORD:
+      case BSLLexer.PREPROC_ELSIF_KEYWORD:
+      case BSLLexer.PREPROC_ELSE_KEYWORD:
+      case BSLLexer.PREPROC_ENDIF_KEYWORD:
+        typeOfText = TypeOfText.PREPROCESS_DIRECTIVE;
+        break;
+      case BSLLexer.AMPERSAND:
+      case BSLLexer.ANNOTATION_ATCLIENT_SYMBOL:
+      case BSLLexer.ANNOTATION_ATCLIENTATSERVER_SYMBOL:
+      case BSLLexer.ANNOTATION_ATCLIENTATSERVERNOCONTEXT_SYMBOL:
+      case BSLLexer.ANNOTATION_ATSERVER_SYMBOL:
+      case BSLLexer.ANNOTATION_ATSERVERNOCONTEXT_SYMBOL:
+      case BSLLexer.ANNOTATION_CUSTOM_SYMBOL:
+        typeOfText = TypeOfText.ANNOTATION;
+        break;
+      default:
+        // no-op
+    }
+
+    return typeOfText;
+
+  }
+
+  private List<? extends Token> getTokens(InputFile inputFile) {
+
     InputStream inputStream;
     try {
       inputStream = inputFile.inputStream();
     } catch (IOException e) {
       LOGGER.warn("Can't get content of file " + inputFile.filename());
-      return null;
+      return Collections.emptyList();
     }
     CharStream input;
     try {
       input = CharStreams.fromStream(inputStream, inputFile.charset());
     } catch (IOException e) {
       LOGGER.warn("Can't create char stream from file " + inputFile.filename());
-      return null;
+      return Collections.emptyList();
     }
 
     lexer.setInputStream(input);
 
-    CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-    parser.setTokenStream(tokenStream);
-
-    return parser.file();
+    return lexer.getAllTokens();
   }
+
+
 }
