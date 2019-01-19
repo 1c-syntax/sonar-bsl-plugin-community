@@ -77,11 +77,17 @@ public class BSLCoreSensor implements Sensor {
       )
     );
 
+    LOGGER.info("Parsing files...");
     StreamSupport.stream(inputFiles.spliterator(), true)
       .forEach(inputFile -> fileTokens.put(inputFile, getTokens(inputFile)));
 
+    LOGGER.info("Saving measures...");
     saveMeasures();
+
+    LOGGER.info("Saving CPD info...");
     saveCpd();
+
+    LOGGER.info("Saving highlighting...");
     saveHighlighting();
 
   }
