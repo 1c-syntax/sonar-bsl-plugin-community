@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.Range;
 import org.github._1c_syntax.intellij.bsl.lsp.server.diagnostics.FileInfo;
 import org.github._1c_syntax.intellij.bsl.lsp.server.diagnostics.reporter.AnalysisInfo;
 import org.jetbrains.annotations.Nullable;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -101,10 +102,11 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     private void processFileInfo(FileInfo fileInfo) {
         FileSystem fileSystem = context.fileSystem();
         Path path = fileInfo.getPath();
+        FilePredicates predicates = fileSystem.predicates();
         InputFile inputFile = fileSystem.inputFile(
-                fileSystem.predicates().and(
-                        fileSystem.predicates().hasLanguage(BSLLanguage.KEY),
-                        fileSystem.predicates().hasAbsolutePath(path.toAbsolutePath().toString())
+                predicates.and(
+                        predicates.hasLanguage(BSLLanguage.KEY),
+                        predicates.hasAbsolutePath(path.toAbsolutePath().toString())
                 )
         );
 
