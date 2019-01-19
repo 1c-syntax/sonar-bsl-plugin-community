@@ -49,8 +49,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -155,8 +153,6 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     @Nullable
     private AnalysisInfo getAnalysisInfo(File analysisResultsFile) {
         ObjectMapper objectMapper = new ObjectMapper();
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        objectMapper.setDateFormat(df);
 
         String json;
         try {
