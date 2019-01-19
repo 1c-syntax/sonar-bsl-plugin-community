@@ -28,7 +28,7 @@ sonar.projectName=My project
 # Версия проекта
 sonar.projectVersion=1.0
  
-# Путь к исходным кодам. Относительные пути разрешаются от файла `sonar-project.properties`
+# Путь к исходным кодам. Относительные пути разрешаются от файла sonar-project.properties
 # В качестве разделителя пути используется прямой слэш - /. Можно указать несколько каталогов через запятую.
 sonar.sources=src
  
@@ -48,3 +48,9 @@ sonar.inclusions=**/*.bsl, **/*.os
 ```sh
 sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH_TOKEN
 ```
+
+## Импорт результатов BSL Language Server
+
+[BSL Language Server](https://github.com/1c-syntax/bsl-language-server) может запускать анализ исходного кода и выдавать список обнаруженых диагностик в виде json-файла. Инструкция по запуску BSL Language Server в режиме анализа расположена на странице проекта.
+
+Для импорта результата при запуске утилиты sonar-scanner нужно передать параметр `sonar.bsl.language.server.report.path` через аргументы командной строки или через файл `sonar-project.properties`, в котором указать путь к файлу с результатами анализа.
