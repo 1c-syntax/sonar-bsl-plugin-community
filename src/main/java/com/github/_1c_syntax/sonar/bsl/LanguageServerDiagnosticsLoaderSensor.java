@@ -113,10 +113,8 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
             return;
         }
 
-        Diagnostic[] diagnostics = fileInfo.getDiagnostics();
-        for (Diagnostic diagnostic : diagnostics) {
-            processDiagnostic(inputFile, diagnostic);
-        }
+        List<Diagnostic> diagnostics = fileInfo.getDiagnostics();
+        diagnostics.forEach(diagnostic -> processDiagnostic(inputFile, diagnostic));
     }
 
     private void processDiagnostic(InputFile inputFile, Diagnostic diagnostic) {
