@@ -55,7 +55,6 @@ public class BSLCoreSensor implements Sensor {
   private final SensorContext context;
 
   private Map<InputFile, List<? extends Token>> fileTokens = new HashMap<>();
-  private final BSLLexer lexer = new BSLLexer(null);
 
   public BSLCoreSensor(SensorContext context) {
     this.context = context;
@@ -274,7 +273,7 @@ public class BSLCoreSensor implements Sensor {
       return Collections.emptyList();
     }
 
-    lexer.setInputStream(input);
+    BSLLexer lexer = new BSLLexer(input);
 
     return lexer.getAllTokens();
   }
