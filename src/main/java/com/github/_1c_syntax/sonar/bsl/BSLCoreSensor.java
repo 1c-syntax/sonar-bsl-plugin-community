@@ -47,7 +47,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.StreamSupport;
 
 public class BSLCoreSensor implements Sensor {
@@ -90,90 +89,77 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveMeasures() {
 
-    fileTokens.entrySet().stream()
-      .forEach(entry -> {
-        InputFile inputFile = entry.getKey();
-        List<? extends Token> tokens = entry.getValue();
+    fileTokens.forEach((inputFile, tokens) -> {
 
-        int ncloc = (int) tokens.stream()
-          .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL)
-          .map(Token::getLine)
-          .distinct()
-          .count();
+      int ncloc = (int) tokens.stream()
+        .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL)
+        .map(Token::getLine)
+        .distinct()
+        .count();
 
-        NewMeasure<Integer> measure = context.newMeasure();
-        measure.on(inputFile)
-          .forMetric(CoreMetrics.NCLOC)
-          .withValue(ncloc)
-          .save();
-      });
+      NewMeasure<Integer> measure = context.newMeasure();
+      measure.on(inputFile)
+        .forMetric(CoreMetrics.NCLOC)
+        .withValue(ncloc)
+        .save();
+    });
 
   }
 
   private void saveCpd() {
 
-    fileTokens.entrySet().stream()
-      .forEach(entry -> {
+    fileTokens.forEach((inputFile, tokens) -> {
 
-        InputFile inputFile = entry.getKey();
-        List<? extends Token> tokens = entry.getValue();
+      NewCpdTokens cpdTokens = context.newCpdTokens();
+      cpdTokens.onFile(inputFile);
 
-        NewCpdTokens cpdTokens = context.newCpdTokens();
-        cpdTokens.onFile(inputFile);
+      tokens.stream()
+        .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL)
+        .forEach(token -> {
+            int line = token.getLine();
+            int charPositionInLine = token.getCharPositionInLine();
+            String tokenText = token.getText();
+            cpdTokens.addToken(
+              line,
+              charPositionInLine,
+              line,
+              charPositionInLine + tokenText.length(),
+              tokenText
+            );
+          }
+        );
 
-        tokens.stream()
-          .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL)
-          .forEach(token -> {
-              int line = token.getLine();
-              int charPositionInLine = token.getCharPositionInLine();
-              String tokenText = token.getText();
-              cpdTokens.addToken(
-                line,
-                charPositionInLine,
-                line,
-                charPositionInLine + tokenText.length(),
-                tokenText
-              );
-            }
-          );
-
-        cpdTokens.save();
-      });
+      cpdTokens.save();
+    });
   }
 
   private void saveHighlighting() {
 
-    fileTokens.entrySet().stream()
-      .filter(Objects::nonNull)
-      .forEach(entry -> {
+    fileTokens.forEach((inputFile, tokens) -> {
 
-          InputFile inputFile = entry.getKey();
-          List<? extends Token> tokens = entry.getValue();
+      NewHighlighting highlighting = context.newHighlighting();
+      highlighting.onFile(inputFile);
 
-          NewHighlighting highlighting = context.newHighlighting();
-          highlighting.onFile(inputFile);
-
-          tokens.forEach(token -> {
-              TypeOfText typeOfText = getTypeOfText(token.getType());
-              if (typeOfText == null) {
-                return;
-              }
-              int line = token.getLine();
-              int charPositionInLine = token.getCharPositionInLine();
-              String tokenText = token.getText();
-              highlighting.highlight(
-                line,
-                charPositionInLine,
-                line,
-                charPositionInLine + tokenText.length(),
-                typeOfText
-              );
-            }
+      tokens.forEach(token -> {
+          TypeOfText typeOfText = getTypeOfText(token.getType());
+          if (typeOfText == null) {
+            return;
+          }
+          int line = token.getLine();
+          int charPositionInLine = token.getCharPositionInLine();
+          String tokenText = token.getText();
+          highlighting.highlight(
+            line,
+            charPositionInLine,
+            line,
+            charPositionInLine + tokenText.length(),
+            typeOfText
           );
-
-          highlighting.save();
         }
       );
+
+      highlighting.save();
+    });
 
   }
 
