@@ -54,7 +54,7 @@ public class BSLCoreSensor implements Sensor {
   private static final Logger LOGGER = Loggers.get(BSLCoreSensor.class);
   private final SensorContext context;
 
-  private Map<InputFile, List<? extends Token>> fileTokens = new HashMap<>();
+  private Map<InputFile, List<? extends Token>> fileTokens = Collections.synchronizedMap(new HashMap<>());
 
   public BSLCoreSensor(SensorContext context) {
     this.context = context;
