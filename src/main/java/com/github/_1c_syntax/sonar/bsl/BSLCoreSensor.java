@@ -24,6 +24,7 @@ package com.github._1c_syntax.sonar.bsl;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.github._1c_syntax.parser.BSLLexer;
 import org.jetbrains.annotations.Nullable;
@@ -280,8 +281,10 @@ public class BSLCoreSensor implements Sensor {
     }
 
     BSLLexer lexer = new BSLLexer(input);
+    CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+    tokenStream.fill();
 
-    return lexer.getAllTokens();
+    return tokenStream.getTokens();
   }
 
 
