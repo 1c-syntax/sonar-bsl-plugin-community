@@ -8,6 +8,8 @@
 * Разместить jar-файл согласно разделу Manual Installation [официальной документации](https://docs.sonarqube.org/latest/setup/install-plugin/) (по умолчанию - каталог `$SONARQUBE_HOME/extensions/plugins`)
 * Перезапустить сервер
 
+Минимально поддерживаемая версия SonarQube: **7.4**.
+
 ## Запуск анализа
 
 ### Настройка окружения
