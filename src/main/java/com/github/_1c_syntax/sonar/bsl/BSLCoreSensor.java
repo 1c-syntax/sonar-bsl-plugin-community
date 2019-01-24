@@ -22,6 +22,8 @@
 package com.github._1c_syntax.sonar.bsl;
 
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -79,8 +81,15 @@ public class BSLCoreSensor implements Sensor {
     );
 
     LOGGER.info("Parsing files...");
-    StreamSupport.stream(inputFiles.spliterator(), true)
-      .forEach(inputFile -> fileTokens.put(inputFile, getTokens(inputFile)));
+    long inputFleSize = StreamSupport.stream(inputFiles.spliterator(), false).count();
+    try (ProgressBar pb = new ProgressBar("", inputFleSize, ProgressBarStyle.ASCII)) {
+      StreamSupport.stream(inputFiles.spliterator(), true)
+        .peek(inputFile -> {
+          LOGGER.debug(inputFile.filename());
+          pb.step();
+        })
+        .forEach(inputFile -> fileTokens.put(inputFile, getTokens(inputFile)));
+    }
 
     LOGGER.info("Saving measures...");
     saveMeasures();
