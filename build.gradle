@@ -28,6 +28,9 @@ dependencies {
     compile("org.jetbrains:annotations:16.0.3")
     compile("com.google.code.findbugs:jsr305:3.0.2")
 
+    // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
+    compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.10.2.456")
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.2")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
 }

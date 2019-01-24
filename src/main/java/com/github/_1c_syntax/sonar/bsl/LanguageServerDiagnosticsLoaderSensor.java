@@ -44,6 +44,7 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +54,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.github._1c_syntax.sonar.bsl.BSLCommunityProperties.LANG_SERVER_REPORT_PATH_KEY;
 
 public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
 
@@ -74,17 +77,13 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
 
     @Override
     public void execute(SensorContext context) {
-        String reportPath = getReportPath();
-        if (reportPath.equals("")) {
-            return;
-        }
-
-        File analysisResultsFile = new File(reportPath);
-        parseAndSaveResults(analysisResultsFile);
+        List<File> reportFiles = ExternalReportProvider.getReportFiles(context, LANG_SERVER_REPORT_PATH_KEY);
+        reportFiles.forEach(this::parseAndSaveResults);
     }
 
     private void parseAndSaveResults(File analysisResultsFile) {
-        LOGGER.info("Parsing 'BSL Language Server' analysis results");
+        LOGGER.info("Parsing 'BSL Language Server' analysis results:");
+        LOGGER.info(analysisResultsFile.getAbsolutePath());
 
         AnalysisInfo analysisInfo = getAnalysisInfo(analysisResultsFile);
         if (analysisInfo == null) {
@@ -143,13 +142,7 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
 
         issue.save();
     }
-
-
-    private String getReportPath() {
-        Optional<String> reportPath = context.config().get(BSLCommunityProperties.LANG_SERVER_REPORT_PATH_KEY);
-        return reportPath.orElse("");
-    }
-
+    
     @Nullable
     private AnalysisInfo getAnalysisInfo(File analysisResultsFile) {
         ObjectMapper objectMapper = new ObjectMapper();

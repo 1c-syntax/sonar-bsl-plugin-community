@@ -22,27 +22,33 @@
 package com.github._1c_syntax.sonar.bsl;
 
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.resources.Qualifiers;
 
 import java.util.Collections;
 import java.util.List;
 
 public class BSLCommunityProperties {
 
-    public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.language.server.report.path";
-    private static final String CATEGORY = "1C (BSL) Community";
+  public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
 
-    private BSLCommunityProperties() {
-        // only statics
-    }
+  private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
+  private static final String BSL_SUBCATEGORY = "1C (BSL) Community";
 
-    public static List<PropertyDefinition> getProperties() {
-        return Collections.singletonList(
-                PropertyDefinition.builder(LANG_SERVER_REPORT_PATH_KEY)
-                        .name("BSL Language Server report path")
-                        .description("Path to json report from BSL Language Server")
-                        .defaultValue("")
-                        .category(CATEGORY)
-                        .build());
-    }
+  private BSLCommunityProperties() {
+    // only statics
+  }
+
+  public static List<PropertyDefinition> getProperties() {
+    return Collections.singletonList(
+      PropertyDefinition.builder(LANG_SERVER_REPORT_PATH_KEY)
+        .name("BSL Language Server Report Files")
+        .description("Paths (absolute or relative) to xml files with BSL Language Server diagnostics")
+        .defaultValue("")
+        .category(EXTERNAL_ANALYZERS_CATEGORY)
+        .subCategory(BSL_SUBCATEGORY)
+        .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
+        .build());
+  }
 
 }
