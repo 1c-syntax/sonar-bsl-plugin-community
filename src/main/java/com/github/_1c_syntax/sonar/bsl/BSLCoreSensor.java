@@ -120,7 +120,7 @@ public class BSLCoreSensor implements Sensor {
       cpdTokens.onFile(inputFile);
 
       tokens.stream()
-        .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL)
+        .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL && token.getType() != Token.EOF)
         .forEach(token -> {
             int line = token.getLine();
             int charPositionInLine = token.getCharPositionInLine();
