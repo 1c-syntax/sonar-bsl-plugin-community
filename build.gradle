@@ -5,8 +5,9 @@ plugins {
     id("java")
     // doesn"t work with sonar-packaging
     // id("maven")
-    id("com.github.hierynomus.license") version "0.14.0"
+    id("com.github.hierynomus.license") version "0.15.0"
     id("com.iadams.sonar-packaging") version "1.0-RC1"
+    id("com.github.ben-manes.versions") version "0.20.0"
 }
 
 group = "com.github.1c-syntax"
@@ -22,7 +23,7 @@ repositories {
 dependencies {
     provided("org.sonarsource.sonarqube:sonar-plugin-api:7.4")
 
-    compile("com.github.1c-syntax:bsl-language-server:d6ff8b040a")
+    compile("com.github.1c-syntax:bsl-language-server:667f8d5b21")
     compile("com.fasterxml.jackson.core:jackson-databind:2.9.8")
     compile("org.jetbrains:annotations:16.0.3")
     compile("com.google.code.findbugs:jsr305:3.0.2")
