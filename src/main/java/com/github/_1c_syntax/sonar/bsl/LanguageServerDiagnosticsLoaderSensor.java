@@ -53,7 +53,6 @@ import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.github._1c_syntax.sonar.bsl.BSLCommunityProperties.LANG_SERVER_REPORT_PATH_KEY;
 
@@ -61,12 +60,14 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
 
     private final SensorContext context;
     private final Map<DiagnosticSeverity, Severity> severityMap;
+    private final Map<DiagnosticSeverity, RuleType> ruleTypeMap;
 
     private static final Logger LOGGER = Loggers.get(LanguageServerDiagnosticsLoaderSensor.class);
 
     public LanguageServerDiagnosticsLoaderSensor(final SensorContext context) {
         this.context = context;
         this.severityMap = createDiagnosticSeverityMap();
+        this.ruleTypeMap = createRuleTypeMap();
     }
 
     @Override
@@ -136,13 +137,13 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
 
         issue.engineId("bsl-language-server");
         issue.ruleId(diagnostic.getCode());
-        issue.type(RuleType.CODE_SMELL);
+        issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
         issue.severity(severityMap.get(diagnostic.getSeverity()));
         issue.at(location);
 
         issue.save();
     }
-    
+
     @Nullable
     private AnalysisInfo getAnalysisInfo(File analysisResultsFile) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -169,6 +170,16 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
         map.put(DiagnosticSeverity.Information, Severity.MINOR);
         map.put(DiagnosticSeverity.Hint, Severity.INFO);
         map.put(DiagnosticSeverity.Error, Severity.CRITICAL);
+
+        return map;
+    }
+
+    private Map<DiagnosticSeverity, RuleType> createRuleTypeMap() {
+        Map<DiagnosticSeverity, RuleType> map = new EnumMap<>(DiagnosticSeverity.class);
+        map.put(DiagnosticSeverity.Warning, RuleType.CODE_SMELL);
+        map.put(DiagnosticSeverity.Information, RuleType.CODE_SMELL);
+        map.put(DiagnosticSeverity.Hint, RuleType.CODE_SMELL);
+        map.put(DiagnosticSeverity.Error, RuleType.BUG);
 
         return map;
     }
