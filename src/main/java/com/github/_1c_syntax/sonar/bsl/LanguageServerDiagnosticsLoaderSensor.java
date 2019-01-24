@@ -109,7 +109,7 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
         );
 
         if (inputFile == null) {
-            LOGGER.warn("Can't find inputFile for absolute path", path);
+            LOGGER.warn("Can't find inputFile for absolute path {}", path);
             return;
         }
 
