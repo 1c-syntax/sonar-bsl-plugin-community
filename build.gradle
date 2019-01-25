@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "com.github.1c-syntax"
-version = "0.1.0"
+version = "0.2.0"
 
 repositories {
     mavenCentral()
@@ -23,7 +23,7 @@ repositories {
 dependencies {
     provided("org.sonarsource.sonarqube:sonar-plugin-api:7.4")
 
-    compile("com.github.1c-syntax:bsl-language-server:667f8d5b21")
+    compile("com.github.1c-syntax:bsl-language-server:0.2.0")
     compile("com.fasterxml.jackson.core:jackson-databind:2.9.8")
     compile("org.jetbrains:annotations:16.0.3")
     compile("com.google.code.findbugs:jsr305:3.0.2")
