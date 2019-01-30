@@ -201,7 +201,7 @@ public class BSLCoreSensor implements Sensor {
       case BSLLexer.FOR_KEYWORD:
       case BSLLexer.TO_KEYWORD:
       case BSLLexer.EACH_KEYWORD:
-      case BSLLexer.FROM_KEYWORD:
+      case BSLLexer.IN_KEYWORD:
       case BSLLexer.TRY_KEYWORD:
       case BSLLexer.EXCEPT_KEYWORD:
       case BSLLexer.ENDTRY_KEYWORD:
