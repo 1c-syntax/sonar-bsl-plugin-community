@@ -83,9 +83,9 @@ sonarPackaging {
 
     pluginLicense = "GNU LGPL v3"
 
-    pluginUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-comunity"
-    pluginIssueTrackerUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-comunity/issues"
-    pluginSourceUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-comunity"
+    pluginUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-community"
+    pluginIssueTrackerUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-community/issues"
+    pluginSourceUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-community"
     pluginDevelopers = "Nikita Gryzlov"
 
     serverUrl = "http://localhost:9000"
