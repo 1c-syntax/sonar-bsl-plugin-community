@@ -23,7 +23,7 @@ repositories {
 dependencies {
     provided("org.sonarsource.sonarqube:sonar-plugin-api:7.4")
 
-    compile("com.github.1c-syntax:bsl-language-server:0.3.0")
+    compile("com.github.1c-syntax:bsl-language-server:ca60423955")
     compile("com.fasterxml.jackson.core:jackson-databind:2.9.8")
     compile("org.jetbrains:annotations:16.0.3")
     compile("com.google.code.findbugs:jsr305:3.0.2")
