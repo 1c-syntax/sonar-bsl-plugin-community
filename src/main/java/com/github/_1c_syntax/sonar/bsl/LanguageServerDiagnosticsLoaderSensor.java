@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -46,10 +47,13 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +63,8 @@ import static com.github._1c_syntax.sonar.bsl.BSLCommunityProperties.LANG_SERVER
 public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
 
     private final SensorContext context;
+    private FileSystem fileSystem;
+    private FilePredicates predicates;
     private final Map<DiagnosticSeverity, Severity> severityMap;
     private final Map<DiagnosticSeverity, RuleType> ruleTypeMap;
 
@@ -98,16 +104,11 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     }
 
     private void processFileInfo(FileInfo fileInfo) {
-        FileSystem fileSystem = context.fileSystem();
+        fileSystem = context.fileSystem();
         Path path = fileInfo.getPath();
-        FilePredicates predicates = fileSystem.predicates();
-        InputFile inputFile = fileSystem.inputFile(
-                predicates.and(
-                        predicates.hasLanguage(BSLLanguage.KEY),
-                        predicates.hasAbsolutePath(path.toAbsolutePath().toString())
-                )
-        );
+        predicates = fileSystem.predicates();
 
+        InputFile inputFile = getInputFile(path);
         if (inputFile == null) {
             LOGGER.warn("Can't find inputFile for absolute path {}", path);
             return;
@@ -120,28 +121,75 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     private void processDiagnostic(InputFile inputFile, Diagnostic diagnostic) {
         NewExternalIssue issue = context.newExternalIssue();
 
-        Range range = diagnostic.getRange();
+        issue.engineId("bsl-language-server");
+        issue.ruleId(diagnostic.getCode());
+        issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
+        issue.severity(severityMap.get(diagnostic.getSeverity()));
+
+        NewIssueLocation location = getNewIssueLocation(
+          issue,
+          inputFile,
+          diagnostic.getRange(),
+          diagnostic.getMessage()
+        );
+        issue.at(location);
+
+        List<DiagnosticRelatedInformation> relatedInformation = diagnostic.getRelatedInformation();
+        if (relatedInformation != null) {
+            relatedInformation.forEach(
+              relatedInformationEntry -> {
+                  Path path = Paths.get(URI.create(relatedInformationEntry.getLocation().getUri())).toAbsolutePath();
+                  NewIssueLocation newIssueLocation = getNewIssueLocation(
+                    issue,
+                    path,
+                    relatedInformationEntry.getLocation().getRange(),
+                    relatedInformationEntry.getMessage()
+                  );
+                  if (newIssueLocation != null) {
+                      issue.addLocation(newIssueLocation);
+                  }
+              }
+            );
+        }
+
+        issue.save();
+    }
+
+    @CheckForNull
+    private InputFile getInputFile(Path path) {
+        return fileSystem.inputFile(
+          predicates.and(
+            predicates.hasLanguage(BSLLanguage.KEY),
+            predicates.hasAbsolutePath(path.toAbsolutePath().toString())
+          )
+        );
+    }
+
+    @CheckForNull
+    private NewIssueLocation getNewIssueLocation(NewExternalIssue issue, Path path, Range range, String message) {
+        InputFile inputFile = getInputFile(path);
+        if (inputFile == null) {
+            LOGGER.warn("Can't find inputFile for absolute path {}", path);
+            return null;
+        }
+        return getNewIssueLocation(issue, inputFile, range, message);
+    }
+
+    private NewIssueLocation getNewIssueLocation(NewExternalIssue issue, InputFile inputFile, Range range, String message) {
         Position start = range.getStart();
         Position end = range.getEnd();
         TextRange textRange = inputFile.newRange(
-                start.getLine() + 1,
-                start.getCharacter(),
-                end.getLine() + 1,
-                end.getCharacter()
+          start.getLine() + 1,
+          start.getCharacter(),
+          end.getLine() + 1,
+          end.getCharacter()
         );
 
         NewIssueLocation location = issue.newLocation();
         location.on(inputFile);
         location.at(textRange);
-        location.message(diagnostic.getMessage());
-
-        issue.engineId("bsl-language-server");
-        issue.ruleId(diagnostic.getCode());
-        issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
-        issue.severity(severityMap.get(diagnostic.getSeverity()));
-        issue.at(location);
-
-        issue.save();
+        location.message(message);
+        return location;
     }
 
     @Nullable
