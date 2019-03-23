@@ -28,6 +28,12 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.lsp4j.Diagnostic;
+import org.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
+import org.github._1c_syntax.bsl.languageserver.context.DocumentContext;
+import org.github._1c_syntax.bsl.languageserver.context.ServerContext;
+import org.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import org.github._1c_syntax.bsl.parser.BSLLexer;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -46,6 +52,7 @@ import org.sonar.api.utils.log.Loggers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -56,8 +63,7 @@ public class BSLCoreSensor implements Sensor {
 
   private static final Logger LOGGER = Loggers.get(BSLCoreSensor.class);
   private final SensorContext context;
-
-  private Map<InputFile, List<? extends Token>> fileTokens = Collections.synchronizedMap(new HashMap<>());
+  private Map<InputFile, DocumentContext> inputFilesMap;
 
   public BSLCoreSensor(SensorContext context) {
     this.context = context;
@@ -81,14 +87,43 @@ public class BSLCoreSensor implements Sensor {
     );
 
     LOGGER.info("Parsing files...");
+    ServerContext bslServerContext = new ServerContext();
+
     long inputFleSize = StreamSupport.stream(inputFiles.spliterator(), false).count();
+    inputFilesMap = new HashMap<>();
+
     try (ProgressBar pb = new ProgressBar("", inputFleSize, ProgressBarStyle.ASCII)) {
       StreamSupport.stream(inputFiles.spliterator(), true)
-        .peek(inputFile -> {
-          LOGGER.debug(inputFile.filename());
+        .forEach(inputFile -> {
+          String filename = inputFile.filename();
+          LOGGER.debug(filename);
           pb.step();
-        })
-        .forEach(inputFile -> fileTokens.put(inputFile, getTokens(inputFile)));
+
+          String content;
+          try {
+            content = IOUtils.resourceToString(filename, StandardCharsets.UTF_8);
+          } catch (IOException e) {
+            LOGGER.warn("Can't read content of file " + filename);
+            content = "";
+          }
+          inputFilesMap.put(inputFile, bslServerContext.addDocument(filename, content));
+        });
+    }
+
+    LOGGER.info("Analyze files...");
+
+    DiagnosticProvider diagnosticProvider = new DiagnosticProvider(LanguageServerConfiguration.create());
+    Map<String, DocumentContext> documentContexts = bslServerContext.getDocuments();
+    try (ProgressBar pb = new ProgressBar("", documentContexts.size(), ProgressBarStyle.ASCII)) {
+     documentContexts.entrySet().parallelStream()
+        .forEach((Map.Entry<String, DocumentContext> entry) -> {
+          String filename = entry.getKey();
+          LOGGER.debug(filename);
+          pb.step();
+
+          List<Diagnostic> diagnostics = diagnosticProvider.computeDiagnostics(entry.getValue());
+
+        });
     }
 
     LOGGER.info("Saving measures...");
@@ -104,10 +139,9 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveMeasures() {
 
-    fileTokens.forEach((inputFile, tokens) -> {
+    inputFilesMap.forEach((inputFile, documentContext) -> {
 
-      int ncloc = (int) tokens.stream()
-        .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL)
+      int ncloc = (int) documentContext.getTokensFromDefaultChannel().stream()
         .map(Token::getLine)
         .distinct()
         .count();
@@ -123,13 +157,12 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveCpd() {
 
-    fileTokens.forEach((inputFile, tokens) -> {
+    inputFilesMap.forEach((inputFile, documentContext) -> {
 
       NewCpdTokens cpdTokens = context.newCpdTokens();
       cpdTokens.onFile(inputFile);
 
-      tokens.stream()
-        .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL && token.getType() != Token.EOF)
+      documentContext.getTokensFromDefaultChannel()
         .forEach(token -> {
             int line = token.getLine();
             int charPositionInLine = token.getCharPositionInLine();
@@ -150,12 +183,12 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveHighlighting() {
 
-    fileTokens.forEach((inputFile, tokens) -> {
+    inputFilesMap.forEach((inputFile, documentContext) -> {
 
       NewHighlighting highlighting = context.newHighlighting();
       highlighting.onFile(inputFile);
 
-      tokens.forEach(token -> {
+      documentContext.getTokens().forEach(token -> {
           TypeOfText typeOfText = getTypeOfText(token.getType());
           if (typeOfText == null) {
             return;
