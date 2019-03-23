@@ -29,7 +29,10 @@ public final class BSLQualityProfile implements BuiltInQualityProfilesDefinition
 
   @Override
   public void define(Context context) {
-    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("BSL Language Server rules", BSLLanguage.KEY);
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
+      "BSL Language Server rules",
+      BSLLanguage.KEY
+    );
     profile.setDefault(true);
 
     List<String> ruleKeys = BSLLanguageServerRuleDefinition.getRuleKeys();

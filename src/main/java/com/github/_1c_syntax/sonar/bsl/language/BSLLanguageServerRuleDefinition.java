@@ -65,7 +65,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .collect(Collectors.toList());
   }
 
-  private Map<DiagnosticSeverity, String> createDiagnosticSeverityMap() {
+  private static Map<DiagnosticSeverity, String> createDiagnosticSeverityMap() {
     Map<DiagnosticSeverity, String> map = new EnumMap<>(DiagnosticSeverity.class);
     map.put(DiagnosticSeverity.INFO, org.sonar.api.rule.Severity.INFO);
     map.put(DiagnosticSeverity.MINOR, org.sonar.api.rule.Severity.MINOR);
@@ -76,7 +76,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     return map;
   }
 
-  private Map<DiagnosticType, RuleType> createRuleTypeMap() {
+  private static Map<DiagnosticType, RuleType> createRuleTypeMap() {
     Map<DiagnosticType, RuleType> map = new EnumMap<>(DiagnosticType.class);
     map.put(DiagnosticType.CODE_SMELL, RuleType.CODE_SMELL);
     map.put(DiagnosticType.ERROR, RuleType.BUG);
