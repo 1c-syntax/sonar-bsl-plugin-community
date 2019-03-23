@@ -27,17 +27,17 @@ import java.util.List;
 
 public final class BSLQualityProfile implements BuiltInQualityProfilesDefinition {
 
-    @Override
-    public void define(Context context) {
-        NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("BSL Language Server rules", BSLLanguage.KEY);
-        profile.setDefault(true);
+  @Override
+  public void define(Context context) {
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("BSL Language Server rules", BSLLanguage.KEY);
+    profile.setDefault(true);
 
-        List<String> ruleKeys = BSLLanguageServerRuleDefinition.getRuleKeys();
-        ruleKeys.forEach(ruleKey ->
-          profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, ruleKey)
-        );
+    List<String> ruleKeys = BSLLanguageServerRuleDefinition.getRuleKeys();
+    ruleKeys.forEach(ruleKey ->
+      profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, ruleKey)
+    );
 
-        profile.done();
-    }
+    profile.done();
+  }
 
 }

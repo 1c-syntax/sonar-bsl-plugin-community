@@ -105,7 +105,7 @@ public class BSLCoreSensor implements Sensor {
 
     try (ProgressBar pb = new ProgressBar("", inputFleSize, ProgressBarStyle.ASCII)) {
       StreamSupport.stream(inputFiles.spliterator(), true)
-        .forEach(inputFile -> {
+        .forEach((InputFile inputFile) -> {
           URI uri = inputFile.uri();
           LOGGER.debug(uri.toString());
           pb.step();
@@ -114,7 +114,7 @@ public class BSLCoreSensor implements Sensor {
           try {
             content = IOUtils.toString(inputFile.inputStream(), StandardCharsets.UTF_8);
           } catch (IOException e) {
-            LOGGER.warn("Can't read content of file " + uri);
+            LOGGER.warn("Can't read content of file " + uri, e);
             content = "";
           }
           inputFilesMap.put(inputFile, bslServerContext.addDocument(uri.toString(), content));
@@ -186,7 +186,7 @@ public class BSLCoreSensor implements Sensor {
     List<DiagnosticRelatedInformation> relatedInformation = diagnostic.getRelatedInformation();
     if (relatedInformation != null) {
       relatedInformation.forEach(
-        relatedInformationEntry -> {
+        (DiagnosticRelatedInformation relatedInformationEntry) -> {
           Path path = Paths.get(URI.create(relatedInformationEntry.getLocation().getUri())).toAbsolutePath();
           InputFile relatedInputFile = getInputFile(path);
           if (relatedInputFile == null) {
@@ -210,7 +210,12 @@ public class BSLCoreSensor implements Sensor {
     issue.save();
   }
 
-  private NewIssueLocation getNewIssueLocation(NewIssue issue, InputFile inputFile, Range range, String message) {
+  private static NewIssueLocation getNewIssueLocation(
+    NewIssue issue,
+    InputFile inputFile,
+    Range range,
+    String message
+  ) {
     Position start = range.getStart();
     Position end = range.getEnd();
     TextRange textRange = inputFile.newRange(
@@ -239,7 +244,7 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveMeasures() {
 
-    inputFilesMap.forEach((inputFile, documentContext) -> {
+    inputFilesMap.forEach((InputFile inputFile, DocumentContext documentContext) -> {
 
       int ncloc = (int) documentContext.getTokensFromDefaultChannel().stream()
         .map(Token::getLine)
@@ -257,13 +262,13 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveCpd() {
 
-    inputFilesMap.forEach((inputFile, documentContext) -> {
+    inputFilesMap.forEach((InputFile inputFile, DocumentContext documentContext) -> {
 
       NewCpdTokens cpdTokens = context.newCpdTokens();
       cpdTokens.onFile(inputFile);
 
       documentContext.getTokensFromDefaultChannel()
-        .forEach(token -> {
+        .forEach((Token token) -> {
             int line = token.getLine();
             int charPositionInLine = token.getCharPositionInLine();
             String tokenText = token.getText();
@@ -283,12 +288,12 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveHighlighting() {
 
-    inputFilesMap.forEach((inputFile, documentContext) -> {
+    inputFilesMap.forEach((InputFile inputFile, DocumentContext documentContext) -> {
 
       NewHighlighting highlighting = context.newHighlighting();
       highlighting.onFile(inputFile);
 
-      documentContext.getTokens().forEach(token -> {
+      documentContext.getTokens().forEach((Token token) -> {
           TypeOfText typeOfText = getTypeOfText(token.getType());
           if (typeOfText == null) {
             return;
@@ -312,7 +317,7 @@ public class BSLCoreSensor implements Sensor {
   }
 
   @Nullable
-  private TypeOfText getTypeOfText(int tokenType) {
+  private static TypeOfText getTypeOfText(int tokenType) {
 
     TypeOfText typeOfText = null;
 

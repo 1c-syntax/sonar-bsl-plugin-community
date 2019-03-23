@@ -28,16 +28,16 @@ import org.sonar.api.Plugin;
 
 public class BSLPlugin implements Plugin {
 
-    @Override
-    public void define(Context context) {
-        context.addExtension(BSLLanguage.class);
-        context.addExtension(BSLQualityProfile.class);
+  @Override
+  public void define(Context context) {
+    context.addExtension(BSLLanguage.class);
+    context.addExtension(BSLQualityProfile.class);
 
-        context.addExtension(BSLLanguageServerRuleDefinition.class);
+    context.addExtension(BSLLanguageServerRuleDefinition.class);
 
-        context.addExtension(BSLCoreSensor.class);
-        context.addExtension(LanguageServerDiagnosticsLoaderSensor.class);
+    context.addExtension(BSLCoreSensor.class);
+    context.addExtension(LanguageServerDiagnosticsLoaderSensor.class);
 
-        context.addExtensions(BSLCommunityProperties.getProperties());
-    }
+    context.addExtensions(BSLCommunityProperties.getProperties());
+  }
 }

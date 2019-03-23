@@ -28,7 +28,7 @@ import org.sonar.api.resources.Qualifiers;
 import java.util.Arrays;
 import java.util.List;
 
-public class BSLCommunityProperties {
+public final class BSLCommunityProperties {
 
   public static final String LANG_SERVER_ENABLED = "sonar.bsl.languageserver.enabled";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
