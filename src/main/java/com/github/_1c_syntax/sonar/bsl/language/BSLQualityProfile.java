@@ -21,7 +21,6 @@
  */
 package com.github._1c_syntax.sonar.bsl.language;
 
-import org.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
 import java.util.List;
@@ -33,9 +32,9 @@ public final class BSLQualityProfile implements BuiltInQualityProfilesDefinition
         NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("BSL Language Server rules", BSLLanguage.KEY);
         profile.setDefault(true);
 
-        List<BSLDiagnostic> diagnostics = BSLLanguageServerRuleDefinition.getDiagnostics();
-        diagnostics.forEach(diagnostic ->
-          profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnostic.getCode())
+        List<String> ruleKeys = BSLLanguageServerRuleDefinition.getRuleKeys();
+        ruleKeys.forEach(ruleKey ->
+          profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, ruleKey)
         );
 
         profile.done();
