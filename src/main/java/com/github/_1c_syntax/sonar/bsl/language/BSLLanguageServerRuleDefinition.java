@@ -21,7 +21,6 @@
  */
 package com.github._1c_syntax.sonar.bsl.language;
 
-import org.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
@@ -48,9 +47,9 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     Map<DiagnosticSeverity, String> severityMap = createDiagnosticSeverityMap();
     Map<DiagnosticType, RuleType> ruleTypeMap = createRuleTypeMap();
 
-    List<BSLDiagnostic> diagnosticInstances = getDiagnostics();
+    List<Class<? extends BSLDiagnostic>> diagnosticInstances = DiagnosticProvider.getDiagnosticClasses();
     diagnosticInstances.forEach(diagnostic -> repository.createRule(DiagnosticProvider.getDiagnosticCode(diagnostic))
-      .setName(diagnostic.getDiagnosticMessage())
+      .setName(DiagnosticProvider.getDiagnosticName(diagnostic))
       .setMarkdownDescription("# Проверка")
 
       .setType(ruleTypeMap.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
@@ -64,11 +63,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     return DiagnosticProvider.getDiagnosticClasses().stream()
       .map(DiagnosticProvider::getDiagnosticCode)
       .collect(Collectors.toList());
-  }
-
-  private static List<BSLDiagnostic> getDiagnostics() {
-    DiagnosticProvider diagnosticProvider = new DiagnosticProvider(LanguageServerConfiguration.create());
-    return diagnosticProvider.getDiagnosticInstances();
   }
 
   private Map<DiagnosticSeverity, String> createDiagnosticSeverityMap() {
