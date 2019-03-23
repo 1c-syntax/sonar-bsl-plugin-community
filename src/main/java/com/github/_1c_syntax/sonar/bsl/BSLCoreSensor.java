@@ -64,6 +64,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 public class BSLCoreSensor implements Sensor {
@@ -120,6 +121,27 @@ public class BSLCoreSensor implements Sensor {
         });
     }
 
+    Optional<Boolean> langServerEnabledConfig = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED);
+    Boolean langServerEnabled =
+      langServerEnabledConfig.orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
+    if (langServerEnabled) {
+      runLangServerAnalyze();
+    } else {
+      LOGGER.info("Internal analysis with BSL Language server is disabled. Skipping...");
+    }
+
+    LOGGER.info("Saving measures...");
+    saveMeasures();
+
+    LOGGER.info("Saving CPD info...");
+    saveCpd();
+
+    LOGGER.info("Saving highlighting...");
+    saveHighlighting();
+
+  }
+
+  private void runLangServerAnalyze() {
     LOGGER.info("Analyze files...");
     inputFileDiagnostics = new HashMap<>();
 
@@ -138,16 +160,6 @@ public class BSLCoreSensor implements Sensor {
 
     LOGGER.info("Saving issues...");
     saveIssues();
-
-    LOGGER.info("Saving measures...");
-    saveMeasures();
-
-    LOGGER.info("Saving CPD info...");
-    saveCpd();
-
-    LOGGER.info("Saving highlighting...");
-    saveHighlighting();
-
   }
 
   private void saveIssues() {

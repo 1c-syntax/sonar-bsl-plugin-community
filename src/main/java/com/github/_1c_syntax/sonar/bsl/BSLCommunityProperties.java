@@ -21,25 +21,39 @@
  */
 package com.github._1c_syntax.sonar.bsl;
 
+import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 public class BSLCommunityProperties {
 
+  public static final String LANG_SERVER_ENABLED = "sonar.bsl.languageserver.enabled";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
+
+  public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
 
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
   private static final String BSL_SUBCATEGORY = "1C (BSL) Community";
+
 
   private BSLCommunityProperties() {
     // only statics
   }
 
   public static List<PropertyDefinition> getProperties() {
-    return Collections.singletonList(
+    return Arrays.asList(
+      PropertyDefinition.builder(LANG_SERVER_ENABLED)
+        .name("Run internal BSL Language Server Diagnostic Provider")
+        .description("Run internal BSL Language Server Diagnostic Provider")
+        .defaultValue(LANG_SERVER_ENABLED_DEFAULT_VALUE.toString())
+        .type(PropertyType.BOOLEAN)
+        .category(EXTERNAL_ANALYZERS_CATEGORY)
+        .subCategory(BSL_SUBCATEGORY)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build(),
       PropertyDefinition.builder(LANG_SERVER_REPORT_PATH_KEY)
         .name("BSL Language Server Report Files")
         .description("Paths (absolute or relative) to xml files with BSL Language Server diagnostics")
@@ -48,7 +62,8 @@ public class BSLCommunityProperties {
         .subCategory(BSL_SUBCATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
-        .build());
+        .build()
+    );
   }
 
 }
