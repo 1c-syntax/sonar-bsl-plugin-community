@@ -50,7 +50,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     List<Class<? extends BSLDiagnostic>> diagnosticInstances = DiagnosticProvider.getDiagnosticClasses();
     diagnosticInstances.forEach(diagnostic -> repository.createRule(DiagnosticProvider.getDiagnosticCode(diagnostic))
       .setName(DiagnosticProvider.getDiagnosticName(diagnostic))
-      .setMarkdownDescription("# Проверка")
+      .setMarkdownDescription(convertToSonarqubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
 
       .setType(ruleTypeMap.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
       .setSeverity(severityMap.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic))));
@@ -63,6 +63,15 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     return DiagnosticProvider.getDiagnosticClasses().stream()
       .map(DiagnosticProvider::getDiagnosticCode)
       .collect(Collectors.toList());
+  }
+
+  private static String convertToSonarqubeMarkdown(String input) {
+    return input
+      .replaceAll("#", "=")
+      .replaceAll("\\*\\*", "*")
+      .replaceAll("```", "``")
+      .replaceAll("(^|[^`])`([^`]|$)", "$1``$2")
+      ;
   }
 
   private static Map<DiagnosticSeverity, String> createDiagnosticSeverityMap() {
