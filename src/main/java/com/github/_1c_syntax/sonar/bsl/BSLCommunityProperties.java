@@ -21,6 +21,7 @@
  */
 package com.github._1c_syntax.sonar.bsl;
 
+import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
@@ -30,10 +31,12 @@ import java.util.List;
 
 public final class BSLCommunityProperties {
 
-  public static final String LANG_SERVER_ENABLED = "sonar.bsl.languageserver.enabled";
+  public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY = "sonar.bsl.languageserver.diagnosticLanguage";
+  public static final String LANG_SERVER_ENABLED_KEY = "sonar.bsl.languageserver.enabled";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
 
   public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
+  public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = DiagnosticLanguage.RU.getLanguageCode();
 
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
   private static final String BSL_SUBCATEGORY = "1C (BSL) Community";
@@ -45,8 +48,20 @@ public final class BSLCommunityProperties {
 
   public static List<PropertyDefinition> getProperties() {
     return Arrays.asList(
-      PropertyDefinition.builder(LANG_SERVER_ENABLED)
-        .name("Run internal BSL Language Server Diagnostic Provider")
+      PropertyDefinition.builder(LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
+        .name("BSL Language server rule names and messages language")
+        .description(
+          "Defines the language of the rules names (on APP level) and language of rules message (on PROJECT level)"
+        )
+        .defaultValue(LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
+        .type(PropertyType.SINGLE_SELECT_LIST)
+        .options(DiagnosticLanguage.RU.getLanguageCode(), DiagnosticLanguage.EN.getLanguageCode())
+        .category(EXTERNAL_ANALYZERS_CATEGORY)
+        .subCategory(BSL_SUBCATEGORY)
+        .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
+        .build(),
+      PropertyDefinition.builder(LANG_SERVER_ENABLED_KEY)
+        .name("BSL Language Server enabled")
         .description("Run internal BSL Language Server Diagnostic Provider")
         .defaultValue(LANG_SERVER_ENABLED_DEFAULT_VALUE.toString())
         .type(PropertyType.BOOLEAN)

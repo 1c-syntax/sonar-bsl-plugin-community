@@ -22,20 +22,26 @@
 package com.github._1c_syntax.sonar.bsl;
 
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
+import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
+import org.github._1c_syntax.bsl.languageserver.configuration.diagnostics.DiagnosticConfiguration;
 import org.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import org.github._1c_syntax.bsl.languageserver.context.ServerContext;
+import org.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import org.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import org.github._1c_syntax.bsl.parser.BSLLexer;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -44,6 +50,7 @@ import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -52,8 +59,8 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 public class BSLCoreSensor implements Sensor {
@@ -108,9 +115,8 @@ public class BSLCoreSensor implements Sensor {
         });
     }
 
-    Optional<Boolean> langServerEnabledConfig = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED);
-    Boolean langServerEnabled =
-      langServerEnabledConfig.orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
+    Boolean langServerEnabled = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY)
+      .orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
     if (langServerEnabled) {
       runLangServerAnalyze();
     } else {
@@ -132,7 +138,7 @@ public class BSLCoreSensor implements Sensor {
     LOGGER.info("Analyze files...");
     inputFileDiagnostics = new HashMap<>();
 
-    DiagnosticProvider diagnosticProvider = new DiagnosticProvider(LanguageServerConfiguration.create());
+    DiagnosticProvider diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration());
     try (ProgressBar pb = new ProgressBar("", inputFilesMap.size(), ProgressBarStyle.ASCII)) {
       inputFilesMap.entrySet().parallelStream()
         .forEach((Map.Entry<InputFile, DocumentContext> entry) -> {
@@ -228,6 +234,37 @@ public class BSLCoreSensor implements Sensor {
       highlighting.save();
     });
 
+  }
+
+  private LanguageServerConfiguration getLanguageServerConfiguration() {
+    LanguageServerConfiguration languageServerConfiguration = LanguageServerConfiguration.create();
+    String diagnosticLanguageCode = context.config()
+      .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
+      .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
+
+    languageServerConfiguration.setDiagnosticLanguage(
+      DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
+    );
+
+    List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticProvider.getDiagnosticClasses();
+    ActiveRules activeRules = context.activeRules();
+
+    Map<String, Either<Boolean, DiagnosticConfiguration>> diagnostics = new HashMap<>();
+    for (Class<? extends BSLDiagnostic> diagnosticClass : diagnosticClasses) {
+      if (activeRules.find(
+        RuleKey.of(
+          BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
+          DiagnosticProvider.getDiagnosticCode(diagnosticClass)
+        )
+      ) != null) {
+        continue;
+      }
+      diagnostics.put(DiagnosticProvider.getDiagnosticCode(diagnosticClass), Either.forLeft(false));
+    }
+
+    languageServerConfiguration.setDiagnostics(diagnostics);
+
+    return languageServerConfiguration;
   }
 
   @Nullable
