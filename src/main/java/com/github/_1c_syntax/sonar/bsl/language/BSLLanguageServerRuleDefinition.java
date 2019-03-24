@@ -25,6 +25,7 @@ import org.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import org.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 
@@ -38,6 +39,12 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   public static final String REPOSITORY_KEY = "bsl-language-server";
   private static final String REPOSITORY_NAME = "BSL Language Server";
 
+  private final Configuration config;
+
+  public BSLLanguageServerRuleDefinition(Configuration config) {
+    this.config = config;
+  }
+
   @Override
   public void define(Context context) {
     NewRepository repository = context
@@ -49,6 +56,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
     List<Class<? extends BSLDiagnostic>> diagnosticInstances = DiagnosticProvider.getDiagnosticClasses();
     diagnosticInstances.forEach(diagnostic -> repository.createRule(DiagnosticProvider.getDiagnosticCode(diagnostic))
+      // todo: get localized name
       .setName(DiagnosticProvider.getDiagnosticName(diagnostic))
       .setMarkdownDescription(convertToSonarqubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
 
