@@ -25,24 +25,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.DiagnosticRelatedInformation;
-import org.eclipse.lsp4j.DiagnosticSeverity;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.FileInfo;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.reporter.AnalysisInfo;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.issue.NewExternalIssue;
-import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
@@ -50,30 +41,25 @@ import org.sonarsource.analyzer.commons.ExternalReportProvider;
 import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.github._1c_syntax.sonar.bsl.BSLCommunityProperties.LANG_SERVER_REPORT_PATH_KEY;
 
 public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
 
   private final SensorContext context;
+  private final IssuesLoader issueLoader;
   private FileSystem fileSystem;
   private FilePredicates predicates;
-  private final Map<DiagnosticSeverity, Severity> severityMap;
-  private final Map<DiagnosticSeverity, RuleType> ruleTypeMap;
 
   private static final Logger LOGGER = Loggers.get(LanguageServerDiagnosticsLoaderSensor.class);
 
   public LanguageServerDiagnosticsLoaderSensor(final SensorContext context) {
     this.context = context;
-    this.severityMap = createDiagnosticSeverityMap();
-    this.ruleTypeMap = createRuleTypeMap();
+    this.issueLoader = new IssuesLoader(context);
+
   }
 
   @Override
@@ -119,40 +105,7 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
   }
 
   private void processDiagnostic(InputFile inputFile, Diagnostic diagnostic) {
-    NewExternalIssue issue = context.newExternalIssue();
-
-    issue.engineId("bsl-language-server");
-    issue.ruleId(diagnostic.getCode());
-    issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
-    issue.severity(severityMap.get(diagnostic.getSeverity()));
-
-    NewIssueLocation location = getNewIssueLocation(
-      issue,
-      inputFile,
-      diagnostic.getRange(),
-      diagnostic.getMessage()
-    );
-    issue.at(location);
-
-    List<DiagnosticRelatedInformation> relatedInformation = diagnostic.getRelatedInformation();
-    if (relatedInformation != null) {
-      relatedInformation.forEach(
-        (DiagnosticRelatedInformation relatedInformationEntry) -> {
-          Path path = Paths.get(URI.create(relatedInformationEntry.getLocation().getUri())).toAbsolutePath();
-          NewIssueLocation newIssueLocation = getNewIssueLocation(
-            issue,
-            path,
-            relatedInformationEntry.getLocation().getRange(),
-            relatedInformationEntry.getMessage()
-          );
-          if (newIssueLocation != null) {
-            issue.addLocation(newIssueLocation);
-          }
-        }
-      );
-    }
-
-    issue.save();
+    issueLoader.createIssue(inputFile, diagnostic);
   }
 
   @CheckForNull
@@ -163,38 +116,6 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
         predicates.hasAbsolutePath(path.toAbsolutePath().toString())
       )
     );
-  }
-
-  @CheckForNull
-  private NewIssueLocation getNewIssueLocation(NewExternalIssue issue, Path path, Range range, String message) {
-    InputFile inputFile = getInputFile(path);
-    if (inputFile == null) {
-      LOGGER.warn("Can't find inputFile for absolute path {}", path);
-      return null;
-    }
-    return getNewIssueLocation(issue, inputFile, range, message);
-  }
-
-  private static NewIssueLocation getNewIssueLocation(
-    NewExternalIssue issue,
-    InputFile inputFile,
-    Range range,
-    String message
-  ) {
-    Position start = range.getStart();
-    Position end = range.getEnd();
-    TextRange textRange = inputFile.newRange(
-      start.getLine() + 1,
-      start.getCharacter(),
-      end.getLine() + 1,
-      end.getCharacter()
-    );
-
-    NewIssueLocation location = issue.newLocation();
-    location.on(inputFile);
-    location.at(textRange);
-    location.message(message);
-    return location;
   }
 
   @Nullable
@@ -218,23 +139,5 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     }
   }
 
-  private static Map<DiagnosticSeverity, Severity> createDiagnosticSeverityMap() {
-    Map<DiagnosticSeverity, Severity> map = new EnumMap<>(DiagnosticSeverity.class);
-    map.put(DiagnosticSeverity.Warning, Severity.MAJOR);
-    map.put(DiagnosticSeverity.Information, Severity.MINOR);
-    map.put(DiagnosticSeverity.Hint, Severity.INFO);
-    map.put(DiagnosticSeverity.Error, Severity.CRITICAL);
 
-    return map;
-  }
-
-  private static Map<DiagnosticSeverity, RuleType> createRuleTypeMap() {
-    Map<DiagnosticSeverity, RuleType> map = new EnumMap<>(DiagnosticSeverity.class);
-    map.put(DiagnosticSeverity.Warning, RuleType.CODE_SMELL);
-    map.put(DiagnosticSeverity.Information, RuleType.CODE_SMELL);
-    map.put(DiagnosticSeverity.Hint, RuleType.CODE_SMELL);
-    map.put(DiagnosticSeverity.Error, RuleType.BUG);
-
-    return map;
-  }
 }

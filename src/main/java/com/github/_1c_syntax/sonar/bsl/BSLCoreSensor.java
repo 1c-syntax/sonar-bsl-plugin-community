@@ -22,15 +22,11 @@
 package com.github._1c_syntax.sonar.bsl;
 
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
-import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.DiagnosticRelatedInformation;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import org.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import org.github._1c_syntax.bsl.languageserver.context.ServerContext;
@@ -40,27 +36,20 @@ import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.issue.NewIssue;
-import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,8 +60,6 @@ public class BSLCoreSensor implements Sensor {
 
   private static final Logger LOGGER = Loggers.get(BSLCoreSensor.class);
   private final SensorContext context;
-  private FileSystem fileSystem;
-  private FilePredicates predicates;
   private Map<InputFile, DocumentContext> inputFilesMap;
   private Map<InputFile, List<Diagnostic>> inputFileDiagnostics;
 
@@ -89,8 +76,8 @@ public class BSLCoreSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
 
-    fileSystem = context.fileSystem();
-    predicates = fileSystem.predicates();
+    FileSystem fileSystem = context.fileSystem();
+    FilePredicates predicates = fileSystem.predicates();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(
       predicates.and(
         predicates.hasLanguage(BSLLanguage.KEY)
@@ -163,83 +150,10 @@ public class BSLCoreSensor implements Sensor {
   }
 
   private void saveIssues() {
-    inputFileDiagnostics.forEach(this::saveInputFileIssues);
-  }
+    IssuesLoader issuesLoader = new IssuesLoader(context);
 
-  private void saveInputFileIssues(InputFile inputFile, List<Diagnostic> diagnostics) {
-    diagnostics.forEach(diagnostic -> saveInputFileIssue(inputFile, diagnostic));
-  }
-
-  private void saveInputFileIssue(InputFile inputFile, Diagnostic diagnostic) {
-    NewIssue issue = context.newIssue();
-
-    issue.forRule(RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnostic.getCode()));
-
-    NewIssueLocation location = getNewIssueLocation(
-      issue,
-      inputFile,
-      diagnostic.getRange(),
-      diagnostic.getMessage()
-    );
-    issue.at(location);
-
-    List<DiagnosticRelatedInformation> relatedInformation = diagnostic.getRelatedInformation();
-    if (relatedInformation != null) {
-      relatedInformation.forEach(
-        (DiagnosticRelatedInformation relatedInformationEntry) -> {
-          Path path = Paths.get(URI.create(relatedInformationEntry.getLocation().getUri())).toAbsolutePath();
-          InputFile relatedInputFile = getInputFile(path);
-          if (relatedInputFile == null) {
-            LOGGER.warn("Can't find inputFile for absolute path {}", path);
-            return;
-          }
-
-          NewIssueLocation newIssueLocation = getNewIssueLocation(
-            issue,
-            relatedInputFile,
-            relatedInformationEntry.getLocation().getRange(),
-            relatedInformationEntry.getMessage()
-          );
-          if (newIssueLocation != null) {
-            issue.addLocation(newIssueLocation);
-          }
-        }
-      );
-    }
-
-    issue.save();
-  }
-
-  private static NewIssueLocation getNewIssueLocation(
-    NewIssue issue,
-    InputFile inputFile,
-    Range range,
-    String message
-  ) {
-    Position start = range.getStart();
-    Position end = range.getEnd();
-    TextRange textRange = inputFile.newRange(
-      start.getLine() + 1,
-      start.getCharacter(),
-      end.getLine() + 1,
-      end.getCharacter()
-    );
-
-    NewIssueLocation location = issue.newLocation();
-    location.on(inputFile);
-    location.at(textRange);
-    location.message(message);
-    return location;
-  }
-
-  @CheckForNull
-  private InputFile getInputFile(Path path) {
-    return fileSystem.inputFile(
-      predicates.and(
-        predicates.hasLanguage(BSLLanguage.KEY),
-        predicates.hasAbsolutePath(path.toAbsolutePath().toString())
-      )
-    );
+    inputFileDiagnostics.forEach((InputFile inputFile, List<Diagnostic> diagnostics) ->
+      diagnostics.forEach(diagnostic -> issuesLoader.createIssue(inputFile, diagnostic)));
   }
 
   private void saveMeasures() {
