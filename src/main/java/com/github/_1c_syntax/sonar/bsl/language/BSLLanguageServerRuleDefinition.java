@@ -22,13 +22,18 @@
 package com.github._1c_syntax.sonar.bsl.language;
 
 import org.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
+import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import org.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
+import javax.annotation.CheckForNull;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +43,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   public static final String REPOSITORY_KEY = "bsl-language-server";
   private static final String REPOSITORY_NAME = "BSL Language Server";
+  private static final Logger LOGGER = Loggers.get(BSLLanguageServerRuleDefinition.class);
 
   private final Configuration config;
 
@@ -54,16 +60,37 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     Map<DiagnosticSeverity, String> severityMap = createDiagnosticSeverityMap();
     Map<DiagnosticType, RuleType> ruleTypeMap = createRuleTypeMap();
 
-    List<Class<? extends BSLDiagnostic>> diagnosticInstances = DiagnosticProvider.getDiagnosticClasses();
-    diagnosticInstances.forEach(diagnostic -> repository.createRule(DiagnosticProvider.getDiagnosticCode(diagnostic))
-      // todo: get localized name
-      .setName(DiagnosticProvider.getDiagnosticName(diagnostic))
-      .setMarkdownDescription(convertToSonarqubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
+    List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticProvider.getDiagnosticClasses();
+    diagnosticClasses.forEach((Class<? extends BSLDiagnostic> diagnostic) -> {
+      NewRule newRule = repository.createRule(DiagnosticProvider.getDiagnosticCode(diagnostic))
+        // todo: get localized name
+        .setName(DiagnosticProvider.getDiagnosticName(diagnostic))
+        .setMarkdownDescription(convertToSonarqubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
+        .setType(ruleTypeMap.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
+        .setSeverity(severityMap.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic)));
 
-      .setType(ruleTypeMap.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
-      .setSeverity(severityMap.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic))));
+      Map<String, DiagnosticParameter> diagnosticParameters = DiagnosticProvider.getDiagnosticParameters(diagnostic);
+      diagnosticParameters.forEach((String paramKey, DiagnosticParameter diagnosticParameter) -> {
+        RuleParamType ruleParamType = getRuleParamType(diagnosticParameter.type());
+        if (ruleParamType == null) {
+          LOGGER.error(
+            String.format(
+              "Can't cast rule param type %s for rule %s",
+              diagnosticParameter.type(),
+              newRule.key()
+            )
+          );
+          return;
+        }
 
-    // don't forget to call done() to finalize the definition
+        NewParam newParam = newRule.createParam(paramKey);
+        newParam.setType(ruleParamType);
+        newParam.setDescription(diagnosticParameter.description());
+        newParam.setDefaultValue(DiagnosticProvider.getDefaultValue(diagnosticParameter).toString());
+      });
+
+    });
+
     repository.done();
   }
 
@@ -80,6 +107,26 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .replaceAll("```", "``")
       .replaceAll("(^|[^`])`([^`]|$)", "$1``$2")
       ;
+  }
+
+  @CheckForNull
+  private static RuleParamType getRuleParamType(Class<?> type) {
+
+    RuleParamType ruleParamType;
+
+    if (type == Integer.class) {
+      ruleParamType = RuleParamType.INTEGER;
+    } else if (type == String.class) {
+      ruleParamType = RuleParamType.STRING;
+    } else if (type == Boolean.class) {
+      ruleParamType = RuleParamType.BOOLEAN;
+    } else if (type == Float.class) {
+      ruleParamType = RuleParamType.FLOAT;
+    } else {
+      ruleParamType = null;
+    }
+
+    return ruleParamType;
   }
 
   private static Map<DiagnosticSeverity, String> createDiagnosticSeverityMap() {

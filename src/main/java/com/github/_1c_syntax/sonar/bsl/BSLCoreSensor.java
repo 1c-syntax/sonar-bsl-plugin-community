@@ -31,16 +31,17 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
-import org.github._1c_syntax.bsl.languageserver.configuration.diagnostics.DiagnosticConfiguration;
 import org.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import org.github._1c_syntax.bsl.languageserver.context.ServerContext;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
+import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
 import org.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import org.github._1c_syntax.bsl.parser.BSLLexer;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -249,17 +250,35 @@ public class BSLCoreSensor implements Sensor {
     List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticProvider.getDiagnosticClasses();
     ActiveRules activeRules = context.activeRules();
 
-    Map<String, Either<Boolean, DiagnosticConfiguration>> diagnostics = new HashMap<>();
+    Map<String, Either<Boolean, Map<String, Object>>> diagnostics = new HashMap<>();
     for (Class<? extends BSLDiagnostic> diagnosticClass : diagnosticClasses) {
-      if (activeRules.find(
+      ActiveRule activeRule = activeRules.find(
         RuleKey.of(
           BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
           DiagnosticProvider.getDiagnosticCode(diagnosticClass)
         )
-      ) != null) {
-        continue;
+      );
+      if (activeRule == null) {
+        diagnostics.put(DiagnosticProvider.getDiagnosticCode(diagnosticClass), Either.forLeft(false));
+      } else {
+        Map<String, String> params = activeRule.params();
+
+        Map<String, DiagnosticParameter> diagnosticParameters =
+          DiagnosticProvider.getDiagnosticParameters(diagnosticClass);
+        Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
+
+        params.entrySet().forEach((Map.Entry<String, String> param) -> {
+            DiagnosticParameter diagnosticParameter = diagnosticParameters.get(param.getKey());
+            diagnosticConfiguration.put(
+              param.getKey(),
+              DiagnosticProvider.castDiagnosticParameterValue(param.getValue(), diagnosticParameter.type())
+            );
+          });
+        diagnostics.put(
+          DiagnosticProvider.getDiagnosticCode(diagnosticClass),
+          Either.forRight(diagnosticConfiguration)
+        );
       }
-      diagnostics.put(DiagnosticProvider.getDiagnosticCode(diagnosticClass), Either.forLeft(false));
     }
 
     languageServerConfiguration.setDiagnostics(diagnostics);
