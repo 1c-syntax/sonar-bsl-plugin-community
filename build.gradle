@@ -24,12 +24,11 @@ repositories {
 
 dependencies {
     provided("org.sonarsource.sonarqube:sonar-plugin-api:7.4")
-
-    compile("com.github.1c-syntax:bsl-language-server:520e18463d276357fceb9b68d7243c7a0494f25c")
+    //compile("com.github.1c-syntax:bsl-language-server:520e18463d276357fceb9b68d7243c7a0494f25c")
+    compile("com.github.otymko:bsl-language-server:9e9d9a261eacade8b540a853355caeb6da442b5e")
     compile("com.fasterxml.jackson.core:jackson-databind:2.9.8")
     compile("org.jetbrains:annotations:16.0.3")
     compile("com.google.code.findbugs:jsr305:3.0.2")
-
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
     compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.10.2.456")
 

@@ -56,7 +56,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
-
     Map<DiagnosticSeverity, String> severityMap = createDiagnosticSeverityMap();
     Map<DiagnosticType, RuleType> ruleTypeMap = createRuleTypeMap();
 
@@ -68,6 +67,11 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
         .setMarkdownDescription(convertToSonarqubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
         .setType(ruleTypeMap.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
         .setSeverity(severityMap.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic)));
+
+      newRule.setDebtRemediationFunction(
+              newRule.debtRemediationFunctions()
+                      .linear(DiagnosticProvider.getMinutesToFixForDiagnosticName(
+                              DiagnosticProvider.getDiagnosticCode(diagnostic)) + "min"));
 
       Map<String, DiagnosticParameter> diagnosticParameters = DiagnosticProvider.getDiagnosticParameters(diagnostic);
       diagnosticParameters.forEach((String paramKey, DiagnosticParameter diagnosticParameter) -> {
