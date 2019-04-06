@@ -70,8 +70,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
       newRule.setDebtRemediationFunction(
               newRule.debtRemediationFunctions()
-                      .linear(DiagnosticProvider.getMinutesToFixForDiagnosticName(
-                              DiagnosticProvider.getDiagnosticCode(diagnostic)) + "min"));
+                      .linear(DiagnosticProvider.getMinutesToFix(diagnostic) + "min"));
 
       Map<String, DiagnosticParameter> diagnosticParameters = DiagnosticProvider.getDiagnosticParameters(diagnostic);
       diagnosticParameters.forEach((String paramKey, DiagnosticParameter diagnosticParameter) -> {
