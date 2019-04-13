@@ -9,10 +9,11 @@ plugins {
     id("com.github.hierynomus.license") version "0.15.0"
     id("com.iadams.sonar-packaging") version "1.0-RC1"
     id("com.github.ben-manes.versions") version "0.20.0"
+    id("com.github.gradle-git-version-calculator") version "1.1.0"
 }
 
 group = "com.github.1c-syntax"
-version = "0.3.0"
+version = gitVersionCalculator.calculateVersion("v")
 
 repositories {
     mavenCentral()
@@ -23,12 +24,10 @@ repositories {
 
 dependencies {
     provided("org.sonarsource.sonarqube:sonar-plugin-api:7.4")
-
-    compile("com.github.1c-syntax:bsl-language-server:0.3.0")
+    compile("com.github.1c-syntax:bsl-language-server:5e5707bd1217715f5e0d0363a751b92c66c3a821")
     compile("com.fasterxml.jackson.core:jackson-databind:2.9.8")
     compile("org.jetbrains:annotations:16.0.3")
     compile("com.google.code.findbugs:jsr305:3.0.2")
-
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
     compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.10.2.456")
 

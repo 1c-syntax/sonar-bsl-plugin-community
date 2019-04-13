@@ -25,20 +25,20 @@ import org.sonar.api.resources.Language;
 
 public class BSLLanguage implements Language {
 
-    public static final String KEY = "bsl";
+  public static final String KEY = "bsl";
 
-    @Override
-    public String getKey() {
-        return KEY;
-    }
+  @Override
+  public String getKey() {
+    return KEY;
+  }
 
-    @Override
-    public String getName() {
-        return "1C (BSL)";
-    }
+  @Override
+  public String getName() {
+    return "1C (BSL)";
+  }
 
-    @Override
-    public String[] getFileSuffixes() {
-        return new String[]{"bsl", "os"};
-    }
+  @Override
+  public String[] getFileSuffixes() {
+    return new String[]{"bsl", "os"};
+  }
 }

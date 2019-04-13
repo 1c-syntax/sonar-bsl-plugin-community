@@ -23,12 +23,24 @@ package com.github._1c_syntax.sonar.bsl.language;
 
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
-public class BSLQualityProfile implements BuiltInQualityProfilesDefinition {
-    @Override
-    public void define(Context context) {
-        NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("1C (BSL) Rules", BSLLanguage.KEY);
-        profile.setDefault(true);
+import java.util.List;
 
-        profile.done();
-    }
+public final class BSLQualityProfile implements BuiltInQualityProfilesDefinition {
+
+  @Override
+  public void define(Context context) {
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
+      "BSL Language Server rules",
+      BSLLanguage.KEY
+    );
+    profile.setDefault(true);
+
+    List<String> ruleKeys = BSLLanguageServerRuleDefinition.getRuleKeys();
+    ruleKeys.forEach(ruleKey ->
+      profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, ruleKey)
+    );
+
+    profile.done();
+  }
+
 }

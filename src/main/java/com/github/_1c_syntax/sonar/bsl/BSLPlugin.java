@@ -22,19 +22,22 @@
 package com.github._1c_syntax.sonar.bsl;
 
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
+import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.sonar.bsl.language.BSLQualityProfile;
 import org.sonar.api.Plugin;
 
 public class BSLPlugin implements Plugin {
 
-    @Override
-    public void define(Context context) {
-        context.addExtension(BSLLanguage.class);
-        context.addExtension(BSLQualityProfile.class);
+  @Override
+  public void define(Context context) {
+    context.addExtension(BSLLanguage.class);
+    context.addExtension(BSLQualityProfile.class);
 
-        context.addExtension(BSLCoreSensor.class);
-        context.addExtension(LanguageServerDiagnosticsLoaderSensor.class);
+    context.addExtension(BSLLanguageServerRuleDefinition.class);
 
-        context.addExtensions(BSLCommunityProperties.getProperties());
-    }
+    context.addExtension(BSLCoreSensor.class);
+    context.addExtension(LanguageServerDiagnosticsLoaderSensor.class);
+
+    context.addExtensions(BSLCommunityProperties.getProperties());
+  }
 }

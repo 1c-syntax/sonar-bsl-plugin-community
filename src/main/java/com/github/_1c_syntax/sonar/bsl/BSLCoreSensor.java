@@ -22,17 +22,27 @@
 package com.github._1c_syntax.sonar.bsl;
 
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
+import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import org.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
+import org.github._1c_syntax.bsl.languageserver.context.DocumentContext;
+import org.github._1c_syntax.bsl.languageserver.context.ServerContext;
+import org.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
+import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
+import org.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import org.github._1c_syntax.bsl.parser.BSLLexer;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -41,14 +51,16 @@ import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.StreamSupport;
 
@@ -56,8 +68,8 @@ public class BSLCoreSensor implements Sensor {
 
   private static final Logger LOGGER = Loggers.get(BSLCoreSensor.class);
   private final SensorContext context;
-
-  private Map<InputFile, List<? extends Token>> fileTokens = Collections.synchronizedMap(new HashMap<>());
+  private Map<InputFile, DocumentContext> inputFilesMap;
+  private Map<InputFile, List<Diagnostic>> inputFileDiagnostics;
 
   public BSLCoreSensor(SensorContext context) {
     this.context = context;
@@ -81,14 +93,35 @@ public class BSLCoreSensor implements Sensor {
     );
 
     LOGGER.info("Parsing files...");
+    ServerContext bslServerContext = new ServerContext();
+
     long inputFleSize = StreamSupport.stream(inputFiles.spliterator(), false).count();
+    inputFilesMap = new HashMap<>();
+
     try (ProgressBar pb = new ProgressBar("", inputFleSize, ProgressBarStyle.ASCII)) {
       StreamSupport.stream(inputFiles.spliterator(), true)
-        .peek(inputFile -> {
-          LOGGER.debug(inputFile.filename());
+        .forEach((InputFile inputFile) -> {
+          URI uri = inputFile.uri();
+          LOGGER.debug(uri.toString());
           pb.step();
-        })
-        .forEach(inputFile -> fileTokens.put(inputFile, getTokens(inputFile)));
+
+          String content;
+          try {
+            content = IOUtils.toString(inputFile.inputStream(), StandardCharsets.UTF_8);
+          } catch (IOException e) {
+            LOGGER.warn("Can't read content of file " + uri, e);
+            content = "";
+          }
+          inputFilesMap.put(inputFile, bslServerContext.addDocument(uri.toString(), content));
+        });
+    }
+
+    Boolean langServerEnabled = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY)
+      .orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
+    if (langServerEnabled) {
+      runLangServerAnalyze();
+    } else {
+      LOGGER.info("Internal analysis with BSL Language server is disabled. Skipping...");
     }
 
     LOGGER.info("Saving measures...");
@@ -102,12 +135,39 @@ public class BSLCoreSensor implements Sensor {
 
   }
 
+  private void runLangServerAnalyze() {
+    LOGGER.info("Analyze files...");
+    inputFileDiagnostics = new HashMap<>();
+
+    DiagnosticProvider diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration());
+    try (ProgressBar pb = new ProgressBar("", inputFilesMap.size(), ProgressBarStyle.ASCII)) {
+      inputFilesMap.entrySet().parallelStream()
+        .forEach((Map.Entry<InputFile, DocumentContext> entry) -> {
+          URI uri = entry.getKey().uri();
+          LOGGER.debug(uri.toString());
+          pb.step();
+
+          List<Diagnostic> diagnostics = diagnosticProvider.computeDiagnostics(entry.getValue());
+          inputFileDiagnostics.put(entry.getKey(), diagnostics);
+        });
+    }
+
+    LOGGER.info("Saving issues...");
+    saveIssues();
+  }
+
+  private void saveIssues() {
+    IssuesLoader issuesLoader = new IssuesLoader(context);
+
+    inputFileDiagnostics.forEach((InputFile inputFile, List<Diagnostic> diagnostics) ->
+      diagnostics.forEach(diagnostic -> issuesLoader.createIssue(inputFile, diagnostic)));
+  }
+
   private void saveMeasures() {
 
-    fileTokens.forEach((inputFile, tokens) -> {
+    inputFilesMap.forEach((InputFile inputFile, DocumentContext documentContext) -> {
 
-      int ncloc = (int) tokens.stream()
-        .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL)
+      int ncloc = (int) documentContext.getTokensFromDefaultChannel().stream()
         .map(Token::getLine)
         .distinct()
         .count();
@@ -123,14 +183,13 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveCpd() {
 
-    fileTokens.forEach((inputFile, tokens) -> {
+    inputFilesMap.forEach((InputFile inputFile, DocumentContext documentContext) -> {
 
       NewCpdTokens cpdTokens = context.newCpdTokens();
       cpdTokens.onFile(inputFile);
 
-      tokens.stream()
-        .filter(token -> token.getChannel() == Token.DEFAULT_CHANNEL && token.getType() != Token.EOF)
-        .forEach(token -> {
+      documentContext.getTokensFromDefaultChannel()
+        .forEach((Token token) -> {
             int line = token.getLine();
             int charPositionInLine = token.getCharPositionInLine();
             String tokenText = token.getText();
@@ -150,12 +209,12 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveHighlighting() {
 
-    fileTokens.forEach((inputFile, tokens) -> {
+    inputFilesMap.forEach((InputFile inputFile, DocumentContext documentContext) -> {
 
       NewHighlighting highlighting = context.newHighlighting();
       highlighting.onFile(inputFile);
 
-      tokens.forEach(token -> {
+      documentContext.getTokens().forEach((Token token) -> {
           TypeOfText typeOfText = getTypeOfText(token.getType());
           if (typeOfText == null) {
             return;
@@ -178,8 +237,57 @@ public class BSLCoreSensor implements Sensor {
 
   }
 
+  private LanguageServerConfiguration getLanguageServerConfiguration() {
+    LanguageServerConfiguration languageServerConfiguration = LanguageServerConfiguration.create();
+    String diagnosticLanguageCode = context.config()
+      .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
+      .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
+
+    languageServerConfiguration.setDiagnosticLanguage(
+      DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
+    );
+
+    List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticProvider.getDiagnosticClasses();
+    ActiveRules activeRules = context.activeRules();
+
+    Map<String, Either<Boolean, Map<String, Object>>> diagnostics = new HashMap<>();
+    for (Class<? extends BSLDiagnostic> diagnosticClass : diagnosticClasses) {
+      ActiveRule activeRule = activeRules.find(
+        RuleKey.of(
+          BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
+          DiagnosticProvider.getDiagnosticCode(diagnosticClass)
+        )
+      );
+      if (activeRule == null) {
+        diagnostics.put(DiagnosticProvider.getDiagnosticCode(diagnosticClass), Either.forLeft(false));
+      } else {
+        Map<String, String> params = activeRule.params();
+
+        Map<String, DiagnosticParameter> diagnosticParameters =
+          DiagnosticProvider.getDiagnosticParameters(diagnosticClass);
+        Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
+
+        params.entrySet().forEach((Map.Entry<String, String> param) -> {
+            DiagnosticParameter diagnosticParameter = diagnosticParameters.get(param.getKey());
+            diagnosticConfiguration.put(
+              param.getKey(),
+              DiagnosticProvider.castDiagnosticParameterValue(param.getValue(), diagnosticParameter.type())
+            );
+          });
+        diagnostics.put(
+          DiagnosticProvider.getDiagnosticCode(diagnosticClass),
+          Either.forRight(diagnosticConfiguration)
+        );
+      }
+    }
+
+    languageServerConfiguration.setDiagnostics(diagnostics);
+
+    return languageServerConfiguration;
+  }
+
   @Nullable
-  private TypeOfText getTypeOfText(int tokenType) {
+  private static TypeOfText getTypeOfText(int tokenType) {
 
     TypeOfText typeOfText = null;
 
@@ -271,30 +379,5 @@ public class BSLCoreSensor implements Sensor {
     return typeOfText;
 
   }
-
-  private List<? extends Token> getTokens(InputFile inputFile) {
-
-    InputStream inputStream;
-    try {
-      inputStream = inputFile.inputStream();
-    } catch (IOException e) {
-      LOGGER.warn("Can't get content of file " + inputFile.filename());
-      return Collections.emptyList();
-    }
-    CharStream input;
-    try {
-      input = CharStreams.fromStream(inputStream, inputFile.charset());
-    } catch (IOException e) {
-      LOGGER.warn("Can't create char stream from file " + inputFile.filename());
-      return Collections.emptyList();
-    }
-
-    BSLLexer lexer = new BSLLexer(input);
-    CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-    tokenStream.fill();
-
-    return tokenStream.getTokens();
-  }
-
 
 }
