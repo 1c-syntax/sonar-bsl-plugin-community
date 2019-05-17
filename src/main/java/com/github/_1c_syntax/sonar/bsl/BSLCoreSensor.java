@@ -32,6 +32,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import org.github._1c_syntax.bsl.languageserver.context.DocumentContext;
+import org.github._1c_syntax.bsl.languageserver.context.MetricStorage;
 import org.github._1c_syntax.bsl.languageserver.context.ServerContext;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
@@ -49,7 +50,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
@@ -167,16 +167,24 @@ public class BSLCoreSensor implements Sensor {
 
     inputFilesMap.forEach((InputFile inputFile, DocumentContext documentContext) -> {
 
-      int ncloc = (int) documentContext.getTokensFromDefaultChannel().stream()
-        .map(Token::getLine)
-        .distinct()
-        .count();
+      MetricStorage metrics = documentContext.getMetrics();
 
-      NewMeasure<Integer> measure = context.newMeasure();
-      measure.on(inputFile)
+      context.<Integer>newMeasure().on(inputFile)
         .forMetric(CoreMetrics.NCLOC)
-        .withValue(ncloc)
+        .withValue(metrics.getNcloc())
         .save();
+
+      context.<Integer>newMeasure().on(inputFile)
+        .forMetric(CoreMetrics.STATEMENTS)
+        .withValue(metrics.getStatements())
+        .save();
+
+      context.<Integer>newMeasure()
+        .on(inputFile)
+        .forMetric(CoreMetrics.FUNCTIONS)
+        .withValue(metrics.getProcedures() + metrics.getFunctions())
+        .save();
+
     });
 
   }

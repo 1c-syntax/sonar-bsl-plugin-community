@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     provided("org.sonarsource.sonarqube:sonar-plugin-api:7.4")
-    compile("com.github.1c-syntax:bsl-language-server:v0.5.0")
+    compile("com.github.1c-syntax:bsl-language-server:36ab72d631345843ac4c2d96fd1a9c358f9ab3c8")
     compile("com.fasterxml.jackson.core:jackson-databind:2.9.8")
     compile("org.jetbrains:annotations:16.0.3")
     compile("com.google.code.findbugs:jsr305:3.0.2")
@@ -39,6 +39,7 @@ dependencies {
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 compileJava {
@@ -53,14 +54,14 @@ test {
     }
 
     reports {
-        html.setEnabled(true)
+        html.enabled = true
     }
 
 }
 
 jacocoTestReport {
     reports {
-        xml.setEnabled(true)
+        xml.enabled = true
     }
 }
 
