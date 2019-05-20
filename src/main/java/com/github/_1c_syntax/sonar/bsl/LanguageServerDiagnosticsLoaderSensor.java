@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lsp4j.Diagnostic;
+import org.github._1c_syntax.bsl.languageserver.context.MetricStorage;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.FileInfo;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.reporter.AnalysisInfo;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +35,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
@@ -100,8 +102,30 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
       return;
     }
 
+    saveMeasures(fileInfo, inputFile);
+
     List<Diagnostic> diagnostics = fileInfo.getDiagnostics();
     diagnostics.forEach(diagnostic -> processDiagnostic(inputFile, diagnostic));
+  }
+
+  private void saveMeasures(FileInfo fileInfo, InputFile inputFile) {
+    MetricStorage metrics = fileInfo.getMetrics();
+
+    context.<Integer>newMeasure().on(inputFile)
+            .forMetric(CoreMetrics.NCLOC)
+            .withValue(metrics.getNcloc())
+            .save();
+
+    context.<Integer>newMeasure().on(inputFile)
+            .forMetric(CoreMetrics.STATEMENTS)
+            .withValue(metrics.getStatements())
+            .save();
+
+    context.<Integer>newMeasure()
+            .on(inputFile)
+            .forMetric(CoreMetrics.FUNCTIONS)
+            .withValue(metrics.getProcedures() + metrics.getFunctions())
+            .save();
   }
 
   private void processDiagnostic(InputFile inputFile, Diagnostic diagnostic) {
