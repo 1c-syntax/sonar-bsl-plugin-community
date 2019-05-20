@@ -105,7 +105,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   private static String convertToSonarqubeMarkdown(String input) {
     return input
-      .replaceAll("#", "=")
+      .replaceAll("(?!.+\\[)#(?!.+])", "=")
       .replaceAll("\\*\\*", "*")
       .replaceAll("```", "``")
       .replaceAll("(^|[^`])`([^`]|$)", "$1``$2")
