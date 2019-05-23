@@ -102,30 +102,8 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
       return;
     }
 
-    saveMeasures(fileInfo, inputFile);
-
     List<Diagnostic> diagnostics = fileInfo.getDiagnostics();
     diagnostics.forEach(diagnostic -> processDiagnostic(inputFile, diagnostic));
-  }
-
-  private void saveMeasures(FileInfo fileInfo, InputFile inputFile) {
-    MetricStorage metrics = fileInfo.getMetrics();
-
-    context.<Integer>newMeasure().on(inputFile)
-            .forMetric(CoreMetrics.NCLOC)
-            .withValue(metrics.getNcloc())
-            .save();
-
-    context.<Integer>newMeasure().on(inputFile)
-            .forMetric(CoreMetrics.STATEMENTS)
-            .withValue(metrics.getStatements())
-            .save();
-
-    context.<Integer>newMeasure()
-            .on(inputFile)
-            .forMetric(CoreMetrics.FUNCTIONS)
-            .withValue(metrics.getProcedures() + metrics.getFunctions())
-            .save();
   }
 
   private void processDiagnostic(InputFile inputFile, Diagnostic diagnostic) {
