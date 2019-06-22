@@ -21,6 +21,8 @@
  */
 package com.github._1c_syntax.sonar.bsl.language;
 
+import com.github._1c_syntax.sonar.bsl.BSLCommunityProperties;
+import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
 import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
@@ -36,6 +38,7 @@ import org.sonar.api.utils.log.Loggers;
 import javax.annotation.CheckForNull;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -44,6 +47,8 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   public static final String REPOSITORY_KEY = "bsl-language-server";
   private static final String REPOSITORY_NAME = "BSL Language Server";
   private static final Logger LOGGER = Loggers.get(BSLLanguageServerRuleDefinition.class);
+  private static final Locale systemLocale = Locale.getDefault();
+
 
   private final Configuration config;
 
@@ -53,6 +58,15 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   @Override
   public void define(Context context) {
+
+   if (config.get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
+           .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
+           .equals(DiagnosticLanguage.RU.getLanguageCode())) {
+       Locale.setDefault(new Locale("ru", "RU"));
+   } else {
+       Locale.setDefault(Locale.ENGLISH);
+   }
+
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
@@ -83,6 +97,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
               newRule.key()
             )
           );
+          Locale.setDefault(systemLocale);
           return;
         }
 
@@ -95,6 +110,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     });
 
     repository.done();
+    Locale.setDefault(systemLocale);
   }
 
   public static List<String> getRuleKeys() {

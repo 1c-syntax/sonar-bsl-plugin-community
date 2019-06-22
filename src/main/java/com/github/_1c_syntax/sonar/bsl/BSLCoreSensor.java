@@ -70,6 +70,7 @@ public class BSLCoreSensor implements Sensor {
   private final SensorContext context;
   private Map<InputFile, DocumentContext> inputFilesMap;
   private Map<InputFile, List<Diagnostic>> inputFileDiagnostics;
+  private Locale systemLocale = Locale.getDefault();
 
   public BSLCoreSensor(SensorContext context) {
     this.context = context;
@@ -139,6 +140,14 @@ public class BSLCoreSensor implements Sensor {
     LOGGER.info("Analyze files...");
     inputFileDiagnostics = new HashMap<>();
 
+    if (context.config().get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
+            .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
+            .equals(DiagnosticLanguage.RU.getLanguageCode())) {
+        Locale.setDefault(new Locale("ru", "RU"));
+    } else {
+          Locale.setDefault(Locale.ENGLISH);
+    }
+
     DiagnosticProvider diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration());
     try (ProgressBar pb = new ProgressBar("", inputFilesMap.size(), ProgressBarStyle.ASCII)) {
       inputFilesMap.entrySet().parallelStream()
@@ -154,6 +163,7 @@ public class BSLCoreSensor implements Sensor {
 
     LOGGER.info("Saving issues...");
     saveIssues();
+    Locale.setDefault(systemLocale);
   }
 
   private void saveIssues() {
