@@ -5,10 +5,10 @@ plugins {
     id("java")
     // doesn"t work with sonar-packaging
     // id("maven")
-    id("org.sonarqube") version "2.7"
+    id("org.sonarqube") version "2.7.1"
     id("com.github.hierynomus.license") version "0.15.0"
     id("com.iadams.sonar-packaging") version "1.0-RC1"
-    id("com.github.ben-manes.versions") version "0.20.0"
+    id("com.github.ben-manes.versions") version "0.21.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
 }
 
@@ -23,23 +23,23 @@ repositories {
 }
 
 dependencies {
-    provided("org.sonarsource.sonarqube:sonar-plugin-api:7.4")
+    provided("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
     compile("com.github.1c-syntax:bsl-language-server:v0.8.0")
-    compile("com.fasterxml.jackson.core:jackson-databind:2.9.8")
-    compile("org.jetbrains:annotations:16.0.3")
+    compile("com.fasterxml.jackson.core:jackson-databind:2.9.9.1")
+    compile("org.jetbrains:annotations:17.0.0")
     compile("com.google.code.findbugs:jsr305:3.0.2")
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
     compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.10.2.456")
 
-    compile("me.tongfei:progressbar:0.7.2")
+    compile("me.tongfei:progressbar:0.7.4")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.2")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.0")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.5.0")
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 compileJava {

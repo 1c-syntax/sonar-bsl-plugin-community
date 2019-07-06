@@ -59,13 +59,14 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   @Override
   public void define(Context context) {
 
-   if (config.get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
-           .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
-           .equals(DiagnosticLanguage.RU.getLanguageCode())) {
-       Locale.setDefault(new Locale("ru", "RU"));
-   } else {
-       Locale.setDefault(Locale.ENGLISH);
-   }
+    if (config.get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
+      .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
+      .equals(DiagnosticLanguage.RU.getLanguageCode())
+    ) {
+      Locale.setDefault(new Locale("ru", "RU"));
+    } else {
+      Locale.setDefault(Locale.ENGLISH);
+    }
 
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
@@ -83,8 +84,8 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
         .setSeverity(severityMap.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic)));
 
       newRule.setDebtRemediationFunction(
-              newRule.debtRemediationFunctions()
-                      .linear(DiagnosticProvider.getMinutesToFix(diagnostic) + "min"));
+        newRule.debtRemediationFunctions()
+          .linear(DiagnosticProvider.getMinutesToFix(diagnostic) + "min"));
 
       Map<String, DiagnosticParameter> diagnosticParameters = DiagnosticProvider.getDiagnosticParameters(diagnostic);
       diagnosticParameters.forEach((String paramKey, DiagnosticParameter diagnosticParameter) -> {
@@ -113,7 +114,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     Locale.setDefault(systemLocale);
   }
 
-  public static List<String> getRuleKeys() {
+  protected static List<String> getRuleKeys() {
     return DiagnosticProvider.getDiagnosticClasses().stream()
       .map(DiagnosticProvider::getDiagnosticCode)
       .collect(Collectors.toList());
