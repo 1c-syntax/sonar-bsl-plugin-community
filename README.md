@@ -2,7 +2,7 @@
 
 Поддержка языка 1С:Предприятие 8 и OneScript для [SonarQube](http://sonarqube.org).
 
-Сайт проекта -> https://otymko.github.io/sonar-bsl-plugin-community/
+Сайт проекта -> https://1c-syntax.github.io/sonar-bsl-plugin-community/
 
 ## Возможности
 
