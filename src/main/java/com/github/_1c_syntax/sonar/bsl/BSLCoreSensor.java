@@ -39,6 +39,7 @@ import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticP
 import org.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import org.github._1c_syntax.bsl.parser.BSLLexer;
 import org.jetbrains.annotations.Nullable;
+import org.jline.utils.Log;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -87,11 +88,16 @@ public class BSLCoreSensor implements Sensor {
 
     FileSystem fileSystem = context.fileSystem();
     FilePredicates predicates = fileSystem.predicates();
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(
-      predicates.and(
-        predicates.hasLanguage(BSLLanguage.KEY)
-      )
-    );
+//    Iterable<InputFile> inputFiles = fileSystem.inputFiles(
+//      predicates.and(
+//        predicates.hasLanguage(BSLLanguage.KEY)
+//      )
+//    );
+
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(predicates.and(predicates.hasLanguage("bsl")));
+    for (InputFile file : inputFiles) {
+      Log.warn("Analyse file '{}', the following exception occurred:", file.toString());
+    }
 
     LOGGER.info("Parsing files...");
     ServerContext bslServerContext = new ServerContext();
