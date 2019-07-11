@@ -88,16 +88,11 @@ public class BSLCoreSensor implements Sensor {
 
     FileSystem fileSystem = context.fileSystem();
     FilePredicates predicates = fileSystem.predicates();
-//    Iterable<InputFile> inputFiles = fileSystem.inputFiles(
-//      predicates.and(
-//        predicates.hasLanguage(BSLLanguage.KEY)
-//      )
-//    );
-
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(predicates.and(predicates.hasLanguage("bsl")));
-    for (InputFile file : inputFiles) {
-      Log.warn("Analyse file '{}', the following exception occurred:", file.toString());
-    }
+    Iterable<InputFile> inputFiles = fileSystem.inputFiles(
+      predicates.and(
+        predicates.hasLanguage(BSLLanguage.KEY)
+      )
+    );
 
     LOGGER.info("Parsing files...");
     ServerContext bslServerContext = new ServerContext();
