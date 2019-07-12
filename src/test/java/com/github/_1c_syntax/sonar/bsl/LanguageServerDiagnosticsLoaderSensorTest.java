@@ -1,11 +1,8 @@
 package com.github._1c_syntax.sonar.bsl;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
 
 import java.io.File;
 
@@ -13,22 +10,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LanguageServerDiagnosticsLoaderSensorTest {
 
+    final String BASE_PATH = "src/test/files";
+
     @Test
-    public void test_run(){
+    public void test_describe(){
 
-        SonarRuntime runtime = SonarRuntimeImpl.forSonarLint(Version.create(7, 8));
-
-        String basePath = "src/test/files";
-        File baseDir = new File(basePath);
-
+        File baseDir = new File(BASE_PATH);
         SensorContextTester context = SensorContextTester.create(baseDir);
         LanguageServerDiagnosticsLoaderSensor diagnosticsLoaderSensor = new LanguageServerDiagnosticsLoaderSensor(context);
         DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
         diagnosticsLoaderSensor.describe(sensorDescriptor);
-        diagnosticsLoaderSensor.execute(context);
-        // TODO: проверку
+
+        assertThat(sensorDescriptor.name()).containsIgnoringCase("BSL Language Server diagnostics loader");
 
     }
 
+    @Test
+    public void test_execute() {
+
+        File baseDir = new File(BASE_PATH);
+        SensorContextTester context = SensorContextTester.create(baseDir);
+        LanguageServerDiagnosticsLoaderSensor diagnosticsLoaderSensor = new LanguageServerDiagnosticsLoaderSensor(context);
+        diagnosticsLoaderSensor.execute(context);
+
+    }
 
 }
