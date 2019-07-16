@@ -33,22 +33,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BSLPluginTest {
 
-    private static final Version VERSION_7_8 = Version.create(7, 8);
     private static final Version VERSION_7_9 = Version.create(7, 9);
 
     private BSLPlugin bslPlugin = new BSLPlugin();
 
-    @Test
-    public void sonarLint_7_8_extensions() {
-
-        SonarRuntime runtime = SonarRuntimeImpl.forSonarLint(VERSION_7_8);
-        Plugin.Context context = new Plugin.Context(runtime);
-        bslPlugin.define(context);
-        assertThat(context.getExtensions()).hasSize(8);
-
-    }
-
-    // TODO: а надо ли, вроде от версии 7.8?
     @Test
     public void sonarLint_7_9_extensions() {
 
@@ -61,10 +49,12 @@ public class BSLPluginTest {
 
     @Test
     public void test_qualityprofile() {
+
         BSLQualityProfile profile = new BSLQualityProfile();
         BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
         profile.define(context);
-        // TODO: проверку
+        assertThat(context.profilesByLanguageAndName()).hasSize(1);
+
     }
 
 }
