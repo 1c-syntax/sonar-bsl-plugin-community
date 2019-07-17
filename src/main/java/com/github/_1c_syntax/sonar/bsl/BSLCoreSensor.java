@@ -39,6 +39,7 @@ import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticP
 import org.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import org.github._1c_syntax.bsl.parser.BSLLexer;
 import org.jetbrains.annotations.Nullable;
+import org.jline.utils.Log;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;

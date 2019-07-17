@@ -35,6 +35,10 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.0")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.5.0")
+    
+    testCompile("org.assertj:assertj-core:3.11.1")
+    testCompile("org.mockito:mockito-core:2.1.0")
+
 }
 
 java {
@@ -46,7 +50,7 @@ compileJava {
     options.encoding = "UTF-8"
 }
 
-test {
+tasks.test {
     useJUnitPlatform()
 
     testLogging {
@@ -54,9 +58,12 @@ test {
     }
 
     reports {
-        html.enabled = true
+        html.setEnabled(true)
     }
+}
 
+jacoco {
+    toolVersion = "0.8.2"
 }
 
 jacocoTestReport {
@@ -74,6 +81,7 @@ license {
     mapping("java", "SLASHSTAR_STYLE")
     exclude("**/*.properties")
     exclude("**/*.bsl")
+    exclude("**/*.json")
 }
 
 sonarqube {
