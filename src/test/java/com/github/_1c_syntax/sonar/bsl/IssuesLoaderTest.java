@@ -59,7 +59,6 @@ public class IssuesLoaderTest {
 
         issuesLoader.createIssue(inputFile, diagnostic);
 
-
         assertThat(context.allExternalIssues()).hasSize(1);
         DefaultExternalIssue issue = (DefaultExternalIssue) context.allExternalIssues().toArray()[0];
         assertThat(issue.ruleId()).isEqualTo(issueCode);
