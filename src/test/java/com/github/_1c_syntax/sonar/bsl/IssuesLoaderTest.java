@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IssuesLoaderTest {
 
     private final String BASE_PATH = "src/test/files/src";
-    private final File BASE_DIR = new File(BASE_PATH);
+    private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
     private final String FILE_NAME = "test.bsl";
 
     @Test
@@ -56,7 +56,13 @@ public class IssuesLoaderTest {
         diagnostic.setMessage("Check message");
         diagnostic.setRange(new Range(new Position(2, 9), new Position(2, 19)));
         diagnostic.setRelatedInformation(null);
-        issuesLoader.createIssue(inputFile, diagnostic);
+
+        try{
+            issuesLoader.createIssue(inputFile, diagnostic);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
         assertThat(context.allExternalIssues()).hasSize(1);
 
