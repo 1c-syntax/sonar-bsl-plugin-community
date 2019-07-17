@@ -55,6 +55,9 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private static final Pattern PATTERN_BACKTICKS = Pattern.compile("```");
   private static final Pattern PATTERN_BACKTICKS_SURROUND = Pattern.compile("(^|[^`])`([^`]|$)");
 
+  private static final Map<DiagnosticSeverity, String> SEVERITY_MAP = createDiagnosticSeverityMap();
+  private static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
+
   private final Configuration config;
 
   public BSLLanguageServerRuleDefinition(Configuration config) {
@@ -76,43 +79,12 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
-    Map<DiagnosticSeverity, String> severityMap = createDiagnosticSeverityMap();
-    Map<DiagnosticType, RuleType> ruleTypeMap = createRuleTypeMap();
 
     List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticProvider.getDiagnosticClasses();
     diagnosticClasses.forEach((Class<? extends BSLDiagnostic> diagnostic) -> {
-      NewRule newRule = repository.createRule(DiagnosticProvider.getDiagnosticCode(diagnostic))
-        // todo: get localized name
-        .setName(DiagnosticProvider.getDiagnosticName(diagnostic))
-        .setMarkdownDescription(convertToSonarQubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
-        .setType(ruleTypeMap.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
-        .setSeverity(severityMap.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic)));
-
-      newRule.setDebtRemediationFunction(
-        newRule.debtRemediationFunctions()
-          .linear(DiagnosticProvider.getMinutesToFix(diagnostic) + "min"));
-
-      Map<String, DiagnosticParameter> diagnosticParameters = DiagnosticProvider.getDiagnosticParameters(diagnostic);
-      diagnosticParameters.forEach((String paramKey, DiagnosticParameter diagnosticParameter) -> {
-        RuleParamType ruleParamType = getRuleParamType(diagnosticParameter.type());
-        if (ruleParamType == null) {
-          LOGGER.error(
-            String.format(
-              "Can't cast rule param type %s for rule %s",
-              diagnosticParameter.type(),
-              newRule.key()
-            )
-          );
-          Locale.setDefault(systemLocale);
-          return;
-        }
-
-        NewParam newParam = newRule.createParam(paramKey);
-        newParam.setType(ruleParamType);
-        newParam.setDescription(diagnosticParameter.description());
-        newParam.setDefaultValue(DiagnosticProvider.getDefaultValue(diagnosticParameter).toString());
-      });
-
+      NewRule newRule = repository.createRule(DiagnosticProvider.getDiagnosticCode(diagnostic));
+      setUpNewRule(diagnostic, newRule);
+      setUpRuleParams(diagnostic, newRule);
     });
 
     repository.done();
@@ -123,6 +95,43 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     return DiagnosticProvider.getDiagnosticClasses().stream()
       .map(DiagnosticProvider::getDiagnosticCode)
       .collect(Collectors.toList());
+  }
+
+  private static void setUpNewRule(Class<? extends BSLDiagnostic> diagnostic, NewRule newRule) {
+    // todo: get localized name
+    newRule.setName(DiagnosticProvider.getDiagnosticName(diagnostic))
+      .setMarkdownDescription(convertToSonarQubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
+      .setType(RULE_TYPE_MAP.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
+      .setSeverity(SEVERITY_MAP.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic)));
+
+    newRule.setDebtRemediationFunction(
+      newRule.debtRemediationFunctions().linear(
+        DiagnosticProvider.getMinutesToFix(diagnostic) + "min"
+      )
+    );
+  }
+
+  private static void setUpRuleParams(Class<? extends BSLDiagnostic> diagnostic, NewRule newRule) {
+    Map<String, DiagnosticParameter> diagnosticParameters = DiagnosticProvider.getDiagnosticParameters(diagnostic);
+    diagnosticParameters.forEach((String paramKey, DiagnosticParameter diagnosticParameter) -> {
+      RuleParamType ruleParamType = getRuleParamType(diagnosticParameter.type());
+      if (ruleParamType == null) {
+        LOGGER.error(
+          String.format(
+            "Can't cast rule param type %s for rule %s",
+            diagnosticParameter.type(),
+            newRule.key()
+          )
+        );
+        Locale.setDefault(systemLocale);
+        return;
+      }
+
+      NewParam newParam = newRule.createParam(paramKey);
+      newParam.setType(ruleParamType);
+      newParam.setDescription(diagnosticParameter.description());
+      newParam.setDefaultValue(DiagnosticProvider.getDefaultValue(diagnosticParameter).toString());
+    });
   }
 
   private static String convertToSonarQubeMarkdown(String input) {
