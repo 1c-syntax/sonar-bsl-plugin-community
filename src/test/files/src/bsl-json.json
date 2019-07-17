@@ -2,7 +2,7 @@
   "date": "2019-07-17 07:12:03",
   "fileinfos": [
     {
-      "path": "file:///F:/DATA/Develop/Project/sonar/2/sonar-bsl-plugin-community/src/test/files/src/Test.bsl",
+      "path": "src/test/files/src/Test.bsl",
       "diagnostics": [
         {
           "range": {
