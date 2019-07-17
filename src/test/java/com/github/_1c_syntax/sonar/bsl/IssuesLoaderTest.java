@@ -22,10 +22,7 @@
 package com.github._1c_syntax.sonar.bsl;
 
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.DiagnosticSeverity;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.*;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -37,6 +34,8 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -89,6 +88,8 @@ public class IssuesLoaderTest {
         context.setActiveRules(activeRules);
 
         InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+        context.fileSystem().add(inputFile);
+
         IssuesLoader issuesLoader = new IssuesLoader(context);
 
         Diagnostic diagnostic = new Diagnostic();
@@ -96,7 +97,6 @@ public class IssuesLoaderTest {
         diagnostic.setSeverity(issueSeverity);
         diagnostic.setMessage("Check message OneStatementPerLine");
         diagnostic.setRange(new Range(new Position(0, 0), new Position(0, 1)));
-        diagnostic.setRelatedInformation(null);
 
         issuesLoader.createIssue(inputFile, diagnostic);
 
