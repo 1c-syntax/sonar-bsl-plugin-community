@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LanguageServerDiagnosticsLoaderSensorTest {
 
-    private final String BASE_PATH = "src/test/files/src";
+    private final String BASE_PATH = "src/test/resources/src";
     private final File BASE_DIR = new File(BASE_PATH);
     private final String FILE_NAME = "test.bsl";
 

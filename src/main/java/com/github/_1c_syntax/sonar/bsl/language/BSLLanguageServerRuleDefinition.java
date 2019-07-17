@@ -29,7 +29,6 @@ import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticS
 import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import org.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.internal.google.common.annotations.VisibleForTesting;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -115,7 +114,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     Locale.setDefault(systemLocale);
   }
 
-  public static List<String> getRuleKeys() {
+  protected static List<String> getRuleKeys() {
     return DiagnosticProvider.getDiagnosticClasses().stream()
       .map(DiagnosticProvider::getDiagnosticCode)
       .collect(Collectors.toList());
@@ -161,7 +160,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     return map;
   }
 
-  @VisibleForTesting
   private static Map<DiagnosticType, RuleType> createRuleTypeMap() {
     Map<DiagnosticType, RuleType> map = new EnumMap<>(DiagnosticType.class);
     map.put(DiagnosticType.CODE_SMELL, RuleType.CODE_SMELL);

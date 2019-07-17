@@ -81,6 +81,7 @@ license {
     mapping("java", "SLASHSTAR_STYLE")
     exclude("**/*.properties")
     exclude("**/*.bsl")
+    exclude("**/*.json")
 }
 
 sonarqube {

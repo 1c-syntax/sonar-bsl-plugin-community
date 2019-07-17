@@ -2,7 +2,7 @@
   "date": "2019-07-17 07:12:03",
   "fileinfos": [
     {
-      "path": "src/test/files/src/Test.bsl",
+      "path": "src/test/resources/src/Test.bsl",
       "diagnostics": [
         {
           "range": {
@@ -16,7 +16,7 @@
             }
           },
           "severity": "Information",
-          "code": "OneStatementPerLineExt",
+          "code": "OneStatementPerLine",
           "source": "bsl-language-server",
           "message": "Перенесите выражение на новую строку",
           "relatedInformation": null
