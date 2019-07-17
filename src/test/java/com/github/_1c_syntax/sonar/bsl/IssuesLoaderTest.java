@@ -54,7 +54,7 @@ public class IssuesLoaderTest {
         diagnostic.setCode(issueCode);
         diagnostic.setSeverity(issueSeverity);
         diagnostic.setMessage("Check message");
-        //diagnostic.setRange(new Range(new Position(2, 9), new Position(2, 19)));
+        diagnostic.setRange(new Range(new Position(1, 0), new Position(1, 1)));
         diagnostic.setRelatedInformation(null);
 
         issuesLoader.createIssue(inputFile, diagnostic);
