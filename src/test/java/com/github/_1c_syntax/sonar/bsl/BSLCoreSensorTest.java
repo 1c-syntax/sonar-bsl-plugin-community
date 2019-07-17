@@ -26,29 +26,27 @@ import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BSLCoreSensorTest {
 
 
+    private final String BASE_PATH = "src/test/files/src";
+    private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
+    private final String FILE_NAME = "test.bsl";
     final Version SONAR_VERSION = Version.create(7, 9);
-
-    private static final File BASE_DIR = new File("src/test/files/src").getAbsoluteFile();
     private SensorContextTester context = SensorContextTester.create(BASE_DIR);
 
     @Test
@@ -56,22 +54,28 @@ public class BSLCoreSensorTest {
         BSLCoreSensor sensor = new BSLCoreSensor(context);
         DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
         sensor.describe(sensorDescriptor);
+
+        assertThat(sensorDescriptor.name()).isEqualTo("BSL Core Sensor");
+        assertThat(sensorDescriptor.languages().toArray()[0]).isEqualTo(BSLLanguage.KEY);
     }
 
     @Test
     public void test_execute() {
 
+        final String diagnosticName = "OneStatementPerLine";
+        final RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
+
         SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(SONAR_VERSION);
         SensorContextTester context = SensorContextTester.create(BASE_DIR);
         context.setRuntime(sonarRuntime);
 
-        InputFile inputFile = inputFile("Test.bsl", BASE_DIR);
+        InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
         context.fileSystem().add(inputFile);
 
         ActiveRules activeRules = new ActiveRulesBuilder()
                 .addRule(new NewActiveRule.Builder()
-                        .setRuleKey(RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, "OneStatementPerLine"))
-                        .setName("OneStatementPerLine")
+                        .setRuleKey(ruleKey)
+                        .setName(diagnosticName)
                         .build())
                 .build();
         context.setActiveRules(activeRules);
@@ -79,33 +83,11 @@ public class BSLCoreSensorTest {
         BSLCoreSensor sensor = new BSLCoreSensor(context);
         sensor.execute(context);
 
+        assertThat(context.allIssues()).hasSize(1);
+
+        DefaultIssue issue = (DefaultIssue) context.allIssues().toArray()[0];
+        assertThat(issue.ruleKey()).isEqualTo(ruleKey);
+
     }
-
-    private InputFile inputFile(String name, File baseDir) {
-
-        File file = new File(baseDir.getPath(), name);
-        String content;
-        try {
-            content = readFile(file.toPath().toString());
-        } catch (IOException e) {
-            content = "Значение = 1; Значение2 = 1;";
-        }
-
-
-        DefaultInputFile inputFile = TestInputFileBuilder.create("moduleKey", name)
-                .setModuleBaseDir(baseDir.toPath())
-                .setCharset(StandardCharsets.UTF_8)
-                .setType(InputFile.Type.MAIN)
-                .setLanguage(BSLLanguage.KEY)
-                .initMetadata(content)
-                .build();
-        return inputFile;
-    }
-
-    private String readFile(String path) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded);
-    }
-
 
 }

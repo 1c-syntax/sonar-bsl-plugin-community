@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BSLPluginTest {
 
     private static final Version VERSION_7_9 = Version.create(7, 9);
-
     private BSLPlugin bslPlugin = new BSLPlugin();
 
     @Test

@@ -21,21 +21,48 @@
  */
 package com.github._1c_syntax.sonar.bsl;
 
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 
 import java.io.File;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class IssuesLoaderTest {
+
+    private final String BASE_PATH = "src/test/files/src";
+    private final File BASE_DIR = new File(BASE_PATH);
+    private final String FILE_NAME = "test.bsl";
 
     @Test
     public void test_createIssue() {
 
-        String basePath = "src/test/files";
-        File baseDir = new File(basePath);
-        SensorContextTester context = SensorContextTester.create(baseDir);
+        final String issueCode = "Test";
+        final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
 
+        SensorContextTester context = SensorContextTester.create(BASE_DIR);
+        InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
         IssuesLoader issuesLoader = new IssuesLoader(context);
+
+        Diagnostic diagnostic = new Diagnostic();
+        diagnostic.setCode(issueCode);
+        diagnostic.setSeverity(issueSeverity);
+        diagnostic.setMessage("Check message");
+        diagnostic.setRange(new Range(new Position(2, 9), new Position(2, 19)));
+        diagnostic.setRelatedInformation(null);
+        issuesLoader.createIssue(inputFile, diagnostic);
+
+        assertThat(context.allExternalIssues()).hasSize(1);
+
+        DefaultExternalIssue issue = (DefaultExternalIssue) context.allExternalIssues().toArray()[0];
+
+        assertThat(issue.ruleId()).isEqualTo(issueCode);
 
     }
 

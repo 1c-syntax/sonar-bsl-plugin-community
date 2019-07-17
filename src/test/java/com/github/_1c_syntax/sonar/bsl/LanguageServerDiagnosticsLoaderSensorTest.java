@@ -21,13 +21,10 @@
  */
 package com.github._1c_syntax.sonar.bsl;
 
-import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
@@ -38,44 +35,37 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LanguageServerDiagnosticsLoaderSensorTest {
 
-    final String BASE_PATH = "src/test/files/src";
+    private final String BASE_PATH = "src/test/files/src";
+    private final File BASE_DIR = new File(BASE_PATH);
+    private final String FILE_NAME = "test.bsl";
 
     @Test
     public void test_describe() {
 
-        File baseDir = new File(BASE_PATH);
-        SensorContextTester context = SensorContextTester.create(baseDir);
+        SensorContextTester context = SensorContextTester.create(BASE_DIR);
         LanguageServerDiagnosticsLoaderSensor diagnosticsLoaderSensor = new LanguageServerDiagnosticsLoaderSensor(context);
         DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
         diagnosticsLoaderSensor.describe(sensorDescriptor);
 
         assertThat(sensorDescriptor.name()).containsIgnoringCase("BSL Language Server diagnostics loader");
-
     }
 
     @Test
     public void test_execute() {
 
-        File baseDir = new File(BASE_PATH);
+        InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
 
         SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(7, 9));
-        SensorContextTester context = SensorContextTester.create(baseDir);
+        SensorContextTester context = SensorContextTester.create(BASE_DIR);
         context.setRuntime(sonarRuntime);
-
-
-        context.settings().setProperty("sonar.bsl.languageserver.reportPaths", "bsl-json.json, empty.json, empty2.json");
-       // context.settings().setProperty("sonar.bsl.languageserver.reportPaths", "empty.json, empty2.json");
-
-        InputFile inputFile = inputFile("Test.bsl", baseDir);
+        context.settings().setProperty(
+                "sonar.bsl.languageserver.reportPaths",
+                "bsl-json.json, bsl-json2.json, empty.json, empty2.json");
         context.fileSystem().add(inputFile);
 
         ActiveRules activeRules = new ActiveRulesBuilder()
@@ -89,32 +79,8 @@ public class LanguageServerDiagnosticsLoaderSensorTest {
         LanguageServerDiagnosticsLoaderSensor diagnosticsLoaderSensor = new LanguageServerDiagnosticsLoaderSensor(context);
         diagnosticsLoaderSensor.execute(context);
 
-    }
+        assertThat(context.isCancelled()).isFalse();
 
-    private InputFile inputFile(String name, File baseDir) {
-
-        File file = new File(baseDir.getPath(), name);
-        String content;
-        try {
-            content = readFile(file.toPath().toString());
-        } catch (IOException e) {
-            content = "Значение = 1; Значение2 = 1;";
-        }
-
-
-        DefaultInputFile inputFile = TestInputFileBuilder.create("moduleKey", name)
-                .setModuleBaseDir(baseDir.toPath())
-                .setCharset(StandardCharsets.UTF_8)
-                .setType(InputFile.Type.MAIN)
-                .setLanguage(BSLLanguage.KEY)
-                .initMetadata(content)
-                .build();
-        return inputFile;
-    }
-
-    private String readFile(String path) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded);
     }
 
 }
