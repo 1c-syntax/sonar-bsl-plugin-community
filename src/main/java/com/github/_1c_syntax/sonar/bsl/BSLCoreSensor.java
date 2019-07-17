@@ -39,7 +39,6 @@ import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticP
 import org.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import org.github._1c_syntax.bsl.parser.BSLLexer;
 import org.jetbrains.annotations.Nullable;
-import org.jline.utils.Log;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -230,26 +229,27 @@ public class BSLCoreSensor implements Sensor {
 
     inputFilesMap.forEach((InputFile inputFile, DocumentContext documentContext) -> {
 
-      NewHighlighting highlighting = context.newHighlighting();
-      highlighting.onFile(inputFile);
+      NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
 
       documentContext.getTokens().forEach((Token token) -> {
-          TypeOfText typeOfText = getTypeOfText(token.getType());
-          if (typeOfText == null) {
-            return;
-          }
-          int line = token.getLine();
-          int charPositionInLine = token.getCharPositionInLine();
-          String tokenText = token.getText();
-          highlighting.highlight(
-            line,
-            charPositionInLine,
-            line,
-            charPositionInLine + tokenText.length(),
-            typeOfText
-          );
+        TypeOfText typeOfText = getTypeOfText(token.getType());
+
+        if (typeOfText == null) {
+          return;
         }
-      );
+
+        int line = token.getLine();
+        int charPositionInLine = token.getCharPositionInLine();
+        String tokenText = token.getText();
+
+        highlighting.highlight(
+          line,
+          charPositionInLine,
+          line,
+          charPositionInLine + tokenText.length(),
+          typeOfText
+        );
+      });
 
       highlighting.save();
     });

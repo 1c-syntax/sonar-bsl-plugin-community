@@ -40,6 +40,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class BSLLanguageServerRuleDefinition implements RulesDefinition {
@@ -49,6 +50,10 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private static final Logger LOGGER = Loggers.get(BSLLanguageServerRuleDefinition.class);
   private static final Locale systemLocale = Locale.getDefault();
 
+  private static final Pattern PATTERN_HEADERS = Pattern.compile("(?!.+\\[)#(?!.+])");
+  private static final Pattern PATTERN_STARS = Pattern.compile("\\*\\*");
+  private static final Pattern PATTERN_BACKTICKS = Pattern.compile("```");
+  private static final Pattern PATTERN_BACKTICKS_SURROUND = Pattern.compile("(^|[^`])`([^`]|$)");
 
   private final Configuration config;
 
@@ -79,7 +84,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       NewRule newRule = repository.createRule(DiagnosticProvider.getDiagnosticCode(diagnostic))
         // todo: get localized name
         .setName(DiagnosticProvider.getDiagnosticName(diagnostic))
-        .setMarkdownDescription(convertToSonarqubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
+        .setMarkdownDescription(convertToSonarQubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
         .setType(ruleTypeMap.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
         .setSeverity(severityMap.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic)));
 
@@ -120,13 +125,14 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .collect(Collectors.toList());
   }
 
-  private static String convertToSonarqubeMarkdown(String input) {
-    return input
-      .replaceAll("(?!.+\\[)#(?!.+])", "=")
-      .replaceAll("\\*\\*", "*")
-      .replaceAll("```", "``")
-      .replaceAll("(^|[^`])`([^`]|$)", "$1``$2")
-      ;
+  private static String convertToSonarQubeMarkdown(String input) {
+    String result = input;
+    result = PATTERN_HEADERS.matcher(result).replaceAll("=");
+    result = PATTERN_STARS.matcher(result).replaceAll("*");
+    result = PATTERN_BACKTICKS.matcher(result).replaceAll("``");
+    result = PATTERN_BACKTICKS_SURROUND.matcher(result).replaceAll("$1``$2");
+
+    return result;
   }
 
   @CheckForNull
