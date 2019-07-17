@@ -48,7 +48,7 @@ public class BSLPluginTest {
     }
 
     @Test
-    public void test_qualityprofile() {
+    public void test_qualityProfile() {
 
         BSLQualityProfile profile = new BSLQualityProfile();
         BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();

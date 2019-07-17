@@ -133,7 +133,7 @@ public class BSLCoreSensor implements Sensor {
     saveCpd();
 
     LOGGER.info("Saving highlighting...");
-    //saveHighlighting();
+    saveHighlighting();
 
   }
 
