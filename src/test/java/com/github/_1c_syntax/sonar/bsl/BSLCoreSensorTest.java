@@ -85,9 +85,9 @@ public class BSLCoreSensorTest {
 
         assertThat(context.isCancelled()).isFalse();
 
-//        assertThat(context.allIssues()).hasSize(1);
-//        DefaultIssue issue = (DefaultIssue) context.allIssues().toArray()[0];
-//        assertThat(issue.ruleKey()).isEqualTo(ruleKey);
+        assertThat(context.allIssues()).hasSize(1);
+        DefaultIssue issue = (DefaultIssue) context.allIssues().toArray()[0];
+        assertThat(issue.ruleKey()).isEqualTo(ruleKey);
 
     }
 
