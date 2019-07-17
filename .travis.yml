@@ -11,7 +11,7 @@ git:
 
 after_script:
   - ./gradlew sonarqube
-  - ./gradlew -s test
+  - ./gradlew --scan test
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
