@@ -54,19 +54,14 @@ public class IssuesLoaderTest {
         diagnostic.setCode(issueCode);
         diagnostic.setSeverity(issueSeverity);
         diagnostic.setMessage("Check message");
-        diagnostic.setRange(new Range(new Position(2, 9), new Position(2, 19)));
+        diagnostic.setRange(new Range(new Position(0, 0), new Position(0, 1)));
         diagnostic.setRelatedInformation(null);
 
-        try{
-            issuesLoader.createIssue(inputFile, diagnostic);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        issuesLoader.createIssue(inputFile, diagnostic);
 
-//        assertThat(context.allExternalIssues()).hasSize(1);
-//        DefaultExternalIssue issue = (DefaultExternalIssue) context.allExternalIssues().toArray()[0];
-//        assertThat(issue.ruleId()).isEqualTo(issueCode);
+        assertThat(context.allExternalIssues()).hasSize(1);
+        DefaultExternalIssue issue = (DefaultExternalIssue) context.allExternalIssues().toArray()[0];
+        assertThat(issue.ruleId()).isEqualTo(issueCode);
 
     }
 
