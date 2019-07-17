@@ -54,10 +54,11 @@ public class IssuesLoaderTest {
         diagnostic.setCode(issueCode);
         diagnostic.setSeverity(issueSeverity);
         diagnostic.setMessage("Check message");
-        diagnostic.setRange(new Range(new Position(2, 9), new Position(2, 19)));
+        //diagnostic.setRange(new Range(new Position(2, 9), new Position(2, 19)));
         diagnostic.setRelatedInformation(null);
 
         issuesLoader.createIssue(inputFile, diagnostic);
+
 
         assertThat(context.allExternalIssues()).hasSize(1);
         DefaultExternalIssue issue = (DefaultExternalIssue) context.allExternalIssues().toArray()[0];
