@@ -10,7 +10,7 @@ git:
   depth: false
 
 after_script:
-  - ./gradlew sonarqube
+  - ./gradlew -i test
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
