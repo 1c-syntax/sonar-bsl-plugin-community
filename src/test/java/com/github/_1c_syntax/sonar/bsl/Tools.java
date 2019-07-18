@@ -28,8 +28,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
