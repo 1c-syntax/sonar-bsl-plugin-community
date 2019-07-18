@@ -103,6 +103,8 @@ public class BSLCoreSensor implements Sensor {
       StreamSupport.stream(inputFiles.spliterator(), true)
         .forEach((InputFile inputFile) -> {
           URI uri = inputFile.uri();
+          LOGGER.info("FILE:" + uri.toString());
+          //LOGGER.info(uri.toString());
           LOGGER.debug(uri.toString());
           pb.step();
 

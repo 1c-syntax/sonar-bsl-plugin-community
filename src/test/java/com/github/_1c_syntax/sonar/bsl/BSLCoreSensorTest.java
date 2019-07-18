@@ -23,6 +23,7 @@ package com.github._1c_syntax.sonar.bsl;
 
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
+import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
@@ -37,6 +38,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 
 import java.io.File;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,22 +67,28 @@ public class BSLCoreSensorTest {
         final String diagnosticName = "OneStatementPerLine";
         final RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
 
-        SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(SONAR_VERSION);
-        SensorContextTester context = SensorContextTester.create(BASE_DIR);
-        context.setRuntime(sonarRuntime);
+        SensorContextTester context;
+        BSLCoreSensor sensor;
 
-        InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
-        context.fileSystem().add(inputFile);
+        context = createSensorContext();
+        setActiveRules(context, diagnosticName, ruleKey);
+        sensor = new BSLCoreSensor(context);
+        sensor.execute(context);
 
-        ActiveRules activeRules = new ActiveRulesBuilder()
-                .addRule(new NewActiveRule.Builder()
-                        .setRuleKey(ruleKey)
-                        .setName(diagnosticName)
-                        .build())
-                .build();
-        context.setActiveRules(activeRules);
+        assertThat(context.isCancelled()).isFalse();
 
-        BSLCoreSensor sensor = new BSLCoreSensor(context);
+        context = createSensorContext();
+        setActiveRules(context, diagnosticName, ruleKey);
+        context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY, false);
+        sensor = new BSLCoreSensor(context);
+        sensor.execute(context);
+
+        assertThat(context.isCancelled()).isFalse();
+
+        context = createSensorContext();
+        setActiveRules(context, diagnosticName, ruleKey);
+        context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY, DiagnosticLanguage.EN.getLanguageCode());
+        sensor = new BSLCoreSensor(context);
         sensor.execute(context);
 
         assertThat(context.isCancelled()).isFalse();
@@ -89,6 +97,28 @@ public class BSLCoreSensorTest {
 //        DefaultIssue issue = (DefaultIssue) context.allIssues().toArray()[0];
 //        assertThat(issue.ruleKey()).isEqualTo(ruleKey);
 
+    }
+
+    private void setActiveRules(SensorContextTester context, String diagnosticName, RuleKey ruleKey) {
+        ActiveRules activeRules = new ActiveRulesBuilder()
+                .addRule(new NewActiveRule.Builder()
+                        .setRuleKey(ruleKey)
+                        .setName(diagnosticName)
+                        .build())
+                .build();
+        context.setActiveRules(activeRules);
+    }
+
+
+    private SensorContextTester createSensorContext() {
+        SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(SONAR_VERSION);
+        SensorContextTester context = SensorContextTester.create(BASE_DIR);
+        context.setRuntime(sonarRuntime);
+
+        InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+        context.fileSystem().add(inputFile);
+
+        return context;
     }
 
 }
