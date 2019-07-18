@@ -46,7 +46,7 @@ public class Tools {
 
         DefaultInputFile inputFile = TestInputFileBuilder.create("moduleKey", name)
                 .setModuleBaseDir(baseDir.toPath())
-                .setCharset(StandardCharsets.UTF_8)
+                //.setCharset(StandardCharsets.UTF_8)
                 .setType(InputFile.Type.MAIN)
                 .setLanguage(BSLLanguage.KEY)
                 .initMetadata(content)
