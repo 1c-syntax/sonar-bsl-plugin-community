@@ -9,8 +9,9 @@ addons:
 git:
   depth: false
 
-script:
+after_script:
   - ./gradlew -i clean test
+  - ./gradlew sonarqube
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

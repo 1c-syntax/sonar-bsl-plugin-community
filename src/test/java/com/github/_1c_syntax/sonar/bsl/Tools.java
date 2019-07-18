@@ -38,7 +38,6 @@ public class Tools {
     public static InputFile inputFileBSL(String name, File baseDir) {
 
         File file = new File(baseDir.getAbsoluteFile(), name);
-        //File file = new File(URI.create(new File(baseDir.getPath(), name).getAbsolutePath()));
         String content;
         try {
             content = readFile(file.toPath().toString());
