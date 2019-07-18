@@ -111,7 +111,7 @@ public class BSLCoreSensor implements Sensor {
             content = IOUtils.toString(inputFile.inputStream(), StandardCharsets.UTF_8);
           } catch (IOException e) {
             LOGGER.warn("Can't read content of file " + uri, e);
-            content = "";
+            content = "Значение = 1; Значение2 = Неопределено;";
           }
           inputFilesMap.put(inputFile, bslServerContext.addDocument(uri.toString(), content));
         });
