@@ -28,7 +28,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -36,7 +35,7 @@ public class Tools {
 
     public static InputFile inputFileBSL(String name, File baseDir) {
 
-        File file = new File(baseDir.getPath(), name);
+        File file = new File(baseDir.getAbsoluteFile(), name);
         String content;
         try {
             content = readFile(file.toPath().toString());
@@ -46,7 +45,7 @@ public class Tools {
 
         DefaultInputFile inputFile = TestInputFileBuilder.create("moduleKey", name)
                 .setModuleBaseDir(baseDir.toPath())
-                .setCharset(StandardCharsets.UTF_8)
+                //.setCharset(StandardCharsets.UTF_8)
                 .setType(InputFile.Type.MAIN)
                 .setLanguage(BSLLanguage.KEY)
                 .initMetadata(content)
