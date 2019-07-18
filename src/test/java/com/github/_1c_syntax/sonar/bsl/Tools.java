@@ -28,6 +28,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -36,7 +37,8 @@ public class Tools {
 
     public static InputFile inputFileBSL(String name, File baseDir) {
 
-        File file = new File(baseDir.getPath(), name);
+        File file = new File(baseDir.getAbsoluteFile(), name);
+        //File file = new File(URI.create(new File(baseDir.getPath(), name).getAbsolutePath()));
         String content;
         try {
             content = readFile(file.toPath().toString());
