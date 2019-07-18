@@ -9,8 +9,8 @@ addons:
 git:
   depth: false
 
-after_script:
-  - ./gradlew -i test
+script:
+  - ./gradlew -i clean test
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
