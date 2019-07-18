@@ -10,7 +10,6 @@ git:
   depth: false
 
 after_script:
-  - ./gradlew -i clean test
   - ./gradlew sonarqube
 
 before_cache:
