@@ -17,7 +17,7 @@ Support languages 1C:Enterprise and OneScript for [SonarQube](http://sonarqube.o
 - Put the jar file according to Manual Installation [section of official documentation](https://docs.sonarqube.org/latest/setup/install-plugin/) (default - `$SONARQUBE_HOME/extensions/plugins`)
 - Restart server
 
-Версия SonarQube | Версия плагина
+SonarQube Version | Plugin Version
 --- | ---
 7.9+ | 0.6.0+
 7.4 - 7.8 | 0.1.0...0.5.1
