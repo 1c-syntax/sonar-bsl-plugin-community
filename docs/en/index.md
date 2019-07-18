@@ -2,29 +2,29 @@
 
 Support languages 1C:Enterprise and OneScript for [SonarQube](http://sonarqube.org).
 
-## Возможности
+## Opportunities
 
 - Project "Overview" dashboard;
 - Highlighting the source code of 1C: Enterprise;
-- Расчет базовых метрик, расчет количества строк кода;
+- Calculation of basic metrics, calculation of the number of lines of code;
 - Registration of diagnostics provided by [BSL Language Server](https://1c-syntax.github.io/bsl-language-server) as internal rules; 
-- Встроенный анализатор - BSL Language Server Diagnostic provider
+- Embedded Analyzer - BSL Language Server Diagnostic provider
 - Import results from external analyzers in internal [json](https://1c-syntax.github.io/bsl-language-server/reporters/json.html) format;
 
 ## Install and Update
 
 - Download jar file from [releases](https://github.com/1c-syntax/sonar-bsl-plugin-community/releases) page
 - Put the jar file according to Manual Installation [section of official documentation](https://docs.sonarqube.org/latest/setup/install-plugin/) (default - `$SONARQUBE_HOME/extensions/plugins`)
-- Перезапустить сервер
+- Restart server
 
 Версия SonarQube | Версия плагина
 --- | ---
 7.9+ | 0.6.0+
 7.4 - 7.8 | 0.1.0...0.5.1
 
-## Запуск анализа
+## Run analysis
 
-### Настройка окружения
+### Setting up the environment
 
 Analisis of the source code 1C is used by the utility [ sonar-scanner ](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner).
 
@@ -64,13 +64,13 @@ If the SonarQube server has enabled the requirement of forced authorization and/
 sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH_TOKEN
 ```
 
-## Настройки плагина
+## Plugin settings
 
 - `sonar.bsl.languageserver.diagnosticLanguage` - the language of the rule names and message text of the triggered rules from the BSL Language Server. Default - `ru` - Russian;
 - `sonar.bsl.languageserver.enabled` - use the built-in BSL Language Server Diagnostic provider analyzer when running analysis via `sonar-scanner`. Default - `true` - enabled;
 - `sonar.bsl.languageserver.reportPaths` - the path to the report files in the internal format to the BSL Language Server - {code 1}json. By default - `" " ` - not filled.
 
-## Интеграция с BSL Language Server
+## Integration with BSL Language Server
 
 By default, the built-in diagnostics provider from BSL Language Server is used as the analyzer.
 
@@ -82,7 +82,7 @@ sonar-scanner -Dsonar.bsl.languageserver.enabled=false
 
 > Disabling the analyzer does not disable the file parsing process. Metrics calculation and syntax highlighting will work regardless of the setting value.
 
-### Импорт результатов из внешнего файла
+### Import results from external file
 
 [BSL Language Server](https://github.com/1c-syntax/bsl-language-server) can run source code analysis and output a list of detected diagnostics as a JSON file. Instructions for running BSL Language Server in analysis mode are available on the project page.
 
