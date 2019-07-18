@@ -2,7 +2,7 @@
   "date": "2019-07-17 07:12:03",
   "fileinfos": [
     {
-      "path": "./src/test/resources/src/Test.bsl",
+      "path": "./src/test/resources/src/test.bsl",
       "diagnostics": [
         {
           "range": {
