@@ -2,6 +2,8 @@
 
 Support languages 1C:Enterprise and OneScript for [SonarQube](http://sonarqube.org).
 
+[Russian version](../index.md)
+
 ## Opportunities
 
 - Project "Overview" dashboard;
