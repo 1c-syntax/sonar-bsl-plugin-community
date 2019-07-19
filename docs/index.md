@@ -1,6 +1,14 @@
 # SonarQube 1C (BSL) Community Plugin
 
+[![Build Status](https://travis-ci.org/1c-syntax/sonar-bsl-plugin-community.svg?branch=master)](https://travis-ci.org/1c-syntax/sonar-bsl-plugin-community)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=1c-syntax_sonar-bsl-plugin-community&metric=alert_status)](https://sonarcloud.io/dashboard?id=1c-syntax_sonar-bsl-plugin-community)
+[![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=1c-syntax_sonar-bsl-plugin-community&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=1c-syntax_sonar-bsl-plugin-community)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=1c-syntax_sonar-bsl-plugin-community&metric=coverage)](https://sonarcloud.io/dashboard?id=1c-syntax_sonar-bsl-plugin-community)
+[![telegram](https://img.shields.io/badge/telegram-chat-green.svg)](https://t.me/bsl_language_server)
+
 Поддержка языка 1С:Предприятие 8 и OneScript для [SonarQube](http://sonarqube.org).
+
+[English version](en/index.md)
 
 ## Возможности
 
