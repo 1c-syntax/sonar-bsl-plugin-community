@@ -99,14 +99,22 @@ sonarPackaging {
     pluginKey = "communitybsl"
     pluginClass = "com.github._1c_syntax.sonar.bsl.BSLPlugin"
     pluginName = "1C (BSL) Community Plugin"
-    pluginDescription = "Adds support of 1C (BSL) language."
+    pluginDescription = "Code Analyzer for 1C (BSL)"
 
     pluginLicense = "GNU LGPL v3"
 
-    pluginUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-community"
+    pluginUrl = "https://1c-syntax.github.io/sonar-bsl-plugin-community"
     pluginIssueTrackerUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-community/issues"
     pluginSourceUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-community"
     pluginDevelopers = "Nikita Gryzlov"
+
+    sonarLintSupported = true
+    sonarQubeMinVersion = "7.9"
+
+    organization {
+        name = '1c-syntax'
+        url = 'https://github.com/1c-syntax'
+    }
 
     serverUrl = "http://localhost:9000"
     pluginDir = "d:/docker/volumes/sonarqube/plugins"
