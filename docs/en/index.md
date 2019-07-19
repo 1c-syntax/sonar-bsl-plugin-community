@@ -27,8 +27,8 @@
 
 SonarQube Version | Plugin Version
 --- | ---
-7.9+ | 0.6.0+
-7.4 - 7.8 | 0.1.0...0.5.1
+7.9+             | 0.7.0+
+7.4 - 7.8        | 0.1.0...0.6.0
 
 ## Run analysis
 
