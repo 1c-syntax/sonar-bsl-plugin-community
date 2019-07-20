@@ -58,10 +58,12 @@ import org.sonar.api.utils.log.Loggers;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class BSLCoreSensor implements Sensor {
@@ -195,6 +197,14 @@ public class BSLCoreSensor implements Sensor {
         .withValue(metrics.getProcedures() + metrics.getFunctions())
         .save();
 
+      String nclocData = new StringBuilder().append(Arrays.stream(metrics.getNclocData())
+          .distinct().mapToObj(lineNumber -> "" + lineNumber)
+          .collect(Collectors.joining("=1;"))).append("=1;").toString();
+
+      context.<String>newMeasure().on(inputFile)
+          .forMetric(CoreMetrics.NCLOC_DATA)
+          .withValue(nclocData)
+          .save();
     });
 
   }
