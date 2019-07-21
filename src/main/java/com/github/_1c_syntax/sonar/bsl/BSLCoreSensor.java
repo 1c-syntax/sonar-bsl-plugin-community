@@ -51,6 +51,8 @@ import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -58,24 +60,24 @@ import org.sonar.api.utils.log.Loggers;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class BSLCoreSensor implements Sensor {
 
   private static final Logger LOGGER = Loggers.get(BSLCoreSensor.class);
   private final SensorContext context;
+  private final FileLinesContextFactory fileLinesContextFactory;
   private Map<InputFile, DocumentContext> inputFilesMap;
   private Map<InputFile, List<Diagnostic>> inputFileDiagnostics;
   private Locale systemLocale = Locale.getDefault();
 
-  public BSLCoreSensor(SensorContext context) {
+  public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
     this.context = context;
+    this.fileLinesContextFactory = fileLinesContextFactory;
   }
 
   @Override
@@ -197,14 +199,12 @@ public class BSLCoreSensor implements Sensor {
         .withValue(metrics.getProcedures() + metrics.getFunctions())
         .save();
 
-      String nclocData = new StringBuilder().append(Arrays.stream(metrics.getNclocData())
-          .distinct().mapToObj(lineNumber -> "" + lineNumber)
-          .collect(Collectors.joining("=1;"))).append("=1;").toString();
+      FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(inputFile);
+      for (int line : metrics.getNclocData()) {
+        fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
+      }
+      fileLinesContext.save();
 
-      context.<String>newMeasure().on(inputFile)
-          .forMetric(CoreMetrics.NCLOC_DATA)
-          .withValue(nclocData)
-          .save();
     });
 
   }
