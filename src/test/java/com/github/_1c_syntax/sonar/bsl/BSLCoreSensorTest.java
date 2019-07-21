@@ -33,12 +33,17 @@ import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BSLCoreSensorTest {
 
@@ -51,7 +56,10 @@ public class BSLCoreSensorTest {
 
     @Test
     public void test_descriptor() {
-        BSLCoreSensor sensor = new BSLCoreSensor(context);
+
+        FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+
+        BSLCoreSensor sensor = new BSLCoreSensor(context, fileLinesContextFactory);
         DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
         sensor.describe(sensorDescriptor);
 
@@ -68,9 +76,14 @@ public class BSLCoreSensorTest {
         SensorContextTester context;
         BSLCoreSensor sensor;
 
+        // Mock visitor for metrics.
+        FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+        FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+        when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+
         context = createSensorContext();
         setActiveRules(context, diagnosticName, ruleKey);
-        sensor = new BSLCoreSensor(context);
+        sensor = new BSLCoreSensor(context, fileLinesContextFactory);
         sensor.execute(context);
 
         assertThat(context.isCancelled()).isFalse();
@@ -78,7 +91,7 @@ public class BSLCoreSensorTest {
         context = createSensorContext();
         setActiveRules(context, diagnosticName, ruleKey);
         context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY, false);
-        sensor = new BSLCoreSensor(context);
+        sensor = new BSLCoreSensor(context, fileLinesContextFactory);
         sensor.execute(context);
 
         assertThat(context.isCancelled()).isFalse();
@@ -86,7 +99,7 @@ public class BSLCoreSensorTest {
         context = createSensorContext();
         setActiveRules(context, diagnosticName, ruleKey);
         context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY, DiagnosticLanguage.EN.getLanguageCode());
-        sensor = new BSLCoreSensor(context);
+        sensor = new BSLCoreSensor(context, fileLinesContextFactory);
         sensor.execute(context);
 
         assertThat(context.isCancelled()).isFalse();
