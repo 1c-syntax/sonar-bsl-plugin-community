@@ -10,6 +10,8 @@
 
 Сайт проекта -> https://1c-syntax.github.io/sonar-bsl-plugin-community/
 
+English version -> https://1c-syntax.github.io/sonar-bsl-plugin-community/en/
+
 ## Возможности
 
 * Project "Overview" dashboard;
