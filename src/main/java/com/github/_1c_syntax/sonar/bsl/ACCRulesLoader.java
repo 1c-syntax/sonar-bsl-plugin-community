@@ -28,6 +28,8 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +37,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class ACCRulesLoader implements RulesDefinition {
+
+  private static final Logger LOGGER = Loggers.get(IssuesLoader.class);
 
   public static final String REPOSITORY_KEY = "acc-rules";
   public static final String REPOSITORY_NAME = "ACC rules (BSL)";
@@ -78,12 +82,12 @@ public class ACCRulesLoader implements RulesDefinition {
       .setType(RuleType.BUG);
   }
 
-  private void createTemplateRule() {
-    repository.createRule(TEMPLATE_RULE_CODE)
-      .setName(TEMPLATE_RULE_NAME)
-      .setType(RuleType.CODE_SMELL)
-      .setTemplate(true);
-  }
+//  private void createTemplateRule() {
+//    repository.createRule(TEMPLATE_RULE_CODE)
+//      .setName(TEMPLATE_RULE_NAME)
+//      .setType(RuleType.CODE_SMELL)
+//      .setTemplate(true);
+//  }
 
   private void loadRulesFromFile(File file) {
 
@@ -99,7 +103,7 @@ public class ACCRulesLoader implements RulesDefinition {
     try {
       json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("Can't read json file acc rules", file.toURI().toString());
       return null;
     }
     ObjectMapper objectMapper = new ObjectMapper();
@@ -107,6 +111,7 @@ public class ACCRulesLoader implements RulesDefinition {
       return objectMapper.readValue(json, RulesFile.class);
     } catch (IOException e) {
       e.printStackTrace();
+      LOGGER.error("Can't serialize json acc rules to object", e.getStackTrace());
       return null;
     }
   }

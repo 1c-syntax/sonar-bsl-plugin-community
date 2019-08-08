@@ -42,7 +42,7 @@ public class BSLPluginTest {
         SonarRuntime runtime = SonarRuntimeImpl.forSonarLint(VERSION_7_9);
         Plugin.Context context = new Plugin.Context(runtime);
         bslPlugin.define(context);
-        assertThat(context.getExtensions()).hasSize(8);
+        assertThat(context.getExtensions()).hasSize(10);
 
     }
 
