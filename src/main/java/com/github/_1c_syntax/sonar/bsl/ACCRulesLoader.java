@@ -41,7 +41,7 @@ import java.util.Optional;
 
 public class ACCRulesLoader implements RulesDefinition {
 
-  private static final Logger LOGGER = Loggers.get(IssuesLoader.class);
+  private static final Logger LOGGER = Loggers.get(ACCRulesLoader.class);
 
   public static final String REPOSITORY_KEY = "acc-rules";
   public static final String REPOSITORY_NAME = "ACC rules (BSL)";
@@ -78,9 +78,6 @@ public class ACCRulesLoader implements RulesDefinition {
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
 
-    // TODO: пока не работает
-    //createTemplateRule();
-
     Optional<String> optionPath = config.get(BSLCommunityProperties.LANG_SERVER_ACCRULES_PATH);
     if (!optionPath.isEmpty()) {
       String rulesPath = optionPath.get();
@@ -111,20 +108,19 @@ public class ACCRulesLoader implements RulesDefinition {
     }
   }
 
-  private RulesFile getRulesFile(File file) {
+  private static RulesFile getRulesFile(File file) {
     String json;
     try {
       json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
     } catch (IOException e) {
-      LOGGER.error("Can't read json file acc rules", file.toURI().toString());
+      LOGGER.error("Can't read json file acc rules", file.toURI().toString(), e);
       return null;
     }
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       return objectMapper.readValue(json, RulesFile.class);
     } catch (IOException e) {
-      e.printStackTrace();
-      LOGGER.error("Can't serialize json acc rules to object", e.getStackTrace());
+      LOGGER.error("Can't serialize json acc rules to object", e);
       return null;
     }
   }

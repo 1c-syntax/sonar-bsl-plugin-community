@@ -23,43 +23,42 @@ package com.github._1c_syntax.sonar.bsl.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import lombok.Getter;
 
 import java.util.List;
 
 @Data
 public class RulesFile {
 
-    @JsonProperty("Rules")
-    private final List<ACCRule> rules;
+  @JsonProperty("Rules")
+  private final List<ACCRule> rules;
 
-    public RulesFile(
-            @JsonProperty("Rules") List<ACCRule> rules
+  public RulesFile(
+    @JsonProperty("Rules") List<ACCRule> rules
+  ) {
+    this.rules = rules;
+  }
+
+  @Data
+  public static class ACCRule {
+
+    private final String code;
+    private final String name;
+    private final String description;
+    private final String type;
+    private final String severity;
+
+    public ACCRule(
+      @JsonProperty("Code") String code,
+      @JsonProperty("Name") String name,
+      @JsonProperty("Description") String description,
+      @JsonProperty("Type") String type,
+      @JsonProperty("Severity") String severity
     ) {
-        this.rules = rules;
+      this.code = code;
+      this.name = name;
+      this.description = description;
+      this.type = type;
+      this.severity = severity;
     }
-
-    @Data
-    public static class ACCRule {
-
-        private final String code;
-        private final String name;
-        private final String description;
-        private final String type;
-        private final String severity;
-
-        public ACCRule(
-                @JsonProperty("Code") String code,
-                @JsonProperty("Name") String name,
-                @JsonProperty("Description") String description,
-                @JsonProperty("Type") String type,
-                @JsonProperty("Severity") String severity
-        ) {
-            this.code = code;
-            this.name = name;
-            this.description = description;
-            this.type = type;
-            this.severity = severity;
-        }
-    }
+  }
 }
