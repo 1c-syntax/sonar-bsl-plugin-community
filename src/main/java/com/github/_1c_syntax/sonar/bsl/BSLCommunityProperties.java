@@ -34,9 +34,9 @@ public final class BSLCommunityProperties {
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY = "sonar.bsl.languageserver.diagnosticLanguage";
   public static final String LANG_SERVER_ENABLED_KEY = "sonar.bsl.languageserver.enabled";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
-
   public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = DiagnosticLanguage.RU.getLanguageCode();
+  public static final String LANG_SERVER_ACCRULES_PATH = "sonar.bsl.languageserver.accRulesPaths";
 
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
   private static final String BSL_SUBCATEGORY = "1C (BSL) Community";
@@ -77,6 +77,14 @@ public final class BSLCommunityProperties {
         .subCategory(BSL_SUBCATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
+        .build(),
+      PropertyDefinition.builder(LANG_SERVER_ACCRULES_PATH)
+        .name("BSL Language Server ACC rules path")
+        .description("Path (absolute or relative) to json file with ACC rules")
+        .defaultValue("")
+        .category(EXTERNAL_ANALYZERS_CATEGORY)
+        .subCategory(BSL_SUBCATEGORY)
+        .onQualifiers(Qualifiers.APP)
         .build()
     );
   }

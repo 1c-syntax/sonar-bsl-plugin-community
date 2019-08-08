@@ -30,13 +30,13 @@ public class BSLPlugin implements Plugin {
 
   @Override
   public void define(Context context) {
+
     context.addExtension(BSLLanguage.class);
     context.addExtension(BSLQualityProfile.class);
-
     context.addExtensions(BSLCommunityProperties.getProperties());
     context.addExtension(BSLLanguageServerRuleDefinition.class);
-
     context.addExtension(BSLCoreSensor.class);
+    context.addExtension(ACCRulesLoader.class);
     context.addExtension(LanguageServerDiagnosticsLoaderSensor.class);
 
   }
