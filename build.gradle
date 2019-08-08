@@ -10,6 +10,7 @@ plugins {
     id("com.iadams.sonar-packaging") version "1.0-RC1"
     id("com.github.ben-manes.versions") version "0.21.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
+    id("io.franzbecker.gradle-lombok") version "3.1.0"
 }
 
 group = "com.github.1c-syntax"
@@ -32,6 +33,7 @@ dependencies {
     compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.10.2.456")
 
     compile("me.tongfei:progressbar:0.7.4")
+    compile("org.projectlombok:lombok:1.18.8")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.0")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.5.0")
