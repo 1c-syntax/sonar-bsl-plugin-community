@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github._1c_syntax.sonar.bsl.common.RulesFile;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import org.apache.commons.io.FileUtils;
+import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -34,6 +35,8 @@ import org.sonar.api.utils.log.Loggers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class ACCRulesLoader implements RulesDefinition {
@@ -42,8 +45,24 @@ public class ACCRulesLoader implements RulesDefinition {
 
   public static final String REPOSITORY_KEY = "acc-rules";
   public static final String REPOSITORY_NAME = "ACC rules (BSL)";
-  public static final String TEMPLATE_RULE_CODE = "acc-0";
-  public static final String TEMPLATE_RULE_NAME = "Template rule for ACC rules from web API";
+  private static final String RULE_TYPE_CODE_SMELL = "CODE_SMELL";
+  private static final String RULE_TYPE_BUG = "BUG";
+  private static final String SEVERITY_INFO = "INFO";
+  private static final String SEVERITY_CRITICAL = "CRITICAL";
+
+  private static Map<String, RuleType> typeMap = new HashMap<>();
+
+  static {
+    typeMap.put(RULE_TYPE_BUG, RuleType.BUG);
+    typeMap.put(RULE_TYPE_CODE_SMELL, RuleType.CODE_SMELL);
+  }
+
+  private static Map<String, DiagnosticSeverity> severityMap = new HashMap<>();
+
+  static {
+    severityMap.put(SEVERITY_CRITICAL, DiagnosticSeverity.CRITICAL);
+    severityMap.put(SEVERITY_INFO, DiagnosticSeverity.INFO);
+  }
 
   private final Configuration config;
   private NewRepository repository;
@@ -79,15 +98,9 @@ public class ACCRulesLoader implements RulesDefinition {
     repository.createRule(rule.getCode())
       .setName(rule.getName())
       .setHtmlDescription(rule.getDescription())
-      .setType(RuleType.BUG);
+      .setType(typeMap.get(rule.getType()))
+      .setSeverity(rule.getSeverity());
   }
-
-//  private void createTemplateRule() {
-//    repository.createRule(TEMPLATE_RULE_CODE)
-//      .setName(TEMPLATE_RULE_NAME)
-//      .setType(RuleType.CODE_SMELL)
-//      .setTemplate(true);
-//  }
 
   private void loadRulesFromFile(File file) {
 
