@@ -33,9 +33,9 @@ public class RulesFile {
   private final List<ACCRule> rules;
 
   public RulesFile(
-    @JsonProperty("Rules") List<ACCRule> rules
+    @JsonProperty("Rules") List<ACCRule> rulesList
   ) {
-    this.rules = rules;
+    this.rules = rulesList;
   }
 
   @Data
