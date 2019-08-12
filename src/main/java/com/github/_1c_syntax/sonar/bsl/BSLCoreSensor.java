@@ -71,13 +71,25 @@ public class BSLCoreSensor implements Sensor {
   private static final Logger LOGGER = Loggers.get(BSLCoreSensor.class);
   private final SensorContext context;
   private final FileLinesContextFactory fileLinesContextFactory;
-  private Map<InputFile, DocumentContext> inputFilesMap;
-  private Map<InputFile, List<Diagnostic>> inputFileDiagnostics;
+
+  private final Boolean langServerEnabled;
+  private final ServerContext bslServerContext;
+  private final DiagnosticProvider diagnosticProvider;
+  private final IssuesLoader issuesLoader;
+
+  private Map<InputFile, DocumentContext> inputFilesMap = new HashMap<>();
+
   private Locale systemLocale = Locale.getDefault();
 
   public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
     this.context = context;
     this.fileLinesContextFactory = fileLinesContextFactory;
+
+    langServerEnabled = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY)
+      .orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
+    bslServerContext = new ServerContext();
+    diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration());
+    issuesLoader = new IssuesLoader(context);
   }
 
   @Override
@@ -88,7 +100,17 @@ public class BSLCoreSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
+    inputFilesMap.clear();
 
+    LOGGER.info("Parsing files...");
+    parseFiles();
+
+    LOGGER.info("Saving measures...");
+    saveMeasures();
+
+  }
+
+  private void parseFiles() {
     FileSystem fileSystem = context.fileSystem();
     FilePredicates predicates = fileSystem.predicates();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(
@@ -97,11 +119,9 @@ public class BSLCoreSensor implements Sensor {
       )
     );
 
-    LOGGER.info("Parsing files...");
-    ServerContext bslServerContext = new ServerContext();
-
     long inputFleSize = StreamSupport.stream(inputFiles.spliterator(), false).count();
-    inputFilesMap = new HashMap<>();
+
+    setupLocale();
 
     try (ProgressBar pb = new ProgressBar("", inputFleSize, ProgressBarStyle.ASCII)) {
       StreamSupport.stream(inputFiles.spliterator(), true)
@@ -110,40 +130,14 @@ public class BSLCoreSensor implements Sensor {
           LOGGER.debug(uri.toString());
           pb.step();
 
-          String content;
-          try {
-            content = IOUtils.toString(inputFile.inputStream(), StandardCharsets.UTF_8);
-          } catch (IOException e) {
-            LOGGER.warn("Can't read content of file " + uri, e);
-            content = "";
-          }
-          inputFilesMap.put(inputFile, bslServerContext.addDocument(uri.toString(), content));
+          processFile(inputFile);
         });
     }
 
-    Boolean langServerEnabled = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY)
-      .orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
-    if (langServerEnabled) {
-      runLangServerAnalyze();
-    } else {
-      LOGGER.info("Internal analysis with BSL Language server is disabled. Skipping...");
-    }
-
-    LOGGER.info("Saving measures...");
-    saveMeasures();
-
-    LOGGER.info("Saving CPD info...");
-    saveCpd();
-
-    LOGGER.info("Saving highlighting...");
-    saveHighlighting();
-
+    restoreLocale();
   }
 
-  private void runLangServerAnalyze() {
-    LOGGER.info("Analyze files...");
-    inputFileDiagnostics = new HashMap<>();
-
+  private void setupLocale() {
     if (context.config().get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
       .equals(DiagnosticLanguage.RU.getLanguageCode())) {
@@ -151,31 +145,89 @@ public class BSLCoreSensor implements Sensor {
     } else {
       Locale.setDefault(Locale.ENGLISH);
     }
+  }
 
-    DiagnosticProvider diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration());
-    try (ProgressBar pb = new ProgressBar("", inputFilesMap.size(), ProgressBarStyle.ASCII)) {
-      inputFilesMap.entrySet().parallelStream()
-        .forEach((Map.Entry<InputFile, DocumentContext> entry) -> {
-          URI uri = entry.getKey().uri();
-          LOGGER.debug(uri.toString());
-          pb.step();
-
-          List<Diagnostic> diagnostics = diagnosticProvider.computeDiagnostics(entry.getValue());
-          inputFileDiagnostics.put(entry.getKey(), diagnostics);
-        });
-    }
-
-    LOGGER.info("Saving issues...");
-    saveIssues();
+  private void restoreLocale() {
     Locale.setDefault(systemLocale);
   }
 
-  private void saveIssues() {
-    IssuesLoader issuesLoader = new IssuesLoader(context);
+  private void processFile(InputFile inputFile) {
+    URI uri = inputFile.uri();
 
-    inputFileDiagnostics.forEach((InputFile inputFile, List<Diagnostic> diagnostics) ->
-      diagnostics.forEach(diagnostic -> issuesLoader.createIssue(inputFile, diagnostic)));
+    String content;
+    try {
+      content = IOUtils.toString(inputFile.inputStream(), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      LOGGER.warn("Can't read content of file " + uri, e);
+      content = "";
+    }
+    DocumentContext documentContext = bslServerContext.addDocument(uri.toString(), content);
+    inputFilesMap.put(inputFile, documentContext);
+
+    if (langServerEnabled) {
+      diagnosticProvider.computeDiagnostics(documentContext)
+        .forEach(diagnostic -> issuesLoader.createIssue(inputFile, diagnostic));
+    }
+
+    saveCpd(inputFile, documentContext);
+    saveHighlighting(inputFile, documentContext);
+
+    documentContext.clearASTData();
   }
+
+
+  private void saveCpd(InputFile inputFile, DocumentContext documentContext) {
+
+    NewCpdTokens cpdTokens = context.newCpdTokens();
+    cpdTokens.onFile(inputFile);
+
+    documentContext.getTokensFromDefaultChannel()
+      .forEach((Token token) -> {
+          int line = token.getLine();
+          int charPositionInLine = token.getCharPositionInLine();
+          String tokenText = token.getText();
+          cpdTokens.addToken(
+            line,
+            charPositionInLine,
+            line,
+            charPositionInLine + tokenText.length(),
+            tokenText
+          );
+        }
+      );
+
+    cpdTokens.save();
+
+  }
+
+  private void saveHighlighting(InputFile inputFile, DocumentContext documentContext) {
+
+    NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
+
+    documentContext.getTokens().forEach((Token token) -> {
+      TypeOfText typeOfText = getTypeOfText(token.getType());
+
+      if (typeOfText == null) {
+        return;
+      }
+
+      int line = token.getLine();
+      int charPositionInLine = token.getCharPositionInLine();
+      String tokenText = token.getText();
+
+      highlighting.highlight(
+        line,
+        charPositionInLine,
+        line,
+        charPositionInLine + tokenText.length(),
+        typeOfText
+      );
+    });
+
+    highlighting.save();
+
+  }
+
 
   private void saveMeasures() {
 
@@ -215,63 +267,6 @@ public class BSLCoreSensor implements Sensor {
 
   }
 
-  private void saveCpd() {
-
-    inputFilesMap.forEach((InputFile inputFile, DocumentContext documentContext) -> {
-
-      NewCpdTokens cpdTokens = context.newCpdTokens();
-      cpdTokens.onFile(inputFile);
-
-      documentContext.getTokensFromDefaultChannel()
-        .forEach((Token token) -> {
-            int line = token.getLine();
-            int charPositionInLine = token.getCharPositionInLine();
-            String tokenText = token.getText();
-            cpdTokens.addToken(
-              line,
-              charPositionInLine,
-              line,
-              charPositionInLine + tokenText.length(),
-              tokenText
-            );
-          }
-        );
-
-      cpdTokens.save();
-    });
-  }
-
-  private void saveHighlighting() {
-
-    inputFilesMap.forEach((InputFile inputFile, DocumentContext documentContext) -> {
-
-      NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
-
-      documentContext.getTokens().forEach((Token token) -> {
-        TypeOfText typeOfText = getTypeOfText(token.getType());
-
-        if (typeOfText == null) {
-          return;
-        }
-
-        int line = token.getLine();
-        int charPositionInLine = token.getCharPositionInLine();
-        String tokenText = token.getText();
-
-        highlighting.highlight(
-          line,
-          charPositionInLine,
-          line,
-          charPositionInLine + tokenText.length(),
-          typeOfText
-        );
-      });
-
-      highlighting.save();
-    });
-
-  }
-
   private LanguageServerConfiguration getLanguageServerConfiguration() {
     LanguageServerConfiguration languageServerConfiguration = LanguageServerConfiguration.create();
     String diagnosticLanguageCode = context.config()
@@ -302,11 +297,11 @@ public class BSLCoreSensor implements Sensor {
           DiagnosticProvider.getDiagnosticParameters(diagnosticClass);
         Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
 
-        params.entrySet().forEach((Map.Entry<String, String> param) -> {
-          DiagnosticParameter diagnosticParameter = diagnosticParameters.get(param.getKey());
+        params.forEach((key, value) -> {
+          DiagnosticParameter diagnosticParameter = diagnosticParameters.get(key);
           diagnosticConfiguration.put(
-            param.getKey(),
-            DiagnosticProvider.castDiagnosticParameterValue(param.getValue(), diagnosticParameter.type())
+            key,
+            DiagnosticProvider.castDiagnosticParameterValue(value, diagnosticParameter.type())
           );
         });
         diagnostics.put(
@@ -365,8 +360,7 @@ public class BSLCoreSensor implements Sensor {
       case BSLLexer.FALSE:
       case BSLLexer.UNDEFINED:
       case BSLLexer.NULL:
-        typeOfText = TypeOfText.CONSTANT;
-        break;
+      case BSLLexer.DATETIME:
       case BSLLexer.DECIMAL:
       case BSLLexer.FLOAT:
         typeOfText = TypeOfText.CONSTANT;
@@ -377,9 +371,6 @@ public class BSLCoreSensor implements Sensor {
       case BSLLexer.STRINGTAIL:
       case BSLLexer.PREPROC_STRING:
         typeOfText = TypeOfText.STRING;
-        break;
-      case BSLLexer.DATETIME:
-        typeOfText = TypeOfText.CONSTANT;
         break;
       case BSLLexer.LINE_COMMENT:
         typeOfText = TypeOfText.COMMENT;
