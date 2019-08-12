@@ -199,6 +199,12 @@ public class BSLCoreSensor implements Sensor {
         .withValue(metrics.getProcedures() + metrics.getFunctions())
         .save();
 
+      context.<Integer>newMeasure()
+        .on(inputFile)
+        .forMetric(CoreMetrics.COGNITIVE_COMPLEXITY)
+        .withValue(metrics.getCognitiveComplexity())
+        .save();
+
       FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(inputFile);
       for (int line : metrics.getNclocData()) {
         fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);

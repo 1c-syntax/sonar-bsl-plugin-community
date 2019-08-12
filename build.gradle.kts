@@ -26,7 +26,7 @@ repositories {
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    compile("com.github.1c-syntax:bsl-language-server:0.9.1")
+    compile("com.github.1c-syntax:bsl-language-server:f08adae53dd74e95725c125778fc5257da863069")
     compile("com.fasterxml.jackson.core:jackson-databind:2.9.9.1")
     compile("org.jetbrains:annotations:17.0.0")
     compile("com.google.code.findbugs:jsr305:3.0.2")
