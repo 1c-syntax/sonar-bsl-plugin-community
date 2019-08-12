@@ -1,4 +1,5 @@
-//import java.util.Calendar
+import java.util.Calendar
+import java.net.URI
 
 plugins {
     id("jacoco")
@@ -7,7 +8,7 @@ plugins {
     // id("maven")
     id("org.sonarqube") version "2.7.1"
     id("com.github.hierynomus.license") version "0.15.0"
-    id("com.iadams.sonar-packaging") version "1.0-RC1"
+    id("com.github.johnrengelman.shadow") version("4.0.3")
     id("com.github.ben-manes.versions") version "0.21.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
 }
@@ -18,12 +19,13 @@ version = gitVersionCalculator.calculateVersion("v")
 repositories {
     mavenCentral()
     maven {
-        url = "https://jitpack.io"
+        url = URI("https://jitpack.io")
     }
 }
 
 dependencies {
-    provided("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
+    implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
+
     compile("com.github.1c-syntax:bsl-language-server:0.9.1")
     compile("com.fasterxml.jackson.core:jackson-databind:2.9.9.1")
     compile("org.jetbrains:annotations:17.0.0")
@@ -46,8 +48,9 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
-compileJava {
+tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
+    options.compilerArgs.add("-Xlint:unchecked")
 }
 
 tasks.test {
@@ -58,7 +61,7 @@ tasks.test {
     }
 
     reports {
-        html.setEnabled(true)
+        html.isEnabled = true
     }
 }
 
@@ -66,9 +69,9 @@ jacoco {
     toolVersion = "0.8.2"
 }
 
-jacocoTestReport {
+tasks.jacocoTestReport {
     reports {
-        xml.enabled = true
+        xml.isEnabled = true
     }
 }
 
@@ -95,45 +98,33 @@ sonarqube {
     }
 }
 
-sonarPackaging {
-    pluginKey = "communitybsl"
-    pluginClass = "com.github._1c_syntax.sonar.bsl.BSLPlugin"
-    pluginName = "1C (BSL) Community Plugin"
-    pluginDescription = "Code Analyzer for 1C (BSL)"
+tasks.jar {
+    manifest {
+        attributes["Plugin-Key"] = "communitybsl"
+        attributes["Plugin-Description"] = "Code Analyzer for 1C (BSL)"
+        attributes["Plugin-Class"] = "com.github._1c_syntax.sonar.bsl.BSLPlugin"
+        attributes["Plugin-Name"] = "1C (BSL) Community Plugin"
+        attributes["Plugin-Version"] = "${project.version}"
 
-    pluginLicense = "GNU LGPL v3"
+        attributes["Plugin-License"] = "GNU LGPL v3"
 
-    pluginUrl = "https://1c-syntax.github.io/sonar-bsl-plugin-community"
-    pluginIssueTrackerUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-community/issues"
-    pluginSourceUrl = "https://github.com/1c-syntax/sonar-bsl-plugin-community"
-    pluginDevelopers = "Nikita Gryzlov"
+        attributes["Plugin-Homepage"] = "https://1c-syntax.github.io/sonar-bsl-plugin-community"
+        attributes["Plugin-IssueTrackerUrl"] = "https://github.com/1c-syntax/sonar-bsl-plugin-community/issues"
+        attributes["Plugin-SourcesUrl"] = "https://github.com/1c-syntax/sonar-bsl-plugin-community"
+        attributes["Plugin-Developers"] = "Nikita Gryzlov"
 
-    sonarLintSupported = true
-    sonarQubeMinVersion = "7.9"
+        attributes["SonarLint-Supported"] = true
+        attributes["Sonar-Version"] = "7.9"
 
-    organization {
-        name = '1c-syntax'
-        url = 'https://github.com/1c-syntax'
+        attributes["Plugin-Organization"] = "1c-syntax"
+        attributes["Plugin-OrganizationUrl"] = "https://github.com/1c-syntax"
     }
-
-    serverUrl = "http://localhost:9000"
-    pluginDir = "d:/docker/volumes/sonarqube/plugins"
-}
-
-pluginPackaging {
-    dependsOn(jar)
-}
-
-localDeploy {
-    dependsOn(pluginPackaging)
-}
-
-task buildAndLocalDeploy() {
-    dependsOn(localDeploy)
-    doLast {
-        exec {
-            executable = "curl"
-            args = ["-u", "admin:admin", "-X", "POST", sonarPackaging.serverUrl + "/api/system/restart"]
+    configurations["compile"].forEach {
+        from(zipTree(it.absoluteFile)) {
+            exclude("META-INF/MANIFEST.MF")
+            exclude("META-INF/*.SF")
+            exclude("META-INF/*.DSA")
+            exclude("META-INF/*.RSA")
         }
     }
 }
