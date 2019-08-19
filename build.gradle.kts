@@ -2,10 +2,9 @@ import java.net.URI
 import java.util.*
 
 plugins {
-    id("jacoco")
-    id("java")
-    // doesn"t work with sonar-packaging
-    // id("maven")
+    jacoco
+    java
+    maven
     id("org.sonarqube") version "2.7.1"
     id("com.github.hierynomus.license") version "0.15.0"
     id("com.github.johnrengelman.shadow") version("5.1.0")
