@@ -35,7 +35,7 @@ public final class BSLQualityProfile implements BuiltInQualityProfilesDefinition
     );
     profile.setDefault(true);
 
-    List<String> ruleKeys = BSLLanguageServerRuleDefinition.getRuleKeys();
+    List<String> ruleKeys = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
     ruleKeys.forEach(ruleKey ->
       profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, ruleKey)
     );

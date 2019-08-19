@@ -91,18 +91,22 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     Locale.setDefault(systemLocale);
   }
 
-  protected static List<String> getRuleKeys() {
+  protected static List<String> getActivatedRuleKeys() {
     return DiagnosticProvider.getDiagnosticClasses().stream()
+      .filter(DiagnosticProvider::isActivatedByDefault)
       .map(DiagnosticProvider::getDiagnosticCode)
       .collect(Collectors.toList());
   }
 
   private static void setUpNewRule(Class<? extends BSLDiagnostic> diagnostic, NewRule newRule) {
     // todo: get localized name
-    newRule.setName(DiagnosticProvider.getDiagnosticName(diagnostic))
+    newRule
+      .setName(DiagnosticProvider.getDiagnosticName(diagnostic))
       .setMarkdownDescription(convertToSonarQubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
       .setType(RULE_TYPE_MAP.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
-      .setSeverity(SEVERITY_MAP.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic)));
+      .setSeverity(SEVERITY_MAP.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic)))
+      .setActivatedByDefault(DiagnosticProvider.isActivatedByDefault(diagnostic))
+    ;
 
     newRule.setDebtRemediationFunction(
       newRule.debtRemediationFunctions().linear(
