@@ -1,5 +1,5 @@
-import java.util.Calendar
 import java.net.URI
+import java.util.*
 
 plugins {
     id("jacoco")
@@ -8,8 +8,8 @@ plugins {
     // id("maven")
     id("org.sonarqube") version "2.7.1"
     id("com.github.hierynomus.license") version "0.15.0"
-    id("com.github.johnrengelman.shadow") version("4.0.3")
-    id("com.github.ben-manes.versions") version "0.21.0"
+    id("com.github.johnrengelman.shadow") version("5.1.0")
+    id("com.github.ben-manes.versions") version "0.22.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
 }
 
@@ -26,20 +26,20 @@ repositories {
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    compile("com.github.1c-syntax:bsl-language-server:3cd01db5ec2dc316aceafe04a9f1577162ab50de")
+    compile("com.github.1c-syntax:bsl-language-server:dd34e5385d89fd241fff0e00099db51483243d81")
     compile("com.fasterxml.jackson.core:jackson-databind:2.9.9.1")
     compile("org.jetbrains:annotations:17.0.0")
     compile("com.google.code.findbugs:jsr305:3.0.2")
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
-    compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.10.2.456")
+    compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.10.3.509")
 
     compile("me.tongfei:progressbar:0.7.4")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.0")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.5.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.1")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.5.1")
     
-    testCompile("org.assertj:assertj-core:3.11.1")
-    testCompile("org.mockito:mockito-core:2.1.0")
+    testCompile("org.assertj:assertj-core:3.13.2")
+    testCompile("org.mockito:mockito-core:3.0.0")
 
 }
 
