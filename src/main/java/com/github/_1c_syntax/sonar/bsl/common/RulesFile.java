@@ -22,11 +22,11 @@
 package com.github._1c_syntax.sonar.bsl.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.Value;
 
 import java.util.List;
 
-@Data
+@Value
 public class RulesFile {
 
   @JsonProperty("Rules")
@@ -38,7 +38,7 @@ public class RulesFile {
     this.rules = rulesList;
   }
 
-  @Data
+  @Value
   public static class ACCRule {
 
     private final String code;

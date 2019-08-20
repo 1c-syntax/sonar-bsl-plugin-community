@@ -21,6 +21,7 @@
  */
 package com.github._1c_syntax.sonar.bsl;
 
+import com.github._1c_syntax.sonar.bsl.language.ACCRulesLoader;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.sonar.bsl.language.BSLQualityProfile;

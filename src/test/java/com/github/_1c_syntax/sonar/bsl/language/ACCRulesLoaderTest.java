@@ -19,8 +19,9 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.sonar.bsl;
+package com.github._1c_syntax.sonar.bsl.language;
 
+import com.github._1c_syntax.sonar.bsl.BSLCommunityProperties;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
@@ -30,14 +31,14 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ACCRulesLoaderTest {
+class ACCRulesLoaderTest {
 
   private final String BASE_PATH = "src/test/resources/src";
   private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
   private final String FILE_NAME = "acc.json";
 
   @Test
-  public void test_define() {
+  void test_define() {
 
     File fileRules = new File(BASE_DIR, FILE_NAME);
     Configuration config = new MapSettings()
