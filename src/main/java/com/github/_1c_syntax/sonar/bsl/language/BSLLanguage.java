@@ -39,6 +39,7 @@ public class BSLLanguage implements Language {
 
   @Override
   public String[] getFileSuffixes() {
-    return new String[]{"bsl", "os"};
+    //fixme
+    return new String[]{".bsl", ".os"};
   }
 }

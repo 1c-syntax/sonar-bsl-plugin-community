@@ -34,7 +34,7 @@ public class BSLLanguageTest {
 
         assertThat(language.getKey()).containsIgnoringCase("bsl");
         assertThat(language.getName()).containsIgnoringCase("1C (BSL)");
-        assertThat(language.getFileSuffixes()).contains(new String[]{"bsl", "os"});
+        assertThat(language.getFileSuffixes()).contains(new String[]{".bsl", ".os"});
 
     }
 
