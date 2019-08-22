@@ -39,6 +39,7 @@ public final class BSLCommunityProperties {
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = DiagnosticLanguage.RU.getLanguageCode();
 
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
+  private static final String LANG_SERVER_CATEGORY = "1C (BSL)";
   private static final String BSL_SUBCATEGORY = "1C (BSL) Community";
 
 
@@ -56,7 +57,7 @@ public final class BSLCommunityProperties {
         .defaultValue(LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
         .type(PropertyType.SINGLE_SELECT_LIST)
         .options(DiagnosticLanguage.RU.getLanguageCode(), DiagnosticLanguage.EN.getLanguageCode())
-        .category(EXTERNAL_ANALYZERS_CATEGORY)
+        .category(LANG_SERVER_CATEGORY)
         .subCategory(BSL_SUBCATEGORY)
         .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
         .build(),
@@ -65,7 +66,7 @@ public final class BSLCommunityProperties {
         .description("Run internal BSL Language Server Diagnostic Provider")
         .defaultValue(LANG_SERVER_ENABLED_DEFAULT_VALUE.toString())
         .type(PropertyType.BOOLEAN)
-        .category(EXTERNAL_ANALYZERS_CATEGORY)
+        .category(LANG_SERVER_CATEGORY)
         .subCategory(BSL_SUBCATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
