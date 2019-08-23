@@ -61,7 +61,7 @@ public final class BSLCommunityProperties {
         .options(DiagnosticLanguage.RU.getLanguageCode(), DiagnosticLanguage.EN.getLanguageCode())
         .category(BSL_CATEGORY)
         .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
-        .index(1)
+        .index(0)
         .build(),
       PropertyDefinition.builder(LANG_SERVER_ENABLED_KEY)
         .name("BSL Language Server enabled")
@@ -70,7 +70,7 @@ public final class BSLCommunityProperties {
         .type(PropertyType.BOOLEAN)
         .category(BSL_CATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
-        .index(0)
+        .index(1)
         .build(),
       PropertyDefinition.builder(BSL_FILE_EXTENSIONS_KEY)
         .name("BSL File suffixes")
