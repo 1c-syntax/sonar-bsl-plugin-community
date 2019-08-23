@@ -27,10 +27,17 @@ English version -> https://1c-syntax.github.io/sonar-bsl-plugin-community/en/
 * Разместить jar-файл согласно разделу Manual Installation [официальной документации](https://docs.sonarqube.org/latest/setup/install-plugin/) (по умолчанию - каталог `$SONARQUBE_HOME/extensions/plugins`)
 * Перезапустить сервер
 
+## Требования
+
 Версия SonarQube | Версия плагина
 -----------------|----------------
 7.9+             | 0.7.0+
 7.4 - 7.8        | 0.1.0...0.6.0
+
+Версия плагина | Версия JAVA
+---------------|------------------
+1.0+           | 11
+0.1.0 - 0.6.0  | 8
 
 ## Запуск анализа
 
