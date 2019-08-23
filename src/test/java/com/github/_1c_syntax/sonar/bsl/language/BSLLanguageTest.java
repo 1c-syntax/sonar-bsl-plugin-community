@@ -34,8 +34,8 @@ public class BSLLanguageTest {
 
         MapSettings settings = new MapSettings();
         settings.setProperty(
-                BSLCommunityProperties.LANG_SERVER_FILE_EXTENSIONS_KEY,
-                BSLCommunityProperties.LANG_SERVER_FILE_EXTENSIONS_DEFAULT_VALUE);
+                BSLCommunityProperties.BSL_FILE_EXTENSIONS_KEY,
+                BSLCommunityProperties.BSL_FILE_EXTENSIONS_DEFAULT_VALUE);
 
         BSLLanguage language = new BSLLanguage(settings.asConfig());
 

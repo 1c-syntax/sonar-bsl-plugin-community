@@ -34,11 +34,11 @@ public final class BSLCommunityProperties {
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY = "sonar.bsl.languageserver.diagnosticLanguage";
   public static final String LANG_SERVER_ENABLED_KEY = "sonar.bsl.languageserver.enabled";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
-  public static final String LANG_SERVER_FILE_EXTENSIONS_KEY = "sonar.bsl.file.suffixes";
+  public static final String BSL_FILE_EXTENSIONS_KEY = "sonar.bsl.file.suffixes";
 
   public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = DiagnosticLanguage.RU.getLanguageCode();
-  public static final String LANG_SERVER_FILE_EXTENSIONS_DEFAULT_VALUE = ".bsl,.os";
+  public static final String BSL_FILE_EXTENSIONS_DEFAULT_VALUE = ".bsl,.os";
 
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
   private static final String BSL_CATEGORY = "1C (BSL)";
@@ -72,11 +72,11 @@ public final class BSLCommunityProperties {
         .onQualifiers(Qualifiers.PROJECT)
         .index(0)
         .build(),
-      PropertyDefinition.builder(LANG_SERVER_FILE_EXTENSIONS_KEY)
+      PropertyDefinition.builder(BSL_FILE_EXTENSIONS_KEY)
         .name("BSL File suffixes")
         .description("List of file suffixes that will be scanned.")
         .category(BSL_CATEGORY)
-        .defaultValue(LANG_SERVER_FILE_EXTENSIONS_DEFAULT_VALUE)
+        .defaultValue(BSL_FILE_EXTENSIONS_DEFAULT_VALUE)
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
         .index(2)
