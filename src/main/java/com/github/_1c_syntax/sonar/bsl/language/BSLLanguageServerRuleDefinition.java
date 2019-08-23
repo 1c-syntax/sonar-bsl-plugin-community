@@ -50,7 +50,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private static final Logger LOGGER = Loggers.get(BSLLanguageServerRuleDefinition.class);
   private static final Locale systemLocale = Locale.getDefault();
 
-  private static final Pattern PATTERN_HEADERS = Pattern.compile("(?!.+\\[)#(?!.+])");
+  private static final Pattern PATTERN_HEADERS = Pattern.compile("(?!.+[(\\[])#(?!.+[)\\]])");
   private static final Pattern PATTERN_STARS = Pattern.compile("\\*\\*");
   private static final Pattern PATTERN_BACKTICKS = Pattern.compile("```");
   private static final Pattern PATTERN_BACKTICKS_SURROUND = Pattern.compile("(^|[^`])`([^`]|$)");
