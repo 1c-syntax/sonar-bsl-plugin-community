@@ -21,7 +21,9 @@
  */
 package com.github._1c_syntax.sonar.bsl.language;
 
+import com.github._1c_syntax.sonar.bsl.BSLCommunityProperties;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,11 +32,16 @@ public class BSLLanguageTest {
     @Test
     public void test_create() {
 
-        BSLLanguage language = new BSLLanguage();
+        MapSettings settings = new MapSettings();
+        settings.setProperty(
+                BSLCommunityProperties.LANG_SERVER_FILE_EXTENSIONS_KEY,
+                BSLCommunityProperties.LANG_SERVER_FILE_EXTENSIONS_DEFAULT_VALUE);
+
+        BSLLanguage language = new BSLLanguage(settings.asConfig());
 
         assertThat(language.getKey()).containsIgnoringCase("bsl");
         assertThat(language.getName()).containsIgnoringCase("1C (BSL)");
-        assertThat(language.getFileSuffixes()).contains(new String[]{".bsl", ".os"});
+        assertThat(language.getFileSuffixes()).containsOnly(".bsl", ".os");
 
     }
 
