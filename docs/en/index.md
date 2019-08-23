@@ -101,7 +101,7 @@ http://localhost:9000/admin/settings?category=1c+%28bsl%29
 
 ![Rule names](../images/ruleNames.png)
 
-To change language of **issue textx** you should change this setting in **project** "Administration" panel:
+To change language of **issue texts** you should change this setting in **project** "Administration" panel:
 
 http://localhost:9000/project/settings?category=1c+%28bsl%29&id=projectKey
 
