@@ -83,6 +83,28 @@ sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH
 * `sonar.bsl.languageserver.diagnosticLanguage` - язык имен правил и текстов сообщений сработавших правил от BSL Language Server. По умолчанию - `ru` - русский;
 * `sonar.bsl.languageserver.enabled` - использование встроенного анализатора BSL Language Server Diagnostic provider при запуске анализа через `sonar-scanner`. По умолчанию - `true` - включен;
 * `sonar.bsl.languageserver.reportPaths` - путь к файлам отчетов во внутреннем формате BSL Language Server - `json`. По умолчанию - `""` - не заполнено.
+* `sonar.bsl.file.suffixes` - список расширений файлов для анализа. По умолчанию - `.bsl,.os`
+
+## Переключение языка имен правил и сообщений в замечаниях
+
+В плагине зашита поддержка двух языков для имен/описаний правил и текстов сообщений в замечаниях:
+
+* русский (по умолчанию);
+* английский.
+
+Переключение осуществляется с помощью настройки `sonar.bsl.languageserver.diagnosticLanguage`, расположенной в секции "Администрирование", раздел `1C (BSL)`.
+
+Для переключения языка **имен и описаний правил** данную настройку необходимо устанавливать в разделе "Администрирование" **сервера**:
+
+http://localhost:9000/admin/settings?category=1c+%28bsl%29
+
+![Rule names](images/ruleNames.png)
+
+Для переключения языка **текстов замечаний** данную настройку необходимо устанавливать в разделе "Администрирование" **проекта**:
+
+http://localhost:9000/project/settings?category=1c+%28bsl%29&id=projectKey
+
+![Rule names](images/issueTexts.png)
 
 ## Интеграция с BSL Language Server
 

@@ -84,6 +84,28 @@ sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH
 - `sonar.bsl.languageserver.diagnosticLanguage` - the language of the rule names and message text of the triggered rules from the BSL Language Server. Default - `ru` - Russian;
 - `sonar.bsl.languageserver.enabled` - use the built-in BSL Language Server Diagnostic provider analyzer when running analysis via `sonar-scanner`. Default - `true` - enabled;
 - `sonar.bsl.languageserver.reportPaths` - the path to the report files in the internal format to the BSL Language Server - `json`. By default - `""` - not filled.
+* `sonar.bsl.file.suffixes` - list of file suffixes that will be scanned. Default - `.bsl,.os`
+
+## Language switch for rule names/descriptions and issue messages
+
+Plugin contains support of two languages for rule names/descriptions and issue messages:
+
+* russian (default);
+* english.
+
+You can switch language by changing the `sonar.bsl.languageserver.diagnosticLanguage` setting, located at "Administration" panel, category `1C (BSL)`.
+
+To change language of **names and descriptions of rules** you should change this setting in **server** "Administration" panel:
+
+http://localhost:9000/admin/settings?category=1c+%28bsl%29
+
+![Rule names](../images/ruleNames.png)
+
+To change language of **issue textx** you should change this setting in **project** "Administration" panel:
+
+http://localhost:9000/project/settings?category=1c+%28bsl%29&id=projectKey
+
+![Rule names](../images/issueTexts.png)
 
 ## Integration with BSL Language Server
 
