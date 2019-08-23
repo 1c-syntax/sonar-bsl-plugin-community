@@ -21,24 +21,23 @@
  */
 package com.github._1c_syntax.sonar.bsl.language;
 
-import org.sonar.api.resources.Language;
+import com.github._1c_syntax.sonar.bsl.BSLCommunityProperties;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.resources.AbstractLanguage;
 
-public class BSLLanguage implements Language {
+public class BSLLanguage extends AbstractLanguage {
 
   public static final String KEY = "bsl";
+  public static final String NAME = "1C (BSL)";
+  private Configuration configuration;
 
-  @Override
-  public String getKey() {
-    return KEY;
-  }
-
-  @Override
-  public String getName() {
-    return "1C (BSL)";
+  public BSLLanguage(Configuration configuration) {
+    super(KEY, NAME);
+    this.configuration = configuration;
   }
 
   @Override
   public String[] getFileSuffixes() {
-    return new String[]{"bsl", "os"};
+    return configuration.getStringArray(BSLCommunityProperties.BSL_FILE_EXTENSIONS_KEY);
   }
 }
