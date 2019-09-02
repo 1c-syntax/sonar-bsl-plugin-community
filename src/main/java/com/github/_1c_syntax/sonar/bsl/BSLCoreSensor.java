@@ -27,7 +27,6 @@ import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
@@ -196,7 +195,9 @@ public class BSLCoreSensor implements Sensor {
         }
       );
 
-    cpdTokens.save();
+    synchronized (this) {
+      cpdTokens.save();
+    }
 
   }
 
