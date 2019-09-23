@@ -27,7 +27,9 @@ import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.PluginContextImpl;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.utils.Version;
 
@@ -38,12 +40,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BSLPluginTest {
 
   private static final Version VERSION_7_9 = Version.create(7, 9);
-  private BSLPlugin bslPlugin = new BSLPlugin();
+  private BSLPlugin bslPlugin = new BSLPlugin(new Languages());
 
   @Test
   void testGetExtensions() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_7_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
+    Plugin.Context context = new PluginContextImpl.Builder().setSonarRuntime(runtime).build();
     bslPlugin.define(context);
     assertThat((List<?>) context.getExtensions()).hasSize(9);
   }

@@ -21,12 +21,14 @@
  */
 package com.github._1c_syntax.sonar.bsl;
 
+import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Qualifiers;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class BSLCommunityProperties {
@@ -34,7 +36,7 @@ public final class BSLCommunityProperties {
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY = "sonar.bsl.languageserver.diagnosticLanguage";
   public static final String LANG_SERVER_ENABLED_KEY = "sonar.bsl.languageserver.enabled";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
-  public static final String BSL_FILE_EXTENSIONS_KEY = "sonar.bsl.file.suffixes";
+  public static final String BSL_FILE_SUFFIXES_KEY = "sonar.bsl.file.suffixes";
 
   public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = DiagnosticLanguage.RU.getLanguageCode();
@@ -50,19 +52,28 @@ public final class BSLCommunityProperties {
   }
 
   public static List<PropertyDefinition> getProperties() {
-    return Arrays.asList(
+    return getProperties(new Languages());
+  }
+
+  public static List<PropertyDefinition> getProperties(Languages languages) {
+    final List<PropertyDefinition> propertyDefinitions = new ArrayList<>();
+
+    propertyDefinitions.add(
       PropertyDefinition.builder(LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
-        .name("BSL Language server rule names and messages language")
-        .description(
-          "Defines the language of the rules names (on APP level) and language of rules message (on PROJECT level)"
-        )
-        .defaultValue(LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
-        .type(PropertyType.SINGLE_SELECT_LIST)
-        .options(DiagnosticLanguage.RU.getLanguageCode(), DiagnosticLanguage.EN.getLanguageCode())
-        .category(BSL_CATEGORY)
-        .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
-        .index(0)
-        .build(),
+      .name("BSL Language server rule names and messages language")
+      .description(
+        "Defines the language of the rules names (on APP level) and language of rules message (on PROJECT level)"
+      )
+      .defaultValue(LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
+      .type(PropertyType.SINGLE_SELECT_LIST)
+      .options(DiagnosticLanguage.RU.getLanguageCode(), DiagnosticLanguage.EN.getLanguageCode())
+      .category(BSL_CATEGORY)
+      .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
+      .index(0)
+      .build()
+    );
+
+    propertyDefinitions.add(
       PropertyDefinition.builder(LANG_SERVER_ENABLED_KEY)
         .name("BSL Language Server enabled")
         .description("Run internal BSL Language Server Diagnostic Provider")
@@ -71,16 +82,10 @@ public final class BSLCommunityProperties {
         .category(BSL_CATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
         .index(1)
-        .build(),
-      PropertyDefinition.builder(BSL_FILE_EXTENSIONS_KEY)
-        .name("BSL File suffixes")
-        .description("List of file suffixes that will be scanned.")
-        .category(BSL_CATEGORY)
-        .defaultValue(BSL_FILE_EXTENSIONS_DEFAULT_VALUE)
-        .onQualifiers(Qualifiers.PROJECT)
-        .multiValues(true)
-        .index(2)
-        .build(),
+        .build()
+    );
+
+    propertyDefinitions.add(
       PropertyDefinition.builder(LANG_SERVER_REPORT_PATH_KEY)
         .name("BSL Language Server Report Files")
         .description("Paths (absolute or relative) to xml files with BSL Language Server diagnostics")
@@ -91,6 +96,22 @@ public final class BSLCommunityProperties {
         .multiValues(true)
         .build()
     );
+
+    if (languages.get(BSLLanguage.KEY) == null) {
+      propertyDefinitions.add(
+        PropertyDefinition.builder(BSL_FILE_SUFFIXES_KEY)
+          .name("BSL File suffixes")
+          .description("List of file suffixes that will be scanned.")
+          .category(BSL_CATEGORY)
+          .defaultValue(BSL_FILE_EXTENSIONS_DEFAULT_VALUE)
+          .onQualifiers(Qualifiers.PROJECT)
+          .multiValues(true)
+          .index(2)
+          .build()
+      );
+    }
+
+    return propertyDefinitions;
   }
 
 }

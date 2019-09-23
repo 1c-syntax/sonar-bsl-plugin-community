@@ -38,6 +38,6 @@ public class BSLLanguage extends AbstractLanguage {
 
   @Override
   public String[] getFileSuffixes() {
-    return configuration.getStringArray(BSLCommunityProperties.BSL_FILE_EXTENSIONS_KEY);
+    return configuration.getStringArray(BSLCommunityProperties.BSL_FILE_SUFFIXES_KEY);
   }
 }

@@ -25,15 +25,22 @@ import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.sonar.bsl.language.BSLQualityProfile;
 import org.sonar.api.Plugin;
+import org.sonar.api.resources.Languages;
 
 public class BSLPlugin implements Plugin {
+
+  private final Languages languages;
+
+  public BSLPlugin(Languages languages) {
+    this.languages = languages;
+  }
 
   @Override
   public void define(Context context) {
     context.addExtension(BSLLanguage.class);
     context.addExtension(BSLQualityProfile.class);
 
-    context.addExtensions(BSLCommunityProperties.getProperties());
+    context.addExtensions(BSLCommunityProperties.getProperties(languages));
     context.addExtension(BSLLanguageServerRuleDefinition.class);
 
     context.addExtension(BSLCoreSensor.class);
