@@ -71,7 +71,7 @@ public class BSLCoreSensor implements Sensor {
   private final SensorContext context;
   private final FileLinesContextFactory fileLinesContextFactory;
 
-  private final Boolean langServerEnabled;
+  private final boolean langServerEnabled;
   private final ServerContext bslServerContext;
   private final DiagnosticProvider diagnosticProvider;
   private final IssuesLoader issuesLoader;
@@ -298,7 +298,7 @@ public class BSLCoreSensor implements Sensor {
           DiagnosticProvider.getDiagnosticParameters(diagnosticClass);
         Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
 
-        params.forEach((key, value) -> {
+        params.forEach((String key, String value) -> {
           DiagnosticParameter diagnosticParameter = diagnosticParameters.get(key);
           diagnosticConfiguration.put(
             key,
