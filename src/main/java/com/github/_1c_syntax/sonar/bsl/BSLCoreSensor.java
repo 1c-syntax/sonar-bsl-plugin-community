@@ -76,8 +76,6 @@ public class BSLCoreSensor implements Sensor {
   private final DiagnosticProvider diagnosticProvider;
   private final IssuesLoader issuesLoader;
 
-  private Map<InputFile, DocumentContext> inputFilesMap = new HashMap<>();
-
   private Locale systemLocale = Locale.getDefault();
 
   public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
@@ -99,17 +97,8 @@ public class BSLCoreSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    inputFilesMap.clear();
-
     LOGGER.info("Parsing files...");
-    parseFiles();
 
-    LOGGER.info("Saving measures...");
-    saveMeasures();
-
-  }
-
-  private void parseFiles() {
     FileSystem fileSystem = context.fileSystem();
     FilePredicates predicates = fileSystem.predicates();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(
@@ -134,6 +123,7 @@ public class BSLCoreSensor implements Sensor {
     }
 
     restoreLocale();
+
   }
 
   private void setupLocale() {
@@ -161,7 +151,6 @@ public class BSLCoreSensor implements Sensor {
       content = "";
     }
     DocumentContext documentContext = bslServerContext.addDocument(uri.toString(), content);
-    inputFilesMap.put(inputFile, documentContext);
 
     if (langServerEnabled) {
       diagnosticProvider.computeDiagnostics(documentContext)
@@ -170,6 +159,7 @@ public class BSLCoreSensor implements Sensor {
 
     saveCpd(inputFile, documentContext);
     saveHighlighting(inputFile, documentContext);
+    saveMeasures(inputFile, documentContext);
 
     documentContext.clearASTData();
   }
@@ -229,42 +219,37 @@ public class BSLCoreSensor implements Sensor {
 
   }
 
+  private void saveMeasures(InputFile inputFile, DocumentContext documentContext) {
 
-  private void saveMeasures() {
+    MetricStorage metrics = documentContext.getMetrics();
 
-    inputFilesMap.forEach((InputFile inputFile, DocumentContext documentContext) -> {
+    context.<Integer>newMeasure().on(inputFile)
+      .forMetric(CoreMetrics.NCLOC)
+      .withValue(metrics.getNcloc())
+      .save();
 
-      MetricStorage metrics = documentContext.getMetrics();
+    context.<Integer>newMeasure().on(inputFile)
+      .forMetric(CoreMetrics.STATEMENTS)
+      .withValue(metrics.getStatements())
+      .save();
 
-      context.<Integer>newMeasure().on(inputFile)
-        .forMetric(CoreMetrics.NCLOC)
-        .withValue(metrics.getNcloc())
-        .save();
+    context.<Integer>newMeasure()
+      .on(inputFile)
+      .forMetric(CoreMetrics.FUNCTIONS)
+      .withValue(metrics.getProcedures() + metrics.getFunctions())
+      .save();
 
-      context.<Integer>newMeasure().on(inputFile)
-        .forMetric(CoreMetrics.STATEMENTS)
-        .withValue(metrics.getStatements())
-        .save();
+    context.<Integer>newMeasure()
+      .on(inputFile)
+      .forMetric(CoreMetrics.COGNITIVE_COMPLEXITY)
+      .withValue(metrics.getCognitiveComplexity())
+      .save();
 
-      context.<Integer>newMeasure()
-        .on(inputFile)
-        .forMetric(CoreMetrics.FUNCTIONS)
-        .withValue(metrics.getProcedures() + metrics.getFunctions())
-        .save();
-
-      context.<Integer>newMeasure()
-        .on(inputFile)
-        .forMetric(CoreMetrics.COGNITIVE_COMPLEXITY)
-        .withValue(metrics.getCognitiveComplexity())
-        .save();
-
-      FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(inputFile);
-      for (int line : metrics.getNclocData()) {
-        fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
-      }
-      fileLinesContext.save();
-
-    });
+    FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(inputFile);
+    for (int line : metrics.getNclocData()) {
+      fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
+    }
+    fileLinesContext.save();
 
   }
 
