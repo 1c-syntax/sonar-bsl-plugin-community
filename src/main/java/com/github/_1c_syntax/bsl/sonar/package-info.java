@@ -19,25 +19,5 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.sonar.bsl;
-
-import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
-import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
-import com.github._1c_syntax.sonar.bsl.language.BSLQualityProfile;
-import org.sonar.api.Plugin;
-
-public class BSLPlugin implements Plugin {
-
-  @Override
-  public void define(Context context) {
-    context.addExtension(BSLLanguage.class);
-    context.addExtension(BSLQualityProfile.class);
-
-    context.addExtensions(BSLCommunityProperties.getProperties());
-    context.addExtension(BSLLanguageServerRuleDefinition.class);
-
-    context.addExtension(BSLCoreSensor.class);
-    context.addExtension(LanguageServerDiagnosticsLoaderSensor.class);
-
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package com.github._1c_syntax.bsl.sonar;

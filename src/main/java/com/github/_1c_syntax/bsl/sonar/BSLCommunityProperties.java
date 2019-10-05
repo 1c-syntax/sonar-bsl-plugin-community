@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.sonar.bsl;
+package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.sonar.api.PropertyType;

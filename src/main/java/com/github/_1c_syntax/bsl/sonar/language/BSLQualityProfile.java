@@ -19,30 +19,28 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.sonar.bsl.language;
+package com.github._1c_syntax.bsl.sonar.language;
 
-import com.github._1c_syntax.sonar.bsl.BSLCommunityProperties;
-import org.junit.jupiter.api.Test;
-import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
 
-public class BSLLanguageTest {
+public final class BSLQualityProfile implements BuiltInQualityProfilesDefinition {
 
-    @Test
-    public void test_create() {
+  @Override
+  public void define(Context context) {
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
+      "BSL Language Server rules",
+      BSLLanguage.KEY
+    );
+    profile.setDefault(true);
 
-        MapSettings settings = new MapSettings();
-        settings.setProperty(
-                BSLCommunityProperties.BSL_FILE_EXTENSIONS_KEY,
-                BSLCommunityProperties.BSL_FILE_EXTENSIONS_DEFAULT_VALUE);
+    List<String> ruleKeys = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
+    ruleKeys.forEach(ruleKey ->
+      profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, ruleKey)
+    );
 
-        BSLLanguage language = new BSLLanguage(settings.asConfig());
-
-        assertThat(language.getKey()).containsIgnoringCase("bsl");
-        assertThat(language.getName()).containsIgnoringCase("1C (BSL)");
-        assertThat(language.getFileSuffixes()).containsOnly(".bsl", ".os");
-
-    }
+    profile.done();
+  }
 
 }

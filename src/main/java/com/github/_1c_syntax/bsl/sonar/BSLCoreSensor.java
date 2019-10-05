@@ -19,10 +19,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.sonar.bsl;
+package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
-import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
+import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
+import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;

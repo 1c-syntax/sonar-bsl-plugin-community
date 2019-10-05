@@ -101,7 +101,7 @@ tasks.jar {
     manifest {
         attributes["Plugin-Key"] = "communitybsl"
         attributes["Plugin-Description"] = "Code Analyzer for 1C (BSL)"
-        attributes["Plugin-Class"] = "com.github._1c_syntax.sonar.bsl.BSLPlugin"
+        attributes["Plugin-Class"] = "com.github._1c_syntax.bsl.sonar.BSLPlugin"
         attributes["Plugin-Name"] = "1C (BSL) Community Plugin"
         attributes["Plugin-Version"] = "${project.version}"
 

@@ -19,10 +19,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.sonar.bsl;
+package com.github._1c_syntax.bsl.sonar;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
+import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lsp4j.Diagnostic;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.FileInfo;
@@ -45,7 +45,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 
-import static com.github._1c_syntax.sonar.bsl.BSLCommunityProperties.LANG_SERVER_REPORT_PATH_KEY;
+import static com.github._1c_syntax.bsl.sonar.BSLCommunityProperties.LANG_SERVER_REPORT_PATH_KEY;
 
 public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
 

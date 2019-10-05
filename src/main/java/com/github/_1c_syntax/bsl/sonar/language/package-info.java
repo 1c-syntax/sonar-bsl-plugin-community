@@ -19,25 +19,5 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.sonar.bsl.language;
-
-import com.github._1c_syntax.sonar.bsl.BSLCommunityProperties;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.AbstractLanguage;
-
-public class BSLLanguage extends AbstractLanguage {
-
-  public static final String KEY = "bsl";
-  public static final String NAME = "1C (BSL)";
-  private Configuration configuration;
-
-  public BSLLanguage(Configuration configuration) {
-    super(KEY, NAME);
-    this.configuration = configuration;
-  }
-
-  @Override
-  public String[] getFileSuffixes() {
-    return configuration.getStringArray(BSLCommunityProperties.BSL_FILE_EXTENSIONS_KEY);
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package com.github._1c_syntax.bsl.sonar.language;

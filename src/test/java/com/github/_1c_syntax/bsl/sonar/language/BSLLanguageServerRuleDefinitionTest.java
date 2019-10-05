@@ -19,28 +19,26 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.sonar.bsl.language;
+package com.github._1c_syntax.bsl.sonar.language;
 
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.junit.jupiter.api.Test;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.server.rule.RulesDefinition;
 
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public final class BSLQualityProfile implements BuiltInQualityProfilesDefinition {
+public class BSLLanguageServerRuleDefinitionTest {
 
-  @Override
-  public void define(Context context) {
-    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
-      "BSL Language Server rules",
-      BSLLanguage.KEY
-    );
-    profile.setDefault(true);
+    @Test
+    public void test_init() {
+        Configuration config = new MapSettings().asConfig();
+        BSLLanguageServerRuleDefinition ruleDefinition = new BSLLanguageServerRuleDefinition(config);
+        RulesDefinition.Context context = new RulesDefinition.Context();
+        ruleDefinition.define(context);
 
-    List<String> ruleKeys = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
-    ruleKeys.forEach(ruleKey ->
-      profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, ruleKey)
-    );
-
-    profile.done();
-  }
+        assertThat(context.repositories()).hasSize(1);
+        assertThat(context.repository(BSLLanguageServerRuleDefinition.REPOSITORY_KEY)).isNotNull();
+    }
 
 }
