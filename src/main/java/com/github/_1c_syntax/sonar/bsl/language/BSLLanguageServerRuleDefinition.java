@@ -22,12 +22,12 @@
 package com.github._1c_syntax.sonar.bsl.language;
 
 import com.github._1c_syntax.sonar.bsl.BSLCommunityProperties;
-import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
-import org.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
-import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
-import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
-import org.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
-import org.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
+import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
+import com.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;

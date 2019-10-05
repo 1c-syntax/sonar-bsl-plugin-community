@@ -23,7 +23,7 @@ package com.github._1c_syntax.sonar.bsl;
 
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguage;
 import com.github._1c_syntax.sonar.bsl.language.BSLLanguageServerRuleDefinition;
-import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;

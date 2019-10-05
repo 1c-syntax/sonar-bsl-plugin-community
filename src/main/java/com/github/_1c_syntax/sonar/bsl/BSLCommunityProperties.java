@@ -21,7 +21,7 @@
  */
 package com.github._1c_syntax.sonar.bsl;
 
-import org.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
