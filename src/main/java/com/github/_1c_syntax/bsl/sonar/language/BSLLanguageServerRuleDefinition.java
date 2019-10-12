@@ -98,11 +98,16 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .collect(Collectors.toList());
   }
 
-  private static void setUpNewRule(Class<? extends BSLDiagnostic> diagnostic, NewRule newRule) {
+  private void setUpNewRule(Class<? extends BSLDiagnostic> diagnostic, NewRule newRule) {
+
+    String langCode = config.get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
+            .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
+
     // todo: get localized name
     newRule
       .setName(DiagnosticProvider.getDiagnosticName(diagnostic))
-      .setMarkdownDescription(convertToSonarQubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
+      .setMarkdownDescription(convertToSonarQubeMarkdown(
+              DiagnosticProvider.getDiagnosticDescription(diagnostic, langCode)))
       .setType(RULE_TYPE_MAP.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
       .setSeverity(SEVERITY_MAP.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic)))
       .setActivatedByDefault(DiagnosticProvider.isActivatedByDefault(diagnostic))
