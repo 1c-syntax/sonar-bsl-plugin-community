@@ -21,7 +21,6 @@
  */
 package com.github._1c_syntax.bsl.sonar.language;
 
-import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticTag;
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
 import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
@@ -109,14 +108,14 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .setActivatedByDefault(DiagnosticProvider.isActivatedByDefault(diagnostic))
     ;
 
-    List<String> tagsName = DiagnosticProvider.getDiagnosticTags(diagnostic)
+    String[] tagsName = DiagnosticProvider.getDiagnosticTags(diagnostic)
             .stream()
             .map(Enum::name)
             .map(String::toLowerCase)
-            .collect(Collectors.toList());
+            .toArray(String[]::new);
 
-    if (!tagsName.isEmpty()) {
-      newRule.addTags(tagsName.toArray(new String[tagsName.size()]));
+    if (tagsName.length > 0) {
+      newRule.addTags(tagsName);
     }
     
     newRule.setDebtRemediationFunction(
