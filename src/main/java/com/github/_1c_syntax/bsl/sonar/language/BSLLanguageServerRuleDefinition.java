@@ -108,6 +108,16 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .setActivatedByDefault(DiagnosticProvider.isActivatedByDefault(diagnostic))
     ;
 
+    String[] tagsName = DiagnosticProvider.getDiagnosticTags(diagnostic)
+            .stream()
+            .map(Enum::name)
+            .map(String::toLowerCase)
+            .toArray(String[]::new);
+
+    if (tagsName.length > 0) {
+      newRule.addTags(tagsName);
+    }
+    
     newRule.setDebtRemediationFunction(
       newRule.debtRemediationFunctions().linear(
         DiagnosticProvider.getMinutesToFix(diagnostic) + "min"
