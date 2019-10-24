@@ -92,7 +92,7 @@ public class BSLCoreSensor implements Sensor {
             .orElse(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_VALUE);
 
     bslServerContext = new ServerContext();
-    diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration());
+    diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration(), bslServerContext);
     issuesLoader = new IssuesLoader(context);
   }
 

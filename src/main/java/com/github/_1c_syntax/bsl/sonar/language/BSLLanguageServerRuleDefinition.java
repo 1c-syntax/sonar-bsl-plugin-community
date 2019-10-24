@@ -22,6 +22,7 @@
 package com.github._1c_syntax.bsl.sonar.language;
 
 import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
+import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
 import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
@@ -78,7 +79,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       Locale.setDefault(Locale.ENGLISH);
     }
 
-    diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration());
+    diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration(), new ServerContext());
 
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
