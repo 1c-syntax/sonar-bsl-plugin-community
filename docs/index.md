@@ -84,6 +84,7 @@ sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH
 * `sonar.bsl.languageserver.enabled` - использование встроенного анализатора BSL Language Server Diagnostic provider при запуске анализа через `sonar-scanner`. По умолчанию - `true` - включен;
 * `sonar.bsl.languageserver.reportPaths` - путь к файлам отчетов во внутреннем формате BSL Language Server - `json`. По умолчанию - `""` - не заполнено.
 * `sonar.bsl.file.suffixes` - список расширений файлов для анализа. По умолчанию - `.bsl,.os`
+* `sonar.bsl.calculateLineCover` - расчитывать строки для покрытия тестами. По умолчанию - `false` - выключен
 
 ## Переключение языка имен правил и сообщений в замечаниях
 
@@ -127,3 +128,23 @@ sonar-scanner -Dsonar.bsl.languageserver.enabled=false
 ```sh
 sonar-scanner -Dsonar.bsl.languageserver.reportPaths=./bsl-json.json
 ```
+
+### Расчет строк для покрытия тестами
+
+Расчитывает строки которые должны быть покрыты тестами. Используется для корректного подсчета процента покрытия при
+ импортирте файлов genericCoverage.xml содержащих только покрытые строки.
+
+```
+sonar.bsl.calculateLineCover=true
+sonar.coverageReportPaths=./genericCoverage.xml
+```
+
+```xml
+<coverage version="1">
+    <file path="...\Forms\Форма\Ext\Form\Module.bsl">
+        <lineToCover lineNumber="25" covered="true"/>
+        <lineToCover lineNumber="27" covered="true"/>
+    </file>
+</coverage>
+```
+  
