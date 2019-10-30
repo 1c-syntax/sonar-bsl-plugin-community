@@ -79,7 +79,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       Locale.setDefault(Locale.ENGLISH);
     }
 
-    diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration(), new ServerContext());
+    diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration());
 
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
