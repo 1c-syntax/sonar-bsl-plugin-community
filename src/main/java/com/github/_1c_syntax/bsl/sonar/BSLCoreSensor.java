@@ -168,10 +168,8 @@ public class BSLCoreSensor implements Sensor {
     saveHighlighting(inputFile, documentContext);
     saveMeasures(inputFile, documentContext);
 
-    if (calculateCoverLoc) {
-      saveCoverageLoc(inputFile, documentContext);
-    }
-    
+    saveCoverageLoc(inputFile, documentContext);
+
     documentContext.clearASTData();
   }
 
@@ -266,9 +264,13 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveCoverageLoc(InputFile inputFile, DocumentContext documentContext) {
 
+    if (!calculateCoverLoc) {
+      return;
+    }
+
     NewCoverage coverage = context.newCoverage().onFile(inputFile);
 
-    Arrays.stream(documentContext.getMetrics().getNclocData())
+    Arrays.stream(documentContext.getMetrics().getCovlocData())
             .forEach(loc -> coverage.lineHits(loc, 0));
 
     coverage.save();
