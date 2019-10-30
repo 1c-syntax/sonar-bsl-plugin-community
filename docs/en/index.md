@@ -131,7 +131,7 @@ sonar-scanner -Dsonar.bsl.languageserver.reportPaths=./bsl-json.json
 
 ### Calculate loc for cover 
 
-Calculate locations for coverage. Use for correct code coverage when using genericCoverage.xml who contains only covered lines. 
+Calculate locations for coverage. Use for correct code coverage when using genericCoverage.xml which contains only covered lines. 
 
 ```
 sonar.bsl.calculateLineCover=true

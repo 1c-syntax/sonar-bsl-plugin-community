@@ -132,7 +132,7 @@ sonar-scanner -Dsonar.bsl.languageserver.reportPaths=./bsl-json.json
 ### Расчет строк для покрытия тестами
 
 Расчитывает строки которые должны быть покрыты тестами. Используется для корректного подсчета процента покрытия при
- импортирте файлов genericCoverage.xml содержащих только покрытые строки.
+ импорте файлов genericCoverage.xml содержащих только покрытые строки.
 
 ```
 sonar.bsl.calculateLineCover=true
