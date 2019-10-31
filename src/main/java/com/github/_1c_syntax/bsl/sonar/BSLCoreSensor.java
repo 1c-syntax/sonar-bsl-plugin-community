@@ -46,6 +46,7 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -59,6 +60,7 @@ import org.sonar.api.utils.log.Loggers;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -77,6 +79,7 @@ public class BSLCoreSensor implements Sensor {
   private final IssuesLoader issuesLoader;
 
   private Locale systemLocale = Locale.getDefault();
+  private boolean calculateCoverLoc;
 
   public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
     this.context = context;
@@ -84,6 +87,10 @@ public class BSLCoreSensor implements Sensor {
 
     langServerEnabled = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
+
+    calculateCoverLoc = context.config().getBoolean(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_KEY)
+            .orElse(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_VALUE);
+
     bslServerContext = new ServerContext();
     diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration());
     issuesLoader = new IssuesLoader(context);
@@ -160,6 +167,8 @@ public class BSLCoreSensor implements Sensor {
     saveCpd(inputFile, documentContext);
     saveHighlighting(inputFile, documentContext);
     saveMeasures(inputFile, documentContext);
+
+    saveCoverageLoc(inputFile, documentContext);
 
     documentContext.clearASTData();
   }
@@ -250,6 +259,21 @@ public class BSLCoreSensor implements Sensor {
       fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
     }
     fileLinesContext.save();
+
+  }
+
+  private void saveCoverageLoc(InputFile inputFile, DocumentContext documentContext) {
+
+    if (!calculateCoverLoc) {
+      return;
+    }
+
+    NewCoverage coverage = context.newCoverage().onFile(inputFile);
+
+    Arrays.stream(documentContext.getMetrics().getCovlocData())
+            .forEach(loc -> coverage.lineHits(loc, 0));
+
+    coverage.save();
 
   }
 

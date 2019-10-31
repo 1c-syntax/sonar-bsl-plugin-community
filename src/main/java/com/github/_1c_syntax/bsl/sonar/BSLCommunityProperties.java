@@ -35,10 +35,12 @@ public final class BSLCommunityProperties {
   public static final String LANG_SERVER_ENABLED_KEY = "sonar.bsl.languageserver.enabled";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
   public static final String BSL_FILE_EXTENSIONS_KEY = "sonar.bsl.file.suffixes";
+  public static final String BSL_CALCULATE_LINE_TO_COVER_KEY = "sonar.bsl.calculateLineCover";
 
   public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = DiagnosticLanguage.RU.getLanguageCode();
   public static final String BSL_FILE_EXTENSIONS_DEFAULT_VALUE = ".bsl,.os";
+  public static final Boolean BSL_CALCULATE_LINE_TO_COVER_VALUE = Boolean.FALSE;
 
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
   private static final String BSL_CATEGORY = "1C (BSL)";
@@ -80,6 +82,15 @@ public final class BSLCommunityProperties {
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
         .index(2)
+        .build(),
+      PropertyDefinition.builder(BSL_CALCULATE_LINE_TO_COVER_KEY)
+        .name("BSL calculate lines to cover")
+        .description("Calculate lines to cover on analise")
+        .defaultValue(BSL_CALCULATE_LINE_TO_COVER_VALUE.toString())
+        .type(PropertyType.BOOLEAN)
+        .category(BSL_CATEGORY)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(3)
         .build(),
       PropertyDefinition.builder(LANG_SERVER_REPORT_PATH_KEY)
         .name("BSL Language Server Report Files")

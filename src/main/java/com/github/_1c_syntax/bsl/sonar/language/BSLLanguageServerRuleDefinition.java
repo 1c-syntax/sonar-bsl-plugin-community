@@ -21,6 +21,7 @@
  */
 package com.github._1c_syntax.bsl.sonar.language;
 
+import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
 import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
@@ -59,6 +60,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
 
   private final Configuration config;
+  private DiagnosticProvider diagnosticProvider = new DiagnosticProvider();
 
   public BSLLanguageServerRuleDefinition(Configuration config) {
     this.config = config;
@@ -75,6 +77,8 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     } else {
       Locale.setDefault(Locale.ENGLISH);
     }
+
+    diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration());
 
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
@@ -98,11 +102,13 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .collect(Collectors.toList());
   }
 
-  private static void setUpNewRule(Class<? extends BSLDiagnostic> diagnostic, NewRule newRule) {
+  private void setUpNewRule(Class<? extends BSLDiagnostic> diagnostic, NewRule newRule) {
+
     // todo: get localized name
     newRule
       .setName(DiagnosticProvider.getDiagnosticName(diagnostic))
-      .setMarkdownDescription(convertToSonarQubeMarkdown(DiagnosticProvider.getDiagnosticDescription(diagnostic)))
+      .setMarkdownDescription(convertToSonarQubeMarkdown(
+              diagnosticProvider.getDiagnosticDescription(diagnostic)))
       .setType(RULE_TYPE_MAP.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
       .setSeverity(SEVERITY_MAP.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic)))
       .setActivatedByDefault(DiagnosticProvider.isActivatedByDefault(diagnostic))
@@ -197,4 +203,19 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
     return map;
   }
+
+  private LanguageServerConfiguration getLanguageServerConfiguration() {
+    LanguageServerConfiguration languageServerConfiguration = LanguageServerConfiguration.create();
+    String diagnosticLanguageCode = config
+            .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
+            .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
+
+    languageServerConfiguration.setDiagnosticLanguage(
+            DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
+    );
+
+    return languageServerConfiguration;
+  }
+
+
 }
