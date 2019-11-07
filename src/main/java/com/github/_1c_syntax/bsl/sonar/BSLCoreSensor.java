@@ -21,13 +21,6 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
-import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarStyle;
-import org.antlr.v4.runtime.Token;
-import org.apache.commons.io.IOUtils;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
 import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
@@ -37,7 +30,13 @@ import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
 import com.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
-import org.jetbrains.annotations.Nullable;
+import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
+import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarStyle;
+import org.antlr.v4.runtime.Token;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -57,6 +56,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;

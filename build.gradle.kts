@@ -27,7 +27,6 @@ dependencies {
 
     compile("com.github.1c-syntax:bsl-language-server:3deb09763832d22624437dcf5e0fb210b3099e93")
     compile("com.fasterxml.jackson.core:jackson-databind:2.10.0")
-    compile("org.jetbrains:annotations:17.0.0")
     compile("com.google.code.findbugs:jsr305:3.0.2")
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
     compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.11.0.541")
@@ -39,7 +38,6 @@ dependencies {
     
     testCompile("org.assertj:assertj-core:3.13.2")
     testCompile("org.mockito:mockito-core:3.1.0")
-
 }
 
 java {
