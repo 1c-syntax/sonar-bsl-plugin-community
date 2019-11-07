@@ -31,6 +31,12 @@ dependencies {
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
     compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.11.0.541")
 
+    // MD to HTML converter of BSL LS rule descriptions
+    compile("com.atlassian.commonmark:commonmark:0.13.0")
+    compile("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.13.0")
+    compile("com.atlassian.commonmark:commonmark-ext-autolink:0.13.0")
+    compile("com.atlassian.commonmark:commonmark-ext-heading-anchor:0.13.0")
+
     compile("me.tongfei:progressbar:0.7.4")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")

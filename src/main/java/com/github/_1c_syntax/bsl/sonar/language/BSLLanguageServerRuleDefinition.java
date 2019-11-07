@@ -21,14 +21,20 @@
  */
 package com.github._1c_syntax.bsl.sonar.language;
 
-import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
-import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
 import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import com.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
+import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
+import org.commonmark.Extension;
+import org.commonmark.ext.autolink.AutolinkExtension;
+import org.commonmark.ext.gfm.tables.TablesExtension;
+import org.commonmark.ext.heading.anchor.HeadingAnchorExtension;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
@@ -37,11 +43,11 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.CheckForNull;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class BSLLanguageServerRuleDefinition implements RulesDefinition {
@@ -51,19 +57,30 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private static final Logger LOGGER = Loggers.get(BSLLanguageServerRuleDefinition.class);
   private static final Locale systemLocale = Locale.getDefault();
 
-  private static final Pattern PATTERN_HEADERS = Pattern.compile("(?!.+[(\\[])#(?!.+[)\\]])");
-  private static final Pattern PATTERN_STARS = Pattern.compile("\\*\\*");
-  private static final Pattern PATTERN_BACKTICKS = Pattern.compile("```");
-  private static final Pattern PATTERN_BACKTICKS_SURROUND = Pattern.compile("(^|[^`])`([^`]|$)");
-
   private static final Map<DiagnosticSeverity, String> SEVERITY_MAP = createDiagnosticSeverityMap();
   private static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
 
   private final Configuration config;
-  private DiagnosticProvider diagnosticProvider = new DiagnosticProvider();
+  private final Parser markdownParser;
+  private final HtmlRenderer htmlRenderer;
+  private DiagnosticProvider diagnosticProvider;
 
   public BSLLanguageServerRuleDefinition(Configuration config) {
     this.config = config;
+
+    List<Extension> extensions = Arrays.asList(
+      TablesExtension.create(),
+      AutolinkExtension.create(),
+      HeadingAnchorExtension.create()
+    );
+
+    markdownParser = Parser.builder()
+      .extensions(extensions)
+      .build();
+
+    htmlRenderer = HtmlRenderer.builder()
+      .extensions(extensions)
+      .build();
   }
 
   @Override
@@ -107,8 +124,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     // todo: get localized name
     newRule
       .setName(DiagnosticProvider.getDiagnosticName(diagnostic))
-      .setMarkdownDescription(convertToSonarQubeMarkdown(
-              diagnosticProvider.getDiagnosticDescription(diagnostic)))
+      .setHtmlDescription(getHtmlDescription(diagnosticProvider.getDiagnosticDescription(diagnostic)))
       .setType(RULE_TYPE_MAP.get(DiagnosticProvider.getDiagnosticType(diagnostic)))
       .setSeverity(SEVERITY_MAP.get(DiagnosticProvider.getDiagnosticSeverity(diagnostic)))
       .setActivatedByDefault(DiagnosticProvider.isActivatedByDefault(diagnostic))
@@ -129,6 +145,10 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
         DiagnosticProvider.getMinutesToFix(diagnostic) + "min"
       )
     );
+  }
+
+  private String getHtmlDescription(String markdownDescription) {
+    return htmlRenderer.render(markdownParser.parse(markdownDescription));
   }
 
   private static void setUpRuleParams(Class<? extends BSLDiagnostic> diagnostic, NewRule newRule) {
@@ -154,15 +174,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     });
   }
 
-  private static String convertToSonarQubeMarkdown(String input) {
-    String result = input;
-    result = PATTERN_HEADERS.matcher(result).replaceAll("=");
-    result = PATTERN_STARS.matcher(result).replaceAll("*");
-    result = PATTERN_BACKTICKS.matcher(result).replaceAll("``");
-    result = PATTERN_BACKTICKS_SURROUND.matcher(result).replaceAll("$1``$2");
-
-    return result;
-  }
 
   @CheckForNull
   private static RuleParamType getRuleParamType(Class<?> type) {
