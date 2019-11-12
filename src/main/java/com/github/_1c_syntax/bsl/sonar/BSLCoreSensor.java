@@ -62,7 +62,11 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 
 public class BSLCoreSensor implements Sensor {
@@ -78,7 +82,6 @@ public class BSLCoreSensor implements Sensor {
   private final LanguageServerConfiguration fakeDiagnosticConfig;
   private final DiagnosticSupplier fakeDiagnosticSupplier;
 
-  private Locale systemLocale = Locale.getDefault();
   private boolean calculateCoverLoc;
 
   public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {

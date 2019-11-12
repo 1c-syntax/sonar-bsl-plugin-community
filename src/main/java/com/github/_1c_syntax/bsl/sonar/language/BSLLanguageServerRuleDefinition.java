@@ -29,7 +29,6 @@ import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticI
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
-import com.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
 import org.commonmark.Extension;
 import org.commonmark.ext.autolink.AutolinkExtension;
@@ -66,7 +65,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private final Parser markdownParser;
   private final HtmlRenderer htmlRenderer;
   private DiagnosticInfo diagnosticInfo;
-  private DiagnosticSupplier diagnosticSupplier;
 
   public BSLLanguageServerRuleDefinition(Configuration config) {
     this.config = config;
@@ -103,7 +101,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .setName(REPOSITORY_NAME);
 
     LanguageServerConfiguration languageServerConfiguration = getLanguageServerConfiguration();
-    diagnosticSupplier = new DiagnosticSupplier(getLanguageServerConfiguration());
+    DiagnosticSupplier diagnosticSupplier = new DiagnosticSupplier(getLanguageServerConfiguration());
     List<Class<? extends BSLDiagnostic>> diagnosticClasses = diagnosticSupplier.getDiagnosticClasses();
     diagnosticClasses.forEach((Class<? extends BSLDiagnostic> diagnostic) -> {
       diagnosticInfo = new DiagnosticInfo(diagnostic, languageServerConfiguration);
@@ -131,7 +129,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   private void setUpNewRule(NewRule newRule) {
 
-    // todo: get localized name
     newRule
       .setName(diagnosticInfo.getDiagnosticName())
       .setHtmlDescription(getHtmlDescription(diagnosticInfo.getDiagnosticDescription()))
