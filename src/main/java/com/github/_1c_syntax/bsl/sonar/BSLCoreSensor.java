@@ -79,8 +79,6 @@ public class BSLCoreSensor implements Sensor {
   private final ServerContext bslServerContext;
   private final DiagnosticProvider diagnosticProvider;
   private final IssuesLoader issuesLoader;
-  private final LanguageServerConfiguration fakeDiagnosticConfig;
-  private final DiagnosticSupplier fakeDiagnosticSupplier;
 
   private boolean calculateCoverLoc;
 
@@ -95,8 +93,6 @@ public class BSLCoreSensor implements Sensor {
             .orElse(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_VALUE);
 
     bslServerContext = new ServerContext();
-    fakeDiagnosticConfig = LanguageServerConfiguration.create();
-    fakeDiagnosticSupplier = new DiagnosticSupplier(fakeDiagnosticConfig);
     DiagnosticSupplier diagnosticSupplier = new DiagnosticSupplier(getLanguageServerConfiguration());
     diagnosticProvider = new DiagnosticProvider(diagnosticSupplier);
     issuesLoader = new IssuesLoader(context);
@@ -276,12 +272,14 @@ public class BSLCoreSensor implements Sensor {
       DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
     );
 
-    List<Class<? extends BSLDiagnostic>> diagnosticClasses = fakeDiagnosticSupplier.getDiagnosticClasses();
+    List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticSupplier.getDiagnosticClasses();
     ActiveRules activeRules = context.activeRules();
+
+    LanguageServerConfiguration emptyDiagnosticConfig = LanguageServerConfiguration.create();
 
     Map<String, Either<Boolean, Map<String, Object>>> diagnostics = new HashMap<>();
     for (Class<? extends BSLDiagnostic> diagnosticClass : diagnosticClasses) {
-      DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticClass, fakeDiagnosticConfig);
+      DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticClass, emptyDiagnosticConfig);
       ActiveRule activeRule = activeRules.find(
         RuleKey.of(
           BSLLanguageServerRuleDefinition.REPOSITORY_KEY,

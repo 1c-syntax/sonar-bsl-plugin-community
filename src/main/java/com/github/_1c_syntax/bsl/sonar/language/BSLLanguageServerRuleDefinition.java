@@ -101,13 +101,12 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .setName(REPOSITORY_NAME);
 
     LanguageServerConfiguration languageServerConfiguration = getLanguageServerConfiguration();
-    DiagnosticSupplier diagnosticSupplier = new DiagnosticSupplier(getLanguageServerConfiguration());
-    List<Class<? extends BSLDiagnostic>> diagnosticClasses = diagnosticSupplier.getDiagnosticClasses();
-    diagnosticClasses.forEach((Class<? extends BSLDiagnostic> diagnostic) -> {
-      diagnosticInfo = new DiagnosticInfo(diagnostic, languageServerConfiguration);
-      NewRule newRule = repository.createRule(diagnosticInfo.getDiagnosticCode());
-      setUpNewRule(newRule);
-      setUpRuleParams(newRule);
+    DiagnosticSupplier.getDiagnosticClasses()
+      .forEach((Class<? extends BSLDiagnostic> diagnostic) -> {
+        diagnosticInfo = new DiagnosticInfo(diagnostic, languageServerConfiguration);
+        NewRule newRule = repository.createRule(diagnosticInfo.getDiagnosticCode());
+        setUpNewRule(newRule);
+        setUpRuleParams(newRule);
     });
 
     repository.done();
@@ -116,13 +115,11 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   protected static List<String> getActivatedRuleKeys() {
 
+    LanguageServerConfiguration emptyConfig = LanguageServerConfiguration.create();
 
-    LanguageServerConfiguration fakeConfig = LanguageServerConfiguration.create();
-    DiagnosticSupplier fakeDiagnosticSupplier = new DiagnosticSupplier(fakeConfig);
-
-    return  fakeDiagnosticSupplier.getDiagnosticClasses()
+    return  DiagnosticSupplier.getDiagnosticClasses()
       .stream()
-      .map(diagnostic -> new DiagnosticInfo(diagnostic, fakeConfig))
+      .map(diagnostic -> new DiagnosticInfo(diagnostic, emptyConfig))
       .filter(DiagnosticInfo::isActivatedByDefault)
       .map(DiagnosticInfo::getDiagnosticCode).collect(Collectors.toList());
   }
