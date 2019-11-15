@@ -27,6 +27,8 @@ import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import com.github._1c_syntax.bsl.languageserver.context.MetricStorage;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
 import com.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
@@ -78,7 +80,6 @@ public class BSLCoreSensor implements Sensor {
   private final DiagnosticProvider diagnosticProvider;
   private final IssuesLoader issuesLoader;
 
-  private Locale systemLocale = Locale.getDefault();
   private boolean calculateCoverLoc;
 
   public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
@@ -92,7 +93,8 @@ public class BSLCoreSensor implements Sensor {
             .orElse(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_VALUE);
 
     bslServerContext = new ServerContext();
-    diagnosticProvider = new DiagnosticProvider(getLanguageServerConfiguration());
+    DiagnosticSupplier diagnosticSupplier = new DiagnosticSupplier(getLanguageServerConfiguration());
+    diagnosticProvider = new DiagnosticProvider(diagnosticSupplier);
     issuesLoader = new IssuesLoader(context);
   }
 
@@ -116,8 +118,6 @@ public class BSLCoreSensor implements Sensor {
 
     long inputFleSize = StreamSupport.stream(inputFiles.spliterator(), false).count();
 
-    setupLocale();
-
     try (ProgressBar pb = new ProgressBar("", inputFleSize, ProgressBarStyle.ASCII)) {
       StreamSupport.stream(inputFiles.spliterator(), true)
         .forEach((InputFile inputFile) -> {
@@ -129,23 +129,8 @@ public class BSLCoreSensor implements Sensor {
         });
     }
 
-    restoreLocale();
-
   }
 
-  private void setupLocale() {
-    if (context.config().get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
-      .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
-      .equals(DiagnosticLanguage.RU.getLanguageCode())) {
-      Locale.setDefault(new Locale("ru", "RU"));
-    } else {
-      Locale.setDefault(Locale.ENGLISH);
-    }
-  }
-
-  private void restoreLocale() {
-    Locale.setDefault(systemLocale);
-  }
 
   private void processFile(InputFile inputFile) {
     URI uri = inputFile.uri();
@@ -287,35 +272,38 @@ public class BSLCoreSensor implements Sensor {
       DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
     );
 
-    List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticProvider.getDiagnosticClasses();
+    List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticSupplier.getDiagnosticClasses();
     ActiveRules activeRules = context.activeRules();
+
+    LanguageServerConfiguration emptyDiagnosticConfig = LanguageServerConfiguration.create();
 
     Map<String, Either<Boolean, Map<String, Object>>> diagnostics = new HashMap<>();
     for (Class<? extends BSLDiagnostic> diagnosticClass : diagnosticClasses) {
+      DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticClass, emptyDiagnosticConfig);
       ActiveRule activeRule = activeRules.find(
         RuleKey.of(
           BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
-          DiagnosticProvider.getDiagnosticCode(diagnosticClass)
+                diagnosticInfo.getDiagnosticCode()
         )
       );
       if (activeRule == null) {
-        diagnostics.put(DiagnosticProvider.getDiagnosticCode(diagnosticClass), Either.forLeft(false));
+        diagnostics.put(diagnosticInfo.getDiagnosticCode(), Either.forLeft(false));
       } else {
         Map<String, String> params = activeRule.params();
 
         Map<String, DiagnosticParameter> diagnosticParameters =
-          DiagnosticProvider.getDiagnosticParameters(diagnosticClass);
+                diagnosticInfo.getDiagnosticParameters();
         Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
 
         params.forEach((String key, String value) -> {
           DiagnosticParameter diagnosticParameter = diagnosticParameters.get(key);
           diagnosticConfiguration.put(
             key,
-            DiagnosticProvider.castDiagnosticParameterValue(value, diagnosticParameter.type())
+            castDiagnosticParameterValue(value, diagnosticParameter.type())
           );
         });
         diagnostics.put(
-          DiagnosticProvider.getDiagnosticCode(diagnosticClass),
+                diagnosticInfo.getDiagnosticCode(),
           Either.forRight(diagnosticConfiguration)
         );
       }
@@ -414,6 +402,23 @@ public class BSLCoreSensor implements Sensor {
 
     return typeOfText;
 
+  }
+
+  private static Object castDiagnosticParameterValue(String valueToCast, Class type) {
+    Object value;
+    if (type == Integer.class) {
+      value = Integer.parseInt(valueToCast);
+    } else if (type == Boolean.class) {
+      value = Boolean.parseBoolean(valueToCast);
+    } else if (type == Float.class) {
+      value = Float.parseFloat(valueToCast);
+    } else if (type == String.class) {
+      value = valueToCast;
+    } else {
+      throw new IllegalArgumentException("Unsupported diagnostic parameter type " + type);
+    }
+
+    return value;
   }
 
 }
