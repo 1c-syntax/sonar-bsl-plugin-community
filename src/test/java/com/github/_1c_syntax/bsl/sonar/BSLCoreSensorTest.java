@@ -45,8 +45,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BSLCoreSensorTest {
-
+class BSLCoreSensorTest {
 
     private final String BASE_PATH = "src/test/resources/src";
     private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
@@ -55,8 +54,7 @@ public class BSLCoreSensorTest {
     private SensorContextTester context = SensorContextTester.create(BASE_DIR);
 
     @Test
-    public void test_descriptor() {
-
+    void testDescriptor() {
         FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
 
         BSLCoreSensor sensor = new BSLCoreSensor(context, fileLinesContextFactory);
@@ -68,7 +66,7 @@ public class BSLCoreSensorTest {
     }
 
     @Test
-    public void test_execute() {
+    void testExecute() {
 
         final String diagnosticName = "OneStatementPerLine";
         final RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
@@ -103,11 +101,29 @@ public class BSLCoreSensorTest {
         sensor.execute(context);
 
         assertThat(context.isCancelled()).isFalse();
+    }
 
-//        assertThat(context.allIssues()).hasSize(1);
-//        DefaultIssue issue = (DefaultIssue) context.allIssues().toArray()[0];
-//        assertThat(issue.ruleKey()).isEqualTo(ruleKey);
+    @Test
+    void testExecuteCoverage() {
+        final String diagnosticName = "OneStatementPerLine";
+        final RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
 
+        SensorContextTester context;
+        BSLCoreSensor sensor;
+
+        // Mock visitor for metrics.
+        FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+        FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+        when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+
+        context = createSensorContext();
+        context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY, false);
+        context.settings().setProperty(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_KEY, true);
+        setActiveRules(context, diagnosticName, ruleKey);
+        sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+        sensor.execute(context);
+
+        assertThat(context.isCancelled()).isFalse();
     }
 
     private void setActiveRules(SensorContextTester context, String diagnosticName, RuleKey ruleKey) {
