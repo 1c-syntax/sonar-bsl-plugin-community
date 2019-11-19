@@ -101,34 +101,11 @@ class BSLCoreSensorTest {
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
-
-    // EmptyCodeBlock
-    // commentAsCode
-    diagnosticName = "EmptyCodeBlock";
-    String paramName = "commentAsCode";
-    ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
-    context = createSensorContext();
-    setActiveRules(context, diagnosticName, ruleKey);
-
-    ActiveRules activeRules = new ActiveRulesBuilder()
-      .addRule(new NewActiveRule.Builder()
-        .setRuleKey(ruleKey)
-        .setName(diagnosticName)
-        .setParam(paramName, "true")
-        .build())
-      .build();
-    context.setActiveRules(activeRules);
-
-    sensor = new BSLCoreSensor(context, fileLinesContextFactory);
-    sensor.execute(context);
-
-    assertThat(context.isCancelled()).isFalse();
+    
   }
 
   @Test
   void testExecuteCastDiagnosticParameterValue() {
-    SensorContextTester context;
-    BSLCoreSensor sensor;
 
     String diagnosticEmptyCodeBlock = "EmptyCodeBlock";
     String diagnosticCommentedCode = "CommentedCode";
@@ -139,7 +116,7 @@ class BSLCoreSensorTest {
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
-    context = createSensorContext();
+    SensorContextTester context = createSensorContext();
     ActiveRules activeRules = new ActiveRulesBuilder()
       .addRule(newActiveRule(diagnosticEmptyCodeBlock, "commentAsCode", "true"))
       .addRule(newActiveRule(diagnosticCommentedCode, "threshold", "0.9F"))
@@ -152,7 +129,7 @@ class BSLCoreSensorTest {
       .build();
     context.setActiveRules(activeRules);
 
-    sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+    BSLCoreSensor sensor = new BSLCoreSensor(context, fileLinesContextFactory);
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
