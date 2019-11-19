@@ -90,7 +90,7 @@ public class BSLCoreSensor implements Sensor {
       .orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
 
     calculateCoverLoc = context.config().getBoolean(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_KEY)
-            .orElse(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_VALUE);
+      .orElse(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_VALUE);
 
     bslServerContext = new ServerContext();
     DiagnosticSupplier diagnosticSupplier = new DiagnosticSupplier(getLanguageServerConfiguration());
@@ -256,7 +256,7 @@ public class BSLCoreSensor implements Sensor {
     NewCoverage coverage = context.newCoverage().onFile(inputFile);
 
     Arrays.stream(documentContext.getMetrics().getCovlocData())
-            .forEach(loc -> coverage.lineHits(loc, 0));
+      .forEach(loc -> coverage.lineHits(loc, 0));
 
     coverage.save();
 
@@ -283,7 +283,7 @@ public class BSLCoreSensor implements Sensor {
       ActiveRule activeRule = activeRules.find(
         RuleKey.of(
           BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
-                diagnosticInfo.getDiagnosticCode()
+          diagnosticInfo.getDiagnosticCode()
         )
       );
       if (activeRule == null) {
@@ -292,7 +292,7 @@ public class BSLCoreSensor implements Sensor {
         Map<String, String> params = activeRule.params();
 
         Map<String, DiagnosticParameter> diagnosticParameters =
-                diagnosticInfo.getDiagnosticParameters();
+          diagnosticInfo.getDiagnosticParameters();
         Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
 
         params.forEach((String key, String value) -> {
@@ -303,7 +303,7 @@ public class BSLCoreSensor implements Sensor {
           );
         });
         diagnostics.put(
-                diagnosticInfo.getDiagnosticCode(),
+          diagnosticInfo.getDiagnosticCode(),
           Either.forRight(diagnosticConfiguration)
         );
       }
