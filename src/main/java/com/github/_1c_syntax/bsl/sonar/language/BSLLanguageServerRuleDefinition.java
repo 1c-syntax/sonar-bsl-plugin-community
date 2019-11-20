@@ -56,7 +56,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   public static final String REPOSITORY_KEY = "bsl-language-server";
   private static final String REPOSITORY_NAME = "BSL Language Server";
   private static final Logger LOGGER = Loggers.get(BSLLanguageServerRuleDefinition.class);
-  private static final Locale systemLocale = Locale.getDefault();
 
   private static final Map<DiagnosticSeverity, String> SEVERITY_MAP = createDiagnosticSeverityMap();
   private static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
@@ -87,15 +86,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   @Override
   public void define(Context context) {
 
-    if (config.get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
-      .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
-      .equals(DiagnosticLanguage.RU.getLanguageCode())
-    ) {
-      Locale.setDefault(new Locale("ru", "RU"));
-    } else {
-      Locale.setDefault(Locale.ENGLISH);
-    }
-
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
@@ -110,7 +100,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     });
 
     repository.done();
-    Locale.setDefault(systemLocale);
   }
 
   protected static List<String> getActivatedRuleKeys() {
@@ -167,7 +156,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
             newRule.key()
           )
         );
-        Locale.setDefault(systemLocale);
         return;
       }
 
