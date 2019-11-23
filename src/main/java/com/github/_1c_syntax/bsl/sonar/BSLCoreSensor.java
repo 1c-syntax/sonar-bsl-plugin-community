@@ -29,7 +29,7 @@ import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
 import com.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
@@ -272,14 +272,13 @@ public class BSLCoreSensor implements Sensor {
       DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
     );
 
-    List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticSupplier.getDiagnosticClasses();
     ActiveRules activeRules = context.activeRules();
 
-    LanguageServerConfiguration emptyDiagnosticConfig = LanguageServerConfiguration.create();
-
     Map<String, Either<Boolean, Map<String, Object>>> diagnostics = new HashMap<>();
+    List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticSupplier.getDiagnosticClasses();
+
     for (Class<? extends BSLDiagnostic> diagnosticClass : diagnosticClasses) {
-      DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticClass, emptyDiagnosticConfig);
+      DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticClass);
       ActiveRule activeRule = activeRules.find(
         RuleKey.of(
           BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
@@ -291,15 +290,16 @@ public class BSLCoreSensor implements Sensor {
       } else {
         Map<String, String> params = activeRule.params();
 
-        Map<String, DiagnosticParameter> diagnosticParameters =
-          diagnosticInfo.getDiagnosticParameters();
+        List<DiagnosticParameterInfo> diagnosticParameters = diagnosticInfo.getDiagnosticParameters();
         Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
 
         params.forEach((String key, String value) -> {
-          DiagnosticParameter diagnosticParameter = diagnosticParameters.get(key);
+          DiagnosticParameterInfo diagnosticParameter = diagnosticParameters.stream()
+            .filter(param -> param.getName().equals(key)).findFirst().get();
+
           diagnosticConfiguration.put(
             key,
-            castDiagnosticParameterValue(value, diagnosticParameter.type())
+            castDiagnosticParameterValue(value, diagnosticParameter.getType())
           );
         });
         diagnostics.put(

@@ -25,7 +25,7 @@ repositories {
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    compile("com.github.1c-syntax:bsl-language-server:0.12.2")
+    compile("com.github.1c-syntax:bsl-language-server:01a6e861502e99624917b657d9b466bffcd877ec")
     compile("com.fasterxml.jackson.core:jackson-databind:2.10.0")
     compile("com.google.code.findbugs:jsr305:3.0.2")
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
