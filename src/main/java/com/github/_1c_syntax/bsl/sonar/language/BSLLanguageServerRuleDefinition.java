@@ -59,12 +59,14 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
 
   private final Configuration config;
+  private final DiagnosticLanguage language;
   private final Parser markdownParser;
   private final HtmlRenderer htmlRenderer;
   private DiagnosticInfo diagnosticInfo;
 
   public BSLLanguageServerRuleDefinition(Configuration config) {
     this.config = config;
+    this.language = createDiagnosticLanguage();
 
     List<Extension> extensions = Arrays.asList(
       TablesExtension.create(),
@@ -90,7 +92,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
     DiagnosticSupplier.getDiagnosticClasses()
       .forEach((Class<? extends BSLDiagnostic> diagnostic) -> {
-        diagnosticInfo = new DiagnosticInfo(diagnostic, getDiagnosticLanguageCode());
+        diagnosticInfo = new DiagnosticInfo(diagnostic, language);
         NewRule newRule = repository.createRule(diagnosticInfo.getDiagnosticCode());
         setUpNewRule(newRule);
         setUpRuleParams(newRule);
@@ -161,6 +163,15 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       });
   }
 
+  private DiagnosticLanguage createDiagnosticLanguage() {
+
+    String diagnosticLanguageCode = config
+      .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
+      .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
+
+    return DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH));
+  }
+
 
   @CheckForNull
   private static RuleParamType getRuleParamType(Class<?> type) {
@@ -202,14 +213,5 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     return map;
   }
 
-  private DiagnosticLanguage getDiagnosticLanguageCode() {
-
-    String diagnosticLanguageCode = config
-      .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
-      .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
-
-    return DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH));
-  }
-
-
 }
+
