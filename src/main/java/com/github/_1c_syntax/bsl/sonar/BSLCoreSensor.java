@@ -62,11 +62,13 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.StreamSupport;
 
 public class BSLCoreSensor implements Sensor {
@@ -92,8 +94,19 @@ public class BSLCoreSensor implements Sensor {
     calculateCoverLoc = context.config().getBoolean(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_KEY)
       .orElse(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_VALUE);
 
-    bslServerContext = new ServerContext();
-    DiagnosticSupplier diagnosticSupplier = new DiagnosticSupplier(getLanguageServerConfiguration());
+    AtomicReference<Path> baseDir = new AtomicReference<>(context.fileSystem().baseDir().toPath());
+    context.config().get("sonar.sources").ifPresent(
+      sources -> baseDir.set(Path.of(baseDir.get().toString(), sources))
+    );
+
+    LanguageServerConfiguration languageServerConfiguration = getLanguageServerConfiguration();
+    Path configurationRoot = LanguageServerConfiguration.getCustomConfigurationRoot(
+      languageServerConfiguration,
+      baseDir.get()
+    );
+
+    bslServerContext = new ServerContext(configurationRoot);
+    DiagnosticSupplier diagnosticSupplier = new DiagnosticSupplier(languageServerConfiguration);
     diagnosticProvider = new DiagnosticProvider(diagnosticSupplier);
     issuesLoader = new IssuesLoader(context);
   }
