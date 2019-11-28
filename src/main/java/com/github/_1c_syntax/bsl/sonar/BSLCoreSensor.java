@@ -282,28 +282,27 @@ public class BSLCoreSensor implements Sensor {
       ActiveRule activeRule = activeRules.find(
         RuleKey.of(
           BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
-          diagnosticInfo.getDiagnosticCode()
+          diagnosticInfo.getCode()
         )
       );
       if (activeRule == null) {
-        diagnostics.put(diagnosticInfo.getDiagnosticCode(), Either.forLeft(false));
+        diagnostics.put(diagnosticInfo.getCode(), Either.forLeft(false));
       } else {
         Map<String, String> params = activeRule.params();
 
-        List<DiagnosticParameterInfo> diagnosticParameters = diagnosticInfo.getDiagnosticParameters();
+        List<DiagnosticParameterInfo> diagnosticParameters = diagnosticInfo.getParameters();
         Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
 
-        params.forEach((String key, String value) -> {
-          DiagnosticParameterInfo diagnosticParameter = diagnosticParameters.stream()
-            .filter(param -> param.getName().equals(key)).findFirst().get();
-
-          diagnosticConfiguration.put(
-            key,
-            castDiagnosticParameterValue(value, diagnosticParameter.getType())
-          );
-        });
+        params.forEach((String key, String value) ->
+          diagnosticInfo.getParameter(key).ifPresent(diagnosticParameterInfo ->
+            diagnosticConfiguration.put(
+              key,
+              castDiagnosticParameterValue(value, diagnosticParameterInfo.getType())
+            )
+          )
+        );
         diagnostics.put(
-          diagnosticInfo.getDiagnosticCode(),
+          diagnosticInfo.getCode(),
           Either.forRight(diagnosticConfiguration)
         );
       }

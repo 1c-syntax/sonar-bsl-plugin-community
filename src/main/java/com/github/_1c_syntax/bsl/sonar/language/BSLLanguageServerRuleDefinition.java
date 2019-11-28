@@ -93,7 +93,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     DiagnosticSupplier.getDiagnosticClasses()
       .forEach((Class<? extends BSLDiagnostic> diagnostic) -> {
         diagnosticInfo = new DiagnosticInfo(diagnostic, language);
-        NewRule newRule = repository.createRule(diagnosticInfo.getDiagnosticCode());
+        NewRule newRule = repository.createRule(diagnosticInfo.getCode());
         setUpNewRule(newRule);
         setUpRuleParams(newRule);
       });
@@ -107,20 +107,20 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .stream()
       .map(DiagnosticInfo::new)
       .filter(DiagnosticInfo::isActivatedByDefault)
-      .map(DiagnosticInfo::getDiagnosticCode).collect(Collectors.toList());
+      .map(DiagnosticInfo::getCode).collect(Collectors.toList());
   }
 
   private void setUpNewRule(NewRule newRule) {
 
     newRule
-      .setName(diagnosticInfo.getDiagnosticName())
-      .setHtmlDescription(getHtmlDescription(diagnosticInfo.getDiagnosticDescription()))
-      .setType(RULE_TYPE_MAP.get(diagnosticInfo.getDiagnosticType()))
-      .setSeverity(SEVERITY_MAP.get(diagnosticInfo.getDiagnosticSeverity()))
+      .setName(diagnosticInfo.getName())
+      .setHtmlDescription(getHtmlDescription(diagnosticInfo.getDescription()))
+      .setType(RULE_TYPE_MAP.get(diagnosticInfo.getType()))
+      .setSeverity(SEVERITY_MAP.get(diagnosticInfo.getSeverity()))
       .setActivatedByDefault(diagnosticInfo.isActivatedByDefault())
     ;
 
-    String[] tagsName = diagnosticInfo.getDiagnosticTags()
+    String[] tagsName = diagnosticInfo.getTags()
       .stream()
       .map(Enum::name)
       .map(String::toLowerCase)
@@ -142,7 +142,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   }
 
   private void setUpRuleParams(NewRule newRule) {
-    diagnosticInfo.getDiagnosticParameters()
+    diagnosticInfo.getParameters()
       .forEach(diagnosticParameter -> {
         RuleParamType ruleParamType = getRuleParamType(diagnosticParameter.getType());
         if (ruleParamType == null) {
