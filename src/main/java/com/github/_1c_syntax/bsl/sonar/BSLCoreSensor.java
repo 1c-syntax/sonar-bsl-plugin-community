@@ -147,6 +147,7 @@ public class BSLCoreSensor implements Sensor {
     if (langServerEnabled) {
       diagnosticProvider.computeDiagnostics(documentContext)
         .forEach(diagnostic -> issuesLoader.createIssue(inputFile, diagnostic));
+      diagnosticProvider.clearComputedDiagnostics(documentContext);
     }
 
     saveCpd(inputFile, documentContext);
