@@ -22,11 +22,9 @@
 package com.github._1c_syntax.bsl.sonar.language;
 
 import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
-import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameter;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
@@ -61,12 +59,14 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
 
   private final Configuration config;
+  private final DiagnosticLanguage language;
   private final Parser markdownParser;
   private final HtmlRenderer htmlRenderer;
   private DiagnosticInfo diagnosticInfo;
 
   public BSLLanguageServerRuleDefinition(Configuration config) {
     this.config = config;
+    this.language = createDiagnosticLanguage();
 
     List<Extension> extensions = Arrays.asList(
       TablesExtension.create(),
@@ -90,52 +90,49 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
 
-    LanguageServerConfiguration languageServerConfiguration = getLanguageServerConfiguration();
     DiagnosticSupplier.getDiagnosticClasses()
       .forEach((Class<? extends BSLDiagnostic> diagnostic) -> {
-        diagnosticInfo = new DiagnosticInfo(diagnostic, languageServerConfiguration);
-        NewRule newRule = repository.createRule(diagnosticInfo.getDiagnosticCode());
+        diagnosticInfo = new DiagnosticInfo(diagnostic, language);
+        NewRule newRule = repository.createRule(diagnosticInfo.getCode());
         setUpNewRule(newRule);
         setUpRuleParams(newRule);
-    });
+      });
 
     repository.done();
   }
 
   protected static List<String> getActivatedRuleKeys() {
 
-    LanguageServerConfiguration emptyConfig = LanguageServerConfiguration.create();
-
-    return  DiagnosticSupplier.getDiagnosticClasses()
+    return DiagnosticSupplier.getDiagnosticClasses()
       .stream()
-      .map(diagnostic -> new DiagnosticInfo(diagnostic, emptyConfig))
+      .map(DiagnosticInfo::new)
       .filter(DiagnosticInfo::isActivatedByDefault)
-      .map(DiagnosticInfo::getDiagnosticCode).collect(Collectors.toList());
+      .map(DiagnosticInfo::getCode).collect(Collectors.toList());
   }
 
   private void setUpNewRule(NewRule newRule) {
 
     newRule
-      .setName(diagnosticInfo.getDiagnosticName())
-      .setHtmlDescription(getHtmlDescription(diagnosticInfo.getDiagnosticDescription()))
-      .setType(RULE_TYPE_MAP.get(diagnosticInfo.getDiagnosticType()))
-      .setSeverity(SEVERITY_MAP.get(diagnosticInfo.getDiagnosticSeverity()))
+      .setName(diagnosticInfo.getName())
+      .setHtmlDescription(getHtmlDescription(diagnosticInfo.getDescription()))
+      .setType(RULE_TYPE_MAP.get(diagnosticInfo.getType()))
+      .setSeverity(SEVERITY_MAP.get(diagnosticInfo.getSeverity()))
       .setActivatedByDefault(diagnosticInfo.isActivatedByDefault())
     ;
 
-    String[] tagsName = diagnosticInfo.getDiagnosticTags()
-            .stream()
-            .map(Enum::name)
-            .map(String::toLowerCase)
-            .toArray(String[]::new);
+    String[] tagsName = diagnosticInfo.getTags()
+      .stream()
+      .map(Enum::name)
+      .map(String::toLowerCase)
+      .toArray(String[]::new);
 
     if (tagsName.length > 0) {
       newRule.addTags(tagsName);
     }
-    
+
     newRule.setDebtRemediationFunction(
       newRule.debtRemediationFunctions().linear(
-              diagnosticInfo.getMinutesToFix() + "min"
+        diagnosticInfo.getMinutesToFix() + "min"
       )
     );
   }
@@ -145,25 +142,34 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   }
 
   private void setUpRuleParams(NewRule newRule) {
-    Map<String, DiagnosticParameter> diagnosticParameters = diagnosticInfo.getDiagnosticParameters();
-    diagnosticParameters.forEach((String paramKey, DiagnosticParameter diagnosticParameter) -> {
-      RuleParamType ruleParamType = getRuleParamType(diagnosticParameter.type());
-      if (ruleParamType == null) {
-        LOGGER.error(
-          String.format(
-            "Can't cast rule param type %s for rule %s",
-            diagnosticParameter.type(),
-            newRule.key()
-          )
-        );
-        return;
-      }
+    diagnosticInfo.getParameters()
+      .forEach(diagnosticParameter -> {
+        RuleParamType ruleParamType = getRuleParamType(diagnosticParameter.getType());
+        if (ruleParamType == null) {
+          LOGGER.error(
+            String.format(
+              "Can't cast rule param type %s for rule %s",
+              diagnosticParameter.getType(),
+              newRule.key()
+            )
+          );
+          return;
+        }
 
-      NewParam newParam = newRule.createParam(paramKey);
-      newParam.setType(ruleParamType);
-      newParam.setDescription(diagnosticParameter.description());
-      newParam.setDefaultValue(diagnosticInfo.getDefaultValue(diagnosticParameter).toString());
-    });
+        NewParam newParam = newRule.createParam(diagnosticParameter.getName());
+        newParam.setType(ruleParamType);
+        newParam.setDescription(diagnosticParameter.getDescription());
+        newParam.setDefaultValue(diagnosticParameter.getDefaultValue().toString());
+      });
+  }
+
+  private DiagnosticLanguage createDiagnosticLanguage() {
+
+    String diagnosticLanguageCode = config
+      .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
+      .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
+
+    return DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH));
   }
 
 
@@ -207,18 +213,5 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     return map;
   }
 
-  private LanguageServerConfiguration getLanguageServerConfiguration() {
-    LanguageServerConfiguration languageServerConfiguration = LanguageServerConfiguration.create();
-    String diagnosticLanguageCode = config
-            .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
-            .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
-
-    languageServerConfiguration.setDiagnosticLanguage(
-            DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
-    );
-
-    return languageServerConfiguration;
-  }
-
-
 }
+
