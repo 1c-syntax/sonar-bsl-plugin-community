@@ -240,6 +240,12 @@ public class BSLCoreSensor implements Sensor {
       .withValue(metrics.getCognitiveComplexity())
       .save();
 
+    context.<Integer>newMeasure()
+      .on(inputFile)
+      .forMetric(CoreMetrics.COMMENT_LINES)
+      .withValue(metrics.getComments())
+      .save();
+
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(inputFile);
     for (int line : metrics.getNclocData()) {
       fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
