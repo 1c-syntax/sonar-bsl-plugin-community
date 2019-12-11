@@ -155,7 +155,7 @@ public class BSLCoreSensor implements Sensor {
       LOGGER.warn("Can't read content of file " + uri, e);
       content = "";
     }
-    DocumentContext documentContext = bslServerContext.addDocument(uri.toString(), content);
+    DocumentContext documentContext = bslServerContext.addDocument(uri, content);
 
     if (langServerEnabled) {
       diagnosticProvider.computeDiagnostics(documentContext)
