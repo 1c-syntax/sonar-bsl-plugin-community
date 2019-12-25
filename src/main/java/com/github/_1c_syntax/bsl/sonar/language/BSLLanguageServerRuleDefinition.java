@@ -209,6 +209,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     map.put(DiagnosticType.CODE_SMELL, RuleType.CODE_SMELL);
     map.put(DiagnosticType.ERROR, RuleType.BUG);
     map.put(DiagnosticType.VULNERABILITY, RuleType.VULNERABILITY);
+    map.put(DiagnosticType.SECURITY_HOTSPOT, RuleType.SECURITY_HOTSPOT);
 
     return map;
   }
