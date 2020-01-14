@@ -33,6 +33,7 @@ import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
@@ -158,6 +159,34 @@ class BSLCoreSensorTest {
     assertThat(context.isCancelled()).isFalse();
   }
 
+  @Test
+  void testComplexity() {
+    String diagnosticCyclomaticComplexity = "CyclomaticComplexity";
+    String diagnosticCognitiveComplexity = "CognitiveComplexity";
+
+    SensorContextTester context = createSensorContext();
+    ActiveRules activeRules = new ActiveRulesBuilder()
+      .addRule(newActiveRule(diagnosticCyclomaticComplexity))
+      .addRule(newActiveRule(diagnosticCognitiveComplexity))
+      .build();
+    context.setActiveRules(activeRules);
+
+    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
+    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+
+    BSLCoreSensor sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+
+    sensor.execute(context);
+
+    // todo надо как-то нормально ключ компонента определить
+    String componentKey = "moduleKey:" + FILE_NAME;
+    assertThat(context.measures(componentKey)).isNotEmpty();
+    assertThat(context.measure(componentKey, CoreMetrics.COMPLEXITY).value()).isEqualTo(2);
+    assertThat(context.measure(componentKey, CoreMetrics.COGNITIVE_COMPLEXITY).value()).isEqualTo(1);
+
+  }
+
   private void setActiveRules(SensorContextTester context, String diagnosticName, RuleKey ruleKey) {
     ActiveRules activeRules = new ActiveRulesBuilder()
       .addRule(new NewActiveRule.Builder()
@@ -173,6 +202,13 @@ class BSLCoreSensorTest {
       .setRuleKey(RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName))
       .setName(diagnosticName)
       .setParam(key, value)
+      .build();
+  }
+
+  private NewActiveRule newActiveRule(String diagnosticName) {
+    return new NewActiveRule.Builder()
+      .setRuleKey(RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName))
+      .setName(diagnosticName)
       .build();
   }
 
