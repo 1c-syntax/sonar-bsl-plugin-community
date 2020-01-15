@@ -75,6 +75,7 @@ jacoco {
 tasks.jacocoTestReport {
     reports {
         xml.isEnabled = true
+        xml.destination = File("$buildDir/reports/jacoco/test/jacoco.xml")
     }
 }
 
@@ -98,6 +99,7 @@ sonarqube {
         property("sonar.projectKey", "1c-syntax_sonar-bsl-plugin-community")
         property("sonar.projectName", "SonarQube 1C (BSL) Community Plugin")
         property("sonar.exclusions", "**/gen/**/*.*")
+        property("sonar.coverage.jacoco.xmlReportPaths", "$buildDir/reports/jacoco/test/jacoco.xml")
     }
 }
 
