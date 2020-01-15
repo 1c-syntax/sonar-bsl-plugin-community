@@ -25,19 +25,19 @@ repositories {
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    implementation("com.github.1c-syntax:bsl-language-server:091fe30ef26eb6b865eda239797287c2593ca4c8")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.0")
-    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    compile("com.github.1c-syntax:bsl-language-server:091fe30ef26eb6b865eda239797287c2593ca4c8")
+    compile("com.fasterxml.jackson.core:jackson-databind:2.10.0")
+    compile("com.google.code.findbugs:jsr305:3.0.2")
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
-    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.11.0.541")
+    compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.11.0.541")
 
     // MD to HTML converter of BSL LS rule descriptions
-    implementation("com.atlassian.commonmark:commonmark:0.13.0")
-    implementation("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.13.0")
-    implementation("com.atlassian.commonmark:commonmark-ext-autolink:0.13.0")
-    implementation("com.atlassian.commonmark:commonmark-ext-heading-anchor:0.13.0")
+    compile("com.atlassian.commonmark:commonmark:0.13.0")
+    compile("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.13.0")
+    compile("com.atlassian.commonmark:commonmark-ext-autolink:0.13.0")
+    compile("com.atlassian.commonmark:commonmark-ext-heading-anchor:0.13.0")
 
-    implementation("me.tongfei:progressbar:0.7.4")
+    compile("me.tongfei:progressbar:0.7.4")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.2")
