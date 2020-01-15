@@ -278,6 +278,12 @@ public class BSLCoreSensor implements Sensor {
 
     context.<Integer>newMeasure()
       .on(inputFile)
+      .forMetric(CoreMetrics.COMPLEXITY)
+      .withValue(metrics.getCyclomaticComplexity())
+      .save();
+
+    context.<Integer>newMeasure()
+      .on(inputFile)
       .forMetric(CoreMetrics.COMMENT_LINES)
       .withValue(metrics.getComments())
       .save();
