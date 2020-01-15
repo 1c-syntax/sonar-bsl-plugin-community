@@ -31,6 +31,7 @@ import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
 import com.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
+import com.github._1c_syntax.bsl.languageserver.utils.Absolute;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
@@ -38,6 +39,7 @@ import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
@@ -59,14 +61,18 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class BSLCoreSensor implements Sensor {
@@ -76,7 +82,8 @@ public class BSLCoreSensor implements Sensor {
   private final FileLinesContextFactory fileLinesContextFactory;
 
   private final boolean langServerEnabled;
-  private final ServerContext bslServerContext;
+  private final List<String> sourcesList;
+  private final LanguageServerConfiguration languageServerConfiguration;
   private final DiagnosticProvider diagnosticProvider;
   private final IssuesLoader issuesLoader;
 
@@ -92,8 +99,15 @@ public class BSLCoreSensor implements Sensor {
     calculateCoverLoc = context.config().getBoolean(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_KEY)
       .orElse(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_VALUE);
 
-    bslServerContext = new ServerContext();
-    DiagnosticSupplier diagnosticSupplier = new DiagnosticSupplier(getLanguageServerConfiguration());
+    sourcesList = context.config().get("sonar.sources")
+      .map(sources ->
+        Arrays.stream(StringUtils.split(sources, ","))
+          .map(String::strip)
+          .collect(Collectors.toList()))
+      .orElse(Collections.singletonList("."));
+
+    languageServerConfiguration = getLanguageServerConfiguration();
+    DiagnosticSupplier diagnosticSupplier = new DiagnosticSupplier(languageServerConfiguration);
     diagnosticProvider = new DiagnosticProvider(diagnosticSupplier);
     issuesLoader = new IssuesLoader(context);
   }
@@ -110,29 +124,51 @@ public class BSLCoreSensor implements Sensor {
 
     FileSystem fileSystem = context.fileSystem();
     FilePredicates predicates = fileSystem.predicates();
+    File baseDir = context.fileSystem().baseDir();
+
+    var absoluteSourceDirs = sourcesList.stream()
+      .map(sourceDir -> Absolute.path(Path.of(baseDir.toString(), sourceDir)))
+      .collect(Collectors.toList());
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(
-      predicates.and(
-        predicates.hasLanguage(BSLLanguage.KEY)
-      )
+      predicates.hasLanguage(BSLLanguage.KEY)
     );
 
-    long inputFleSize = StreamSupport.stream(inputFiles.spliterator(), false).count();
+    Map<Path, List<InputFile>> inputFilesByPath = StreamSupport.stream(inputFiles.spliterator(), true)
+      .collect(Collectors.groupingBy((InputFile inputFile) -> {
+        var filePath = Absolute.path(inputFile.uri());
+        return absoluteSourceDirs.stream()
+          .filter(filePath::startsWith)
+          .findAny()
+          .orElse(baseDir.toPath());
+      }));
 
-    try (ProgressBar pb = new ProgressBar("", inputFleSize, ProgressBarStyle.ASCII)) {
-      StreamSupport.stream(inputFiles.spliterator(), true)
-        .forEach((InputFile inputFile) -> {
+    inputFilesByPath.forEach((Path sourceDir, List<InputFile> inputFilesList) -> {
+      LOGGER.info("Source dir: {}", sourceDir);
+
+      Path configurationRoot = LanguageServerConfiguration.getCustomConfigurationRoot(
+        languageServerConfiguration,
+        sourceDir
+      );
+
+      var bslServerContext = new ServerContext(configurationRoot);
+
+      try (ProgressBar pb = new ProgressBar("", inputFilesList.size(), ProgressBarStyle.ASCII)) {
+        inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
           URI uri = inputFile.uri();
           LOGGER.debug(uri.toString());
           pb.step();
 
-          processFile(inputFile);
+          processFile(inputFile, bslServerContext);
         });
-    }
+      }
+
+      bslServerContext.clear();
+    });
 
   }
 
 
-  private void processFile(InputFile inputFile) {
+  private void processFile(InputFile inputFile, ServerContext bslServerContext) {
     URI uri = inputFile.uri();
 
     String content;
