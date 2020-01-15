@@ -72,6 +72,10 @@ jacoco {
     toolVersion = "0.8.2"
 }
 
+tasks.check {
+    dependsOn(tasks.jacocoTestReport)
+}
+
 tasks.jacocoTestReport {
     reports {
         xml.isEnabled = true
