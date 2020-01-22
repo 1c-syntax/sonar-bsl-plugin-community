@@ -25,7 +25,7 @@ repositories {
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    compile("com.github.1c-syntax:bsl-language-server:29a61375942168d36c11809e2039226361052c51")
+    compile("com.github.1c-syntax:bsl-language-server:v0.13.0-RC6")
     compile("com.fasterxml.jackson.core:jackson-databind:2.10.0")
     compile("com.google.code.findbugs:jsr305:3.0.2")
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
@@ -40,7 +40,7 @@ dependencies {
     compile("me.tongfei:progressbar:0.7.4")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.5.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.2")
     
     testCompile("org.assertj:assertj-core:3.13.2")
     testCompile("org.mockito:mockito-core:3.1.0")
@@ -72,9 +72,14 @@ jacoco {
     toolVersion = "0.8.2"
 }
 
+tasks.check {
+    dependsOn(tasks.jacocoTestReport)
+}
+
 tasks.jacocoTestReport {
     reports {
         xml.isEnabled = true
+        xml.destination = File("$buildDir/reports/jacoco/test/jacoco.xml")
     }
 }
 
@@ -98,6 +103,7 @@ sonarqube {
         property("sonar.projectKey", "1c-syntax_sonar-bsl-plugin-community")
         property("sonar.projectName", "SonarQube 1C (BSL) Community Plugin")
         property("sonar.exclusions", "**/gen/**/*.*")
+        property("sonar.coverage.jacoco.xmlReportPaths", "$buildDir/reports/jacoco/test/jacoco.xml")
     }
 }
 
