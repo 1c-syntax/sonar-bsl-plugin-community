@@ -84,6 +84,10 @@ sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH
 * `sonar.bsl.languageserver.diagnosticLanguage` - язык имен правил и текстов сообщений сработавших правил от BSL Language Server. По умолчанию - `ru` - русский;
 * `sonar.bsl.languageserver.enabled` - использование встроенного анализатора BSL Language Server Diagnostic provider при запуске анализа через `sonar-scanner`. По умолчанию - `true` - включен;
 * `sonar.bsl.languageserver.reportPaths` - путь к файлам отчетов во внутреннем формате BSL Language Server - `json`. По умолчанию - `""` - не заполнено.
+* `sonar.bsl.languageserver.skipSupport` - пропустить расчет диагностик в зависимости от режима поддержки модуля. *Только при наличии конфигурации поставщика*. Доступные значения:
+    - with support locked - будут пропускаться модули на поддержке с запретом изменения (*"на замке"*);
+    - with support - будут пропускаться модули на поддержке;
+    - never *по умолчанию* - модули не пропускаются;
 * `sonar.bsl.file.suffixes` - список расширений файлов для анализа. По умолчанию - `.bsl,.os`
 * `sonar.bsl.calculateLineCover` - расчитывать строки для покрытия тестами. По умолчанию - `false` - выключен
 
