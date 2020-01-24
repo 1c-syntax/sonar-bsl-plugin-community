@@ -86,7 +86,7 @@ sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH
 - `sonar.bsl.languageserver.enabled` - use the built-in BSL Language Server Diagnostic provider analyzer when running analysis via `sonar-scanner`. Default - `true` - enabled;
 - `sonar.bsl.languageserver.reportPaths` - the path to the report files in the internal format to the BSL Language Server - `json`. By default - `""` - not filled.
 - `sonar.bsl.languageserver.skipSupport` - skip computing diagnostics according to module's support mode. *Only if there is a parent configuration*. Available values:
-    * with support locked - modules for support will be skipped with the prohibition of changes ("locked");
+    * with support locked - modules for support with the prohibition of changes will be skipped ("locked");
     * with support - modules on support will be skipped;
     * newer *default* - modules are not skipped
 - `sonar.bsl.file.suffixes` - list of file suffixes that will be scanned. Default - `.bsl,.os`
