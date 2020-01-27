@@ -124,12 +124,21 @@ public class BSLCoreSensor implements Sensor {
     LOGGER.info("Parsing files...");
 
     FileSystem fileSystem = context.fileSystem();
-    FilePredicates predicates = fileSystem.predicates();
-    File baseDir = context.fileSystem().baseDir();
+    File baseDir = fileSystem.baseDir();
 
     var absoluteSourceDirs = sourcesList.stream()
-      .map(sourceDir -> Absolute.path(Path.of(baseDir.toString(), sourceDir)))
+      .map((String sourceDir) -> {
+        Path sourcePath = Path.of(sourceDir);
+        if (sourcePath.isAbsolute()) {
+          return sourcePath;
+        } else {
+          return Path.of(baseDir.toString(), sourceDir);
+        }
+      })
+      .map(Absolute::path)
       .collect(Collectors.toList());
+
+    FilePredicates predicates = fileSystem.predicates();
     Iterable<InputFile> inputFiles = fileSystem.inputFiles(
       predicates.hasLanguage(BSLLanguage.KEY)
     );
