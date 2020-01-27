@@ -7,8 +7,8 @@ plugins {
     maven
     id("org.sonarqube") version "2.8"
     id("com.github.hierynomus.license") version "0.15.0"
-    id("com.github.johnrengelman.shadow") version("5.1.0")
-    id("com.github.ben-manes.versions") version "0.25.0"
+    id("com.github.johnrengelman.shadow") version("5.2.0")
+    id("com.github.ben-manes.versions") version "0.27.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
 }
 
@@ -22,28 +22,31 @@ repositories {
     }
 }
 
+val commonmarkVersion = "0.14.0"
+val junitVersion = "5.6.0"
+
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    compile("com.github.1c-syntax:bsl-language-server:v0.13.0-RC7")
-    compile("com.fasterxml.jackson.core:jackson-databind:2.10.0")
+    compile("com.github.1c-syntax:bsl-language-server:v0.13.0")
+    compile("com.fasterxml.jackson.core:jackson-databind:2.10.2")
     compile("com.google.code.findbugs:jsr305:3.0.2")
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
     compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.11.0.541")
 
     // MD to HTML converter of BSL LS rule descriptions
-    compile("com.atlassian.commonmark:commonmark:0.13.0")
-    compile("com.atlassian.commonmark:commonmark-ext-gfm-tables:0.13.0")
-    compile("com.atlassian.commonmark:commonmark-ext-autolink:0.13.0")
-    compile("com.atlassian.commonmark:commonmark-ext-heading-anchor:0.13.0")
+    compile("com.atlassian.commonmark", "commonmark", commonmarkVersion)
+    compile("com.atlassian.commonmark", "commonmark-ext-gfm-tables", commonmarkVersion)
+    compile("com.atlassian.commonmark", "commonmark-ext-autolink", commonmarkVersion)
+    compile("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
-    compile("me.tongfei:progressbar:0.7.4")
+    compile("me.tongfei:progressbar:0.8.0")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.2")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
     
-    testCompile("org.assertj:assertj-core:3.13.2")
-    testCompile("org.mockito:mockito-core:3.1.0")
+    testCompile("org.assertj:assertj-core:3.14.0")
+    testCompile("org.mockito:mockito-core:3.2.4")
 }
 
 java {
