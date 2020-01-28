@@ -28,7 +28,7 @@ val junitVersion = "5.6.0"
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    compile("com.github.1c-syntax:bsl-language-server:v0.13.1")
+    compile("com.github.1c-syntax:bsl-language-server:v0.13.2")
     compile("com.fasterxml.jackson.core:jackson-databind:2.10.2")
     compile("com.google.code.findbugs:jsr305:3.0.2")
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
