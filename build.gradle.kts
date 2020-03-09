@@ -4,7 +4,7 @@ import java.util.*
 plugins {
     jacoco
     java
-    maven
+    `maven-publish`
     id("org.sonarqube") version "2.8"
     id("com.github.hierynomus.license") version "0.15.0"
     id("com.github.johnrengelman.shadow") version("5.2.0")
