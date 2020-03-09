@@ -28,19 +28,19 @@ val junitVersion = "5.6.0"
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    compile("com.github.1c-syntax:bsl-language-server:v0.13.3")
-    compile("com.fasterxml.jackson.core:jackson-databind:2.10.2")
-    compile("com.google.code.findbugs:jsr305:3.0.2")
+    implementation("com.github.1c-syntax:bsl-language-server:v0.13.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.2")
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
-    compile("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.11.0.541")
+    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.11.0.541")
 
     // MD to HTML converter of BSL LS rule descriptions
-    compile("com.atlassian.commonmark", "commonmark", commonmarkVersion)
-    compile("com.atlassian.commonmark", "commonmark-ext-gfm-tables", commonmarkVersion)
-    compile("com.atlassian.commonmark", "commonmark-ext-autolink", commonmarkVersion)
-    compile("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
+    implementation("com.atlassian.commonmark", "commonmark", commonmarkVersion)
+    implementation("com.atlassian.commonmark", "commonmark-ext-gfm-tables", commonmarkVersion)
+    implementation("com.atlassian.commonmark", "commonmark-ext-autolink", commonmarkVersion)
+    implementation("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
-    compile("me.tongfei:progressbar:0.8.0")
+    implementation("me.tongfei:progressbar:0.8.0")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
@@ -131,12 +131,14 @@ tasks.jar {
         attributes["Plugin-Organization"] = "1c-syntax"
         attributes["Plugin-OrganizationUrl"] = "https://github.com/1c-syntax"
     }
-    configurations["compile"].forEach {
-        from(zipTree(it.absoluteFile)) {
-            exclude("META-INF/MANIFEST.MF")
-            exclude("META-INF/*.SF")
-            exclude("META-INF/*.DSA")
-            exclude("META-INF/*.RSA")
-        }
-    }
+
+
+    enabled = false
+    dependsOn(tasks.shadowJar)
+}
+
+tasks.shadowJar {
+    project.configurations.implementation.get().isCanBeResolved = true
+    configurations = listOf(project.configurations["implementation"])
+    archiveClassifier.set("")
 }
