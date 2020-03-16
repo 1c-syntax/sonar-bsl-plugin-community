@@ -202,7 +202,7 @@ public class BSLCoreSensor implements Sensor {
 
     saveCoverageLoc(inputFile, documentContext);
 
-    documentContext.clearASTData();
+    documentContext.clearParseTreeData();
   }
 
 
