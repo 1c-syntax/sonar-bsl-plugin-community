@@ -322,6 +322,26 @@ public class BSLCoreSensor implements Sensor {
   }
 
   private LanguageServerConfiguration getLanguageServerConfiguration() {
+
+    boolean overrideConfiguration = context.config()
+      .get(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_KEY)
+      .map(Boolean::parseBoolean)
+      .orElse(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE);
+
+    if (overrideConfiguration) {
+      String configurationPath = context.config()
+        .get(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY)
+        .orElse(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE);
+
+      File configurationFile = new File(configurationPath);
+      if (configurationFile.exists()) {
+        LOGGER.info("BSL LS configuration file exists. Overriding SonarQube rules' settings...");
+        return LanguageServerConfiguration.create(configurationFile);
+      } else {
+        LOGGER.error("Can't find bsl configuration file {}. Using SonarQube config instead.", configurationPath);
+      }
+    }
+
     LanguageServerConfiguration configuration = LanguageServerConfiguration.create();
     String diagnosticLanguageCode = context.config()
       .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
