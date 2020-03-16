@@ -88,6 +88,8 @@ sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH
     - with support locked - будут пропускаться модули на поддержке с запретом изменения (*"на замке"*);
     - with support - будут пропускаться модули на поддержке;
     - never *по умолчанию* - модули не пропускаются;
+* `sonar.bsl.languageserver.overrideConfiguration` - переопределить настройки Quality Profile настройками из файла конфигурации BSL Language Server;
+* `sonar.bsl.languageserver.configurationPath` - путь к файлу конфигурации BSL Language Server для переопределения настроек;
 * `sonar.bsl.file.suffixes` - список расширений файлов для анализа. По умолчанию - `.bsl,.os`
 * `sonar.bsl.calculateLineCover` - расчитывать строки для покрытия тестами. По умолчанию - `false` - выключен
 
