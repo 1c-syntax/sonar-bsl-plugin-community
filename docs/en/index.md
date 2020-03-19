@@ -89,8 +89,11 @@ sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH
     * with support locked - modules for support with the prohibition of changes will be skipped ("locked");
     * with support - modules on support will be skipped;
     * never *default* - modules are not skipped
+- `sonar.bsl.languageserver.overrideConfiguration` - override Quality Profile settings with settings from BSL Language Server configuration file;
+- `sonar.bsl.languageserver.configurationPath` - path to BSL Language Server configuration file to override settings;
 - `sonar.bsl.file.suffixes` - list of file suffixes that will be scanned. Default - `.bsl,.os`
 - `sonar.bsl.calculateLineCover` - calculate locations for coverage.
+
 ## Language switch for rule names/descriptions and issue messages
 
 Plugin contains support of two languages for rule names/descriptions and issue messages:

@@ -40,6 +40,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -98,6 +99,24 @@ class BSLCoreSensorTest {
     context = createSensorContext();
     setActiveRules(context, diagnosticName, ruleKey);
     context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY, DiagnosticLanguage.EN.getLanguageCode());
+    sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+    sensor.execute(context);
+
+    assertThat(context.isCancelled()).isFalse();
+
+    context = createSensorContext();
+    setActiveRules(context, diagnosticName, ruleKey);
+    context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_KEY, Boolean.TRUE.toString());
+    context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY, Path.of(BASE_PATH, ".bsl-language-server.json").toString());
+    sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+    sensor.execute(context);
+
+    assertThat(context.isCancelled()).isFalse();
+
+    context = createSensorContext();
+    setActiveRules(context, diagnosticName, ruleKey);
+    context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_KEY, Boolean.TRUE.toString());
+    context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY, "fake.file");
     sensor = new BSLCoreSensor(context, fileLinesContextFactory);
     sensor.execute(context);
 

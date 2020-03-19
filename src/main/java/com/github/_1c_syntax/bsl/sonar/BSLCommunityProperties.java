@@ -38,6 +38,8 @@ public final class BSLCommunityProperties {
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY = "sonar.bsl.languageserver.diagnosticLanguage";
   public static final String LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY = "sonar.bsl.languageserver.skipSupport";
   public static final String LANG_SERVER_ENABLED_KEY = "sonar.bsl.languageserver.enabled";
+  public static final String LANG_SERVER_CONFIGURATION_PATH_KEY = "sonar.bsl.languageserver.configurationPath";
+  public static final String LANG_SERVER_OVERRIDE_CONFIGURATION_KEY = "sonar.bsl.languageserver.overrideConfiguration";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
   public static final String BSL_FILE_EXTENSIONS_KEY = "sonar.bsl.file.suffixes";
   public static final String BSL_CALCULATE_LINE_TO_COVER_KEY = "sonar.bsl.calculateLineCover";
@@ -46,6 +48,8 @@ public final class BSLCommunityProperties {
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = DiagnosticLanguage.RU.getLanguageCode();
   public static final String LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE
     = ComputeDiagnosticsSkipSupport.NEVER.name().toLowerCase(Locale.ENGLISH);
+  public static final String LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE = ".bsl-language-server.json";
+  public static final Boolean LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE = Boolean.FALSE;
   public static final String BSL_FILE_EXTENSIONS_DEFAULT_VALUE = ".bsl,.os";
   public static final Boolean BSL_CALCULATE_LINE_TO_COVER_VALUE = Boolean.FALSE;
 
@@ -95,6 +99,24 @@ public final class BSLCommunityProperties {
         .onQualifiers(Qualifiers.PROJECT)
         .index(2)
         .build(),
+      PropertyDefinition.builder(LANG_SERVER_OVERRIDE_CONFIGURATION_KEY)
+        .name("BSL Language Server - Use configuration file")
+        .description("Override SonarQube settings with BSL LS configuration file.")
+        .category(BSL_CATEGORY)
+        .defaultValue(LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE.toString())
+        .type(PropertyType.BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(3)
+        .build(),
+      PropertyDefinition.builder(LANG_SERVER_CONFIGURATION_PATH_KEY)
+        .name("BSL Language Server - Configuration file")
+        .description("Path to BSL LS configuration file.")
+        .category(BSL_CATEGORY)
+        .defaultValue(LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE)
+        .type(PropertyType.STRING)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(4)
+        .build(),
       PropertyDefinition.builder(BSL_FILE_EXTENSIONS_KEY)
         .name("BSL File suffixes")
         .description("List of file suffixes that will be scanned.")
@@ -102,7 +124,7 @@ public final class BSLCommunityProperties {
         .defaultValue(BSL_FILE_EXTENSIONS_DEFAULT_VALUE)
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
-        .index(3)
+        .index(5)
         .build(),
       PropertyDefinition.builder(BSL_CALCULATE_LINE_TO_COVER_KEY)
         .name("BSL calculate lines to cover")
@@ -111,7 +133,7 @@ public final class BSLCommunityProperties {
         .type(PropertyType.BOOLEAN)
         .category(BSL_CATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
-        .index(4)
+        .index(6)
         .build(),
       PropertyDefinition.builder(LANG_SERVER_REPORT_PATH_KEY)
         .name("BSL Language Server Report Files")
