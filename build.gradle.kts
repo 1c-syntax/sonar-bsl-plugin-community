@@ -8,7 +8,7 @@ plugins {
     id("org.sonarqube") version "2.8"
     id("com.github.hierynomus.license") version "0.15.0"
     id("com.github.johnrengelman.shadow") version("5.2.0")
-    id("com.github.ben-manes.versions") version "0.27.0"
+    id("com.github.ben-manes.versions") version "0.28.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
 }
 
@@ -23,7 +23,7 @@ repositories {
 }
 
 val commonmarkVersion = "0.14.0"
-val junitVersion = "5.6.0"
+val junitVersion = "5.6.1"
 
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
@@ -41,13 +41,13 @@ dependencies {
     implementation("com.atlassian.commonmark", "commonmark-ext-autolink", commonmarkVersion)
     implementation("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
-    implementation("me.tongfei:progressbar:0.8.0")
+    implementation("me.tongfei:progressbar:0.8.1")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
     
-    testCompile("org.assertj:assertj-core:3.14.0")
-    testCompile("org.mockito:mockito-core:3.2.4")
+    testCompile("org.assertj:assertj-core:3.15.0")
+    testCompile("org.mockito:mockito-core:3.3.3")
 }
 
 java {
