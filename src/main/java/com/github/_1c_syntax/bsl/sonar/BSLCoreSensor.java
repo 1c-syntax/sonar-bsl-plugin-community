@@ -32,10 +32,10 @@ import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
 import com.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
-import com.github._1c_syntax.utils.Absolute;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
+import com.github._1c_syntax.utils.Absolute;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
@@ -368,14 +368,15 @@ public class BSLCoreSensor implements Sensor {
 
     for (Class<? extends BSLDiagnostic> diagnosticClass : diagnosticClasses) {
       DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticClass);
+      String diagnosticCode = diagnosticInfo.getCode().getStringValue();
       ActiveRule activeRule = activeRules.find(
         RuleKey.of(
           BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
-          diagnosticInfo.getCode()
+          diagnosticCode
         )
       );
       if (activeRule == null) {
-        diagnostics.put(diagnosticInfo.getCode(), Either.forLeft(false));
+        diagnostics.put(diagnosticCode, Either.forLeft(false));
       } else {
         Map<String, String> params = activeRule.params();
 
@@ -391,7 +392,7 @@ public class BSLCoreSensor implements Sensor {
           )
         );
         diagnostics.put(
-          diagnosticInfo.getCode(),
+          diagnosticCode,
           Either.forRight(diagnosticConfiguration)
         );
       }
