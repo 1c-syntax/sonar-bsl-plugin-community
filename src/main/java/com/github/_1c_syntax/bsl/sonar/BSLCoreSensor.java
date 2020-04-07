@@ -32,10 +32,10 @@ import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
 import com.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
-import com.github._1c_syntax.bsl.languageserver.utils.Absolute;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
+import com.github._1c_syntax.utils.Absolute;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
@@ -202,7 +202,7 @@ public class BSLCoreSensor implements Sensor {
 
     saveCoverageLoc(inputFile, documentContext);
 
-    documentContext.clearASTData();
+    documentContext.clearSecondaryData();
   }
 
 
@@ -322,6 +322,26 @@ public class BSLCoreSensor implements Sensor {
   }
 
   private LanguageServerConfiguration getLanguageServerConfiguration() {
+
+    boolean overrideConfiguration = context.config()
+      .get(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_KEY)
+      .map(Boolean::parseBoolean)
+      .orElse(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE);
+
+    if (overrideConfiguration) {
+      String configurationPath = context.config()
+        .get(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY)
+        .orElse(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE);
+
+      File configurationFile = new File(configurationPath);
+      if (configurationFile.exists()) {
+        LOGGER.info("BSL LS configuration file exists. Overriding SonarQube rules' settings...");
+        return LanguageServerConfiguration.create(configurationFile);
+      } else {
+        LOGGER.error("Can't find bsl configuration file {}. Using SonarQube config instead.", configurationPath);
+      }
+    }
+
     LanguageServerConfiguration configuration = LanguageServerConfiguration.create();
     String diagnosticLanguageCode = context.config()
       .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
@@ -348,14 +368,15 @@ public class BSLCoreSensor implements Sensor {
 
     for (Class<? extends BSLDiagnostic> diagnosticClass : diagnosticClasses) {
       DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticClass);
+      String diagnosticCode = diagnosticInfo.getCode().getStringValue();
       ActiveRule activeRule = activeRules.find(
         RuleKey.of(
           BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
-          diagnosticInfo.getCode()
+          diagnosticCode
         )
       );
       if (activeRule == null) {
-        diagnostics.put(diagnosticInfo.getCode(), Either.forLeft(false));
+        diagnostics.put(diagnosticCode, Either.forLeft(false));
       } else {
         Map<String, String> params = activeRule.params();
 
@@ -371,7 +392,7 @@ public class BSLCoreSensor implements Sensor {
           )
         );
         diagnostics.put(
-          diagnosticInfo.getCode(),
+          diagnosticCode,
           Either.forRight(diagnosticConfiguration)
         );
       }

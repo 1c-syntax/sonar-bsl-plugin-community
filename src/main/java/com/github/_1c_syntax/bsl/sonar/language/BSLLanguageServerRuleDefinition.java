@@ -93,7 +93,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     DiagnosticSupplier.getDiagnosticClasses()
       .forEach((Class<? extends BSLDiagnostic> diagnostic) -> {
         diagnosticInfo = new DiagnosticInfo(diagnostic, language);
-        NewRule newRule = repository.createRule(diagnosticInfo.getCode());
+        NewRule newRule = repository.createRule(diagnosticInfo.getCode().getStringValue());
         setUpNewRule(newRule);
         setUpRuleParams(newRule);
       });
@@ -107,7 +107,9 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .stream()
       .map(DiagnosticInfo::new)
       .filter(DiagnosticInfo::isActivatedByDefault)
-      .map(DiagnosticInfo::getCode).collect(Collectors.toList());
+      .map(DiagnosticInfo::getCode)
+      .map(diagnosticCode -> diagnosticCode.getStringValue())
+      .collect(Collectors.toList());
   }
 
   private void setUpNewRule(NewRule newRule) {

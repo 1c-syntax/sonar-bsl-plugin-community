@@ -21,6 +21,7 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import org.eclipse.lsp4j.Diagnostic;
@@ -71,7 +72,10 @@ public class IssuesLoader {
 
   public void createIssue(InputFile inputFile, Diagnostic diagnostic) {
 
-    RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnostic.getCode());
+    RuleKey ruleKey = RuleKey.of(
+      BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
+      DiagnosticCode.getStringValue(diagnostic.getCode())
+    );
     ActiveRule activeRule = context.activeRules().find(ruleKey);
     if (activeRule == null) {
       createExternalIssue(inputFile, diagnostic);
@@ -121,7 +125,7 @@ public class IssuesLoader {
     NewExternalIssue issue = context.newExternalIssue();
 
     issue.engineId("bsl-language-server");
-    issue.ruleId(diagnostic.getCode());
+    issue.ruleId(DiagnosticCode.getStringValue(diagnostic.getCode()));
     issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
     issue.severity(severityMap.get(diagnostic.getSeverity()));
 
