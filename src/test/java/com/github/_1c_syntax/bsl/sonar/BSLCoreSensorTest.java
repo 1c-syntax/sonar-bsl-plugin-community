@@ -21,7 +21,7 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import org.junit.jupiter.api.Test;
@@ -98,7 +98,7 @@ class BSLCoreSensorTest {
 
     context = createSensorContext();
     setActiveRules(context, diagnosticName, ruleKey);
-    context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY, DiagnosticLanguage.EN.getLanguageCode());
+    context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY, Language.EN.getLanguageCode());
     sensor = new BSLCoreSensor(context, fileLinesContextFactory);
     sensor.execute(context);
 
@@ -121,7 +121,7 @@ class BSLCoreSensorTest {
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
-    
+
   }
 
   @Test
