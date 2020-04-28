@@ -21,7 +21,7 @@
  */
 package com.github._1c_syntax.bsl.sonar.language;
 
-import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
@@ -59,7 +59,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
 
   private final Configuration config;
-  private final DiagnosticLanguage language;
+  private final Language language;
   private final Parser markdownParser;
   private final HtmlRenderer htmlRenderer;
   private DiagnosticInfo diagnosticInfo;
@@ -165,13 +165,13 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       });
   }
 
-  private DiagnosticLanguage createDiagnosticLanguage() {
+  private Language createDiagnosticLanguage() {
 
     String diagnosticLanguageCode = config
       .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
 
-    return DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH));
+    return Language.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH));
   }
 
 

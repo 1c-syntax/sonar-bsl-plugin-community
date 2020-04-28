@@ -21,9 +21,9 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.languageserver.configuration.ComputeDiagnosticsSkipSupport;
-import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
+import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import com.github._1c_syntax.bsl.languageserver.context.MetricStorage;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
@@ -347,19 +347,19 @@ public class BSLCoreSensor implements Sensor {
       .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
 
-    configuration.setDiagnosticLanguage(
-      DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
+    configuration.setLanguage(
+      Language.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
     );
 
-    ComputeDiagnosticsSkipSupport skipSupport = context.config()
+    SkipSupport skipSupport = context.config()
       .get(BSLCommunityProperties.LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY)
       .map(value -> value.toUpperCase(Locale.ENGLISH).replace(" ", "_"))
-      .map(ComputeDiagnosticsSkipSupport::valueOf)
-      .orElse(ComputeDiagnosticsSkipSupport.valueOf(
+      .map(SkipSupport::valueOf)
+      .orElse(SkipSupport.valueOf(
         BSLCommunityProperties.LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE.toUpperCase(Locale.ENGLISH)
       ));
 
-    configuration.setComputeDiagnosticsSkipSupport(skipSupport);
+    configuration.getDiagnosticsOptions().setSkipSupport(skipSupport);
 
     ActiveRules activeRules = context.activeRules();
 
@@ -398,7 +398,7 @@ public class BSLCoreSensor implements Sensor {
       }
     }
 
-    configuration.setDiagnostics(diagnostics);
+    configuration.getDiagnosticsOptions().setParameters(diagnostics);
 
     return configuration;
   }
