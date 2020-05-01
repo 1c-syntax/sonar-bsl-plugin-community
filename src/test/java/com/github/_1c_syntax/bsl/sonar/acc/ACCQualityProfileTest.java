@@ -2,7 +2,7 @@
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
  * Copyright © 2018-2020
- * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
+ * Nikita Gryzlov <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -19,38 +19,18 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar;
+package com.github._1c_syntax.bsl.sonar.acc;
 
-import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonar.api.utils.Version;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class BSLPluginTest {
-
-  private static final Version VERSION_7_9 = Version.create(7, 9);
-  private final BSLPlugin bslPlugin = new BSLPlugin();
-
-  @Test
-  void testGetExtensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_7_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
-    bslPlugin.define(context);
-    assertThat((List<?>) context.getExtensions()).hasSize(15);
-  }
+class ACCQualityProfileTest {
 
   @Test
   void testQualityProfile() {
-    BSLQualityProfile profile = new BSLQualityProfile();
+    ACCQualityProfile profile = new ACCQualityProfile();
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     profile.define(context);
     assertThat(context.profilesByLanguageAndName()).hasSize(1);

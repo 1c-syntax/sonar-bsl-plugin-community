@@ -2,7 +2,7 @@
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
  * Copyright © 2018-2020
- * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
+ * Nikita Gryzlov <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -19,29 +19,27 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar;
+package com.github._1c_syntax.bsl.sonar.acc;
 
-import com.github._1c_syntax.bsl.sonar.acc.ACCQualityProfile;
-import com.github._1c_syntax.bsl.sonar.acc.ACCRuleDefinition;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
-import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
-import org.sonar.api.Plugin;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
-public class BSLPlugin implements Plugin {
+public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
 
   @Override
   public void define(Context context) {
-    context.addExtension(BSLLanguage.class);
-    context.addExtension(BSLQualityProfile.class);
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
+      "ACC rules (all)",
+      BSLLanguage.KEY
+    );
 
-    context.addExtensions(BSLCommunityProperties.getProperties());
-    context.addExtension(BSLLanguageServerRuleDefinition.class);
-    context.addExtension(ACCQualityProfile.class);
-    context.addExtension(ACCRuleDefinition.class);
+    ACCRuleDefinition.getActivatedRuleKeys()
+      .forEach(key -> profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
+    BSLLanguageServerRuleDefinition.getActivatedRuleKeys()
+      .forEach(key -> profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, key));
 
-    context.addExtension(BSLCoreSensor.class);
-    context.addExtension(LanguageServerDiagnosticsLoaderSensor.class);
+    profile.done();
   }
 
 }

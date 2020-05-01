@@ -101,7 +101,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     repository.done();
   }
 
-  protected static List<String> getActivatedRuleKeys() {
+  public static List<String> getActivatedRuleKeys() {
 
     return DiagnosticSupplier.getDiagnosticClasses()
       .stream()
