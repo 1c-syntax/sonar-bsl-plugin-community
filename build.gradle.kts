@@ -90,7 +90,7 @@ tasks.jacocoTestReport {
 license {
     header = rootProject.file("license/HEADER.txt")
     ext["year"] = Calendar.getInstance().get(Calendar.YEAR)
-    ext["name"] = "Nikita Gryzlov <nixel2007@gmail.com>"
+    ext["name"] = "Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>"
     ext["project"] = "SonarQube 1C (BSL) Community Plugin"
     strictCheck = true
     mapping("java", "SLASHSTAR_STYLE")
