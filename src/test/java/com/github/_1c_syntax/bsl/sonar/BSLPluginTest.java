@@ -21,6 +21,7 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.Plugin;
@@ -53,7 +54,7 @@ class BSLPluginTest {
     BSLQualityProfile profile = new BSLQualityProfile();
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     profile.define(context);
-    assertThat(context.profilesByLanguageAndName()).hasSize(1);
+    assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(1);
   }
 
 }

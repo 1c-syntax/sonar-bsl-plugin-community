@@ -73,11 +73,12 @@ public class IssuesLoader {
 
   public void createIssue(InputFile inputFile, Diagnostic diagnostic) {
 
+    boolean needCreateExternalIssue = true;
     String code = DiagnosticCode.getStringValue(diagnostic.getCode());
     String keyRepository = BSLLanguageServerRuleDefinition.REPOSITORY_KEY;
-    boolean needCreateExternalIssue = true;
+    String source = diagnostic.getSource();
 
-    if (code.startsWith("acc-")) {
+    if (source != null && source.equals(ACCRuleDefinition.SOURCE)) {
       needCreateExternalIssue = false;
       keyRepository = ACCRuleDefinition.REPOSITORY_KEY;
     }

@@ -46,19 +46,25 @@ public class ACCRulesFile {
         String description;
         String type;
         String severity;
+        boolean active;
+        boolean needForCertificate;
 
         public ACCRule(
                 @JsonProperty("Code") String code,
                 @JsonProperty("Name") String name,
                 @JsonProperty("Description") String description,
                 @JsonProperty("Type") String type,
-                @JsonProperty("Severity") String severity
+                @JsonProperty("Severity") String severity,
+                @JsonProperty("Active") boolean active,
+                @JsonProperty("NeedForCertificate") boolean needForCertificate
         ) {
             this.code = code;
             this.name = name;
             this.description = description;
             this.type = type;
             this.severity = severity;
+            this.active = active;
+            this.needForCertificate = needForCertificate;
         }
     }
 }

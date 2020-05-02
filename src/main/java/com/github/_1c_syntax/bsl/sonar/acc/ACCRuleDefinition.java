@@ -22,8 +22,7 @@
 package com.github._1c_syntax.bsl.sonar.acc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
+
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.config.Configuration;
@@ -35,14 +34,12 @@ import org.sonar.api.utils.log.Loggers;
 import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ACCRuleDefinition implements RulesDefinition {
 
   public static final String REPOSITORY_KEY = "acc-rules";
+  public static final String SOURCE = "acc";
   private static final String REPOSITORY_NAME = "ACC rules";
   private static final Logger LOGGER = Loggers.get(ACCRuleDefinition.class);
 
@@ -76,25 +73,11 @@ public class ACCRuleDefinition implements RulesDefinition {
       .setHtmlDescription(rule.getDescription())
       .setType(RuleType.valueOf(rule.getType()))
       .setSeverity(rule.getSeverity())
-      .addTags("acc", "standard");
-  }
-
-  protected static List<String> getActivatedRuleKeys() {
-    ACCRulesFile rulesFile = getRulesFile();
-
-    if (rulesFile != null) {
-      return rulesFile
-        .getRules()
-        .stream()
-        .map(ACCRulesFile.ACCRule::getCode)
-        .collect(Collectors.toList());
-    }
-
-    return Collections.emptyList();
+      .addTags("acc");
   }
 
   @CheckForNull
-  private static ACCRulesFile getRulesFile() {
+  protected static ACCRulesFile getRulesFile() {
     String json;
 
     try {

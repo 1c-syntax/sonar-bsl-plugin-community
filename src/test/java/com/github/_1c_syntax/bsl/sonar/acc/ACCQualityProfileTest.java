@@ -21,6 +21,7 @@
  */
 package com.github._1c_syntax.bsl.sonar.acc;
 
+import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
@@ -33,7 +34,7 @@ class ACCQualityProfileTest {
     ACCQualityProfile profile = new ACCQualityProfile();
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     profile.define(context);
-    assertThat(context.profilesByLanguageAndName()).hasSize(1);
+    assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(2);
   }
 
 }

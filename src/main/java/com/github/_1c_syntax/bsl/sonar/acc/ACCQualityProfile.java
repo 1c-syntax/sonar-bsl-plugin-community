@@ -23,23 +23,51 @@ package com.github._1c_syntax.bsl.sonar.acc;
 
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+
+import java.util.List;
 
 public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
 
   @Override
-  public void define(Context context) {
+  public void define(@NotNull Context context) {
+    List<String> rulesBSL = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
+    ACCRulesFile rulesFile = ACCRuleDefinition.getRulesFile();
+
+    if (rulesFile == null) {
+      return;
+    }
+
     NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
-      "ACC rules (all)",
+      "ACC full check",
       BSLLanguage.KEY
     );
 
-    ACCRuleDefinition.getActivatedRuleKeys()
+    rulesFile.getRules()
+      .stream()
+      .filter(ACCRulesFile.ACCRule::isActive)
+      .map(ACCRulesFile.ACCRule::getCode)
       .forEach(key -> profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
-    BSLLanguageServerRuleDefinition.getActivatedRuleKeys()
+    rulesBSL
       .forEach(key -> profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, key));
 
     profile.done();
+
+    NewBuiltInQualityProfile profileConsistent = context.createBuiltInQualityProfile(
+      "ACC only consistent",
+      BSLLanguage.KEY
+    );
+
+    rulesFile.getRules()
+      .stream()
+      .filter(ACCRulesFile.ACCRule::isNeedForCertificate)
+      .map(ACCRulesFile.ACCRule::getCode)
+      .forEach(key -> profileConsistent.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
+    rulesBSL
+      .forEach(key -> profileConsistent.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, key));
+
+    profileConsistent.done();
   }
 
 }
