@@ -55,7 +55,7 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
     profile.done();
 
     NewBuiltInQualityProfile profileConsistent = context.createBuiltInQualityProfile(
-      "ACC only consistent",
+      "ACC - 1C:Certified",
       BSLLanguage.KEY
     );
 
