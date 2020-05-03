@@ -78,7 +78,7 @@ public class IssuesLoader {
     String keyRepository = BSLLanguageServerRuleDefinition.REPOSITORY_KEY;
     String source = diagnostic.getSource();
 
-    if (source != null && source.equals(ACCRuleDefinition.SOURCE)) {
+    if (ACCRuleDefinition.SOURCE.equals(source)) {
       needCreateExternalIssue = false;
       keyRepository = ACCRuleDefinition.REPOSITORY_KEY;
     }
