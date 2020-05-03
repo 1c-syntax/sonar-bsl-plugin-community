@@ -41,5 +41,6 @@ public class ACCRulesFile {
     String severity;
     boolean active;
     boolean needForCertificate;
+    int effortMinutes;
   }
 }

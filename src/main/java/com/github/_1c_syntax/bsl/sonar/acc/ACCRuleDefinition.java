@@ -64,12 +64,18 @@ public class ACCRuleDefinition implements RulesDefinition {
   }
 
   private void createRule(ACCRulesFile.ACCRule rule) {
-    repository.createRule(rule.getCode())
+    NewRule newRule = repository.createRule(rule.getCode())
       .setName(rule.getName())
       .setHtmlDescription(rule.getDescription())
       .setType(RuleType.valueOf(rule.getType()))
       .setSeverity(rule.getSeverity())
       .addTags("acc");
+
+    newRule.setDebtRemediationFunction(
+      newRule.debtRemediationFunctions().linear(
+        rule.getEffortMinutes() + "min"
+      )
+    );
   }
 
   @CheckForNull
