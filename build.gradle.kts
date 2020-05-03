@@ -124,7 +124,7 @@ tasks.jar {
         attributes["Plugin-Homepage"] = "https://1c-syntax.github.io/sonar-bsl-plugin-community"
         attributes["Plugin-IssueTrackerUrl"] = "https://github.com/1c-syntax/sonar-bsl-plugin-community/issues"
         attributes["Plugin-SourcesUrl"] = "https://github.com/1c-syntax/sonar-bsl-plugin-community"
-        attributes["Plugin-Developers"] = "Nikita Gryzlov"
+        attributes["Plugin-Developers"] = "Alexey Sosnoviy, Nikita Gryzlov"
 
         attributes["SonarLint-Supported"] = true
         attributes["Sonar-Version"] = "7.9"
