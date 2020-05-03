@@ -28,14 +28,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ACCRuleDefinitionTest {
 
-    @Test
-    public void test_init() {
-        ACCRuleDefinition ruleDefinition = new ACCRuleDefinition();
-        RulesDefinition.Context context = new RulesDefinition.Context();
-        ruleDefinition.define(context);
+  @Test
+  public void testDefine() {
+    ACCRuleDefinition ruleDefinition = new ACCRuleDefinition();
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    ruleDefinition.define(context);
 
-        assertThat(context.repositories()).hasSize(1);
-        assertThat(context.repository(ACCRuleDefinition.REPOSITORY_KEY)).isNotNull();
-    }
+    assertThat(context.repositories()).hasSize(1);
+    assertThat(context.repository(ACCRuleDefinition.REPOSITORY_KEY)).isNotNull();
+  }
 
 }
