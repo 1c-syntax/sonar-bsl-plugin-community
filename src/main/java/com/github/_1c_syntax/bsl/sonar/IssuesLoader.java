@@ -22,6 +22,7 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
+import com.github._1c_syntax.bsl.sonar.acc.ACCProperties;
 import com.github._1c_syntax.bsl.sonar.acc.ACCRuleDefinition;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
@@ -62,6 +63,7 @@ public class IssuesLoader {
   private final Map<DiagnosticSeverity, RuleType> ruleTypeMap;
   private final FileSystem fileSystem;
   private final FilePredicates predicates;
+  private boolean createExternalIssuesWithACCSources;
 
   public IssuesLoader(SensorContext context) {
     this.context = context;
@@ -69,6 +71,10 @@ public class IssuesLoader {
     this.predicates = fileSystem.predicates();
     this.severityMap = createDiagnosticSeverityMap();
     this.ruleTypeMap = createRuleTypeMap();
+    context.config().getBoolean(ACCProperties.CREATE_EXTERNAL_ISSUES).ifPresentOrElse(
+      value -> { this.createExternalIssuesWithACCSources = value; },
+      () -> { this.createExternalIssuesWithACCSources = true; }
+    );
   }
 
   public void createIssue(InputFile inputFile, Diagnostic diagnostic) {
@@ -76,10 +82,9 @@ public class IssuesLoader {
     boolean needCreateExternalIssue = true;
     String code = DiagnosticCode.getStringValue(diagnostic.getCode());
     String keyRepository = BSLLanguageServerRuleDefinition.REPOSITORY_KEY;
-    String source = diagnostic.getSource();
 
-    if (ACCRuleDefinition.SOURCE.equals(source)) {
-      needCreateExternalIssue = false;
+    if (isACCDiagnostic(diagnostic)) {
+      needCreateExternalIssue = this.createExternalIssuesWithACCSources;
       keyRepository = ACCRuleDefinition.REPOSITORY_KEY;
     }
 
@@ -128,10 +133,19 @@ public class IssuesLoader {
     issue.save();
   }
 
+  private boolean isACCDiagnostic(Diagnostic diagnostic) {
+    return ACCRuleDefinition.SOURCE.equals(diagnostic.getSource());
+  }
+
   private void createExternalIssue(InputFile inputFile, Diagnostic diagnostic) {
     NewExternalIssue issue = context.newExternalIssue();
 
-    issue.engineId("bsl-language-server");
+    if (isACCDiagnostic(diagnostic)) {
+      issue.engineId(ACCRuleDefinition.SOURCE);
+    } else {
+      issue.engineId("bsl-language-server");
+    }
+
     issue.ruleId(DiagnosticCode.getStringValue(diagnostic.getCode()));
     issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
     issue.severity(severityMap.get(diagnostic.getSeverity()));
