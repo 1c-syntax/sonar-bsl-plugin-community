@@ -22,8 +22,6 @@
 package com.github._1c_syntax.bsl.sonar.acc;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,8 +30,7 @@ class ACCRuleDefinitionTest {
 
     @Test
     public void test_init() {
-        Configuration config = new MapSettings().asConfig();
-        ACCRuleDefinition ruleDefinition = new ACCRuleDefinition(config);
+        ACCRuleDefinition ruleDefinition = new ACCRuleDefinition();
         RulesDefinition.Context context = new RulesDefinition.Context();
         ruleDefinition.define(context);
 

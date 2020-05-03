@@ -21,50 +21,26 @@
  */
 package com.github._1c_syntax.bsl.sonar.acc;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import java.util.List;
 
 @Value
+@AllArgsConstructor
 public class ACCRulesFile {
 
-    @JsonProperty("Rules")
-    List<ACCRule> rules;
+  List<ACCRule> rules;
 
-    public ACCRulesFile(
-            @JsonProperty("Rules") List<ACCRule> rulesList
-    ) {
-        this.rules = rulesList;
-    }
+  @Value
+  public static class ACCRule {
 
-    @Value
-    public static class ACCRule {
-
-        String code;
-        String name;
-        String description;
-        String type;
-        String severity;
-        boolean active;
-        boolean needForCertificate;
-
-        public ACCRule(
-                @JsonProperty("Code") String code,
-                @JsonProperty("Name") String name,
-                @JsonProperty("Description") String description,
-                @JsonProperty("Type") String type,
-                @JsonProperty("Severity") String severity,
-                @JsonProperty("Active") boolean active,
-                @JsonProperty("NeedForCertificate") boolean needForCertificate
-        ) {
-            this.code = code;
-            this.name = name;
-            this.description = description;
-            this.type = type;
-            this.severity = severity;
-            this.active = active;
-            this.needForCertificate = needForCertificate;
-        }
-    }
+    String code;
+    String name;
+    String description;
+    String type;
+    String severity;
+    boolean active;
+    boolean needForCertificate;
+  }
 }

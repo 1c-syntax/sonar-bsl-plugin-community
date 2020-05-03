@@ -21,11 +21,10 @@
  */
 package com.github._1c_syntax.bsl.sonar.acc;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.log.Logger;
@@ -43,11 +42,9 @@ public class ACCRuleDefinition implements RulesDefinition {
   private static final String REPOSITORY_NAME = "ACC rules";
   private static final Logger LOGGER = Loggers.get(ACCRuleDefinition.class);
 
-  private final Configuration config;
   private NewRepository repository;
 
-  public ACCRuleDefinition(Configuration config) {
-    this.config = config;
+  public ACCRuleDefinition() {
   }
 
   @Override
@@ -91,6 +88,7 @@ public class ACCRuleDefinition implements RulesDefinition {
     }
 
     ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
     try {
       return objectMapper.readValue(json, ACCRulesFile.class);
     } catch (IOException e) {
