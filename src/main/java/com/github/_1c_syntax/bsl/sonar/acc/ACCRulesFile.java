@@ -34,7 +34,6 @@ public class ACCRulesFile {
 
   @Value
   public static class ACCRule {
-
     String code;
     String name;
     String description;

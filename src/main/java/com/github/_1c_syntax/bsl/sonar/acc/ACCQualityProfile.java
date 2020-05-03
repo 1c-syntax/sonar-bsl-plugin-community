@@ -30,20 +30,59 @@ import java.util.List;
 
 public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
 
+  private final List<String> rulesBSL;
+  private final ACCRulesFile rulesFile;
+
+
+  public ACCQualityProfile() {
+    this.rulesBSL = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
+    this.rulesFile = ACCRuleDefinition.getRulesFile();
+  }
+
   @Override
   public void define(@NotNull Context context) {
-    List<String> rulesBSL = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
-    ACCRulesFile rulesFile = ACCRuleDefinition.getRulesFile();
 
     if (rulesFile == null) {
       return;
     }
 
+    addACCFullCheckProfile(context);
+    addACC1CCertifiedProfile(context);
+    addFullCheckProfile(context);
+
+  }
+
+  private void addACCFullCheckProfile(Context context) {
     NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
-      "ACC full check",
+      "ACC - full check",
       BSLLanguage.KEY
     );
+    rulesFile.getRules()
+      .stream()
+      .filter(ACCRulesFile.ACCRule::isActive)
+      .map(ACCRulesFile.ACCRule::getCode)
+      .forEach(key -> profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
+    profile.done();
+  }
 
+  private void addACC1CCertifiedProfile(Context context) {
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
+      "ACC - 1C:Certified",
+      BSLLanguage.KEY
+    );
+    rulesFile.getRules()
+      .stream()
+      .filter(ACCRulesFile.ACCRule::isNeedForCertificate)
+      .map(ACCRulesFile.ACCRule::getCode)
+      .forEach(key -> profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
+    profile.done();
+  }
+
+  private void addFullCheckProfile(Context context) {
+    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
+      "BSL - all rules",
+      BSLLanguage.KEY
+    );
     rulesFile.getRules()
       .stream()
       .filter(ACCRulesFile.ACCRule::isActive)
@@ -51,23 +90,7 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
       .forEach(key -> profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
     rulesBSL
       .forEach(key -> profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, key));
-
     profile.done();
-
-    NewBuiltInQualityProfile profileConsistent = context.createBuiltInQualityProfile(
-      "ACC - 1C:Certified",
-      BSLLanguage.KEY
-    );
-
-    rulesFile.getRules()
-      .stream()
-      .filter(ACCRulesFile.ACCRule::isNeedForCertificate)
-      .map(ACCRulesFile.ACCRule::getCode)
-      .forEach(key -> profileConsistent.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
-    rulesBSL
-      .forEach(key -> profileConsistent.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, key));
-
-    profileConsistent.done();
   }
 
 }

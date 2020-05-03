@@ -34,7 +34,7 @@ class ACCQualityProfileTest {
     ACCQualityProfile profile = new ACCQualityProfile();
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     profile.define(context);
-    assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(2);
+    assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(3);
   }
 
 }

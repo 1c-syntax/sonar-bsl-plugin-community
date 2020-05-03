@@ -44,8 +44,7 @@ public class ACCRuleDefinition implements RulesDefinition {
 
   private NewRepository repository;
 
-  public ACCRuleDefinition() {
-  }
+  public ACCRuleDefinition() {}
 
   @Override
   public void define(Context context) {
