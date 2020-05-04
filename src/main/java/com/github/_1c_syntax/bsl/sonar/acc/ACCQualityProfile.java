@@ -67,7 +67,7 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
 
   private void addACC1CCertifiedProfile(Context context) {
     NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
-      "ACC - 1C:Certified",
+      "ACC - 1C:Compatible",
       BSLLanguage.KEY
     );
     rulesFile.getRules()
