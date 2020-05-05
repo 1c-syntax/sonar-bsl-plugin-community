@@ -24,13 +24,16 @@ package com.github._1c_syntax.bsl.sonar.acc;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.CheckForNull;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -43,34 +46,66 @@ public class ACCRuleDefinition implements RulesDefinition {
   private static final Logger LOGGER = Loggers.get(ACCRuleDefinition.class);
 
   private NewRepository repository;
+  private boolean loadFromFile = false;
+  private String rulesFilePath;
 
-  public ACCRuleDefinition() {}
+  public ACCRuleDefinition(Configuration config) {
+    config.get(ACCProperties.ACC_RULES_PATH).ifPresent(value -> {
+      if (!value.isEmpty()) {
+        loadFromFile = true;
+        rulesFilePath = value;
+      }
+    });
+  }
 
   @Override
   public void define(Context context) {
     repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
-    loadRulesFromFile();
+    loadRules();
     repository.done();
   }
 
-  private void loadRulesFromFile() {
-    ACCRulesFile rulesFile = getRulesFile();
+  private void loadRules() {
+    ACCRulesFile rulesFile = getRulesFromResource();
 
     if (rulesFile != null) {
       rulesFile.getRules().forEach(this::createRule);
     }
+
+    if (loadFromFile) {
+      rulesFile = getRulesFromFile();
+
+      if (rulesFile != null) {
+        rulesFile.getRules().forEach(this::createRule);
+      }
+    }
   }
 
   private void createRule(ACCRulesFile.ACCRule rule) {
+
+    NewRule foundRule = repository.rule(rule.getCode());
+
+    if (foundRule != null) {
+      foundRule.setName(rule.getName())
+        .setHtmlDescription(rule.getDescription())
+        .setType(RuleType.valueOf(rule.getType()))
+        .setSeverity(rule.getSeverity());
+      foundRule.setDebtRemediationFunction(
+        foundRule.debtRemediationFunctions().linear(
+          rule.getEffortMinutes() + "min"
+        )
+      );
+      return;
+    }
+
     NewRule newRule = repository.createRule(rule.getCode())
       .setName(rule.getName())
       .setHtmlDescription(rule.getDescription())
       .setType(RuleType.valueOf(rule.getType()))
       .setSeverity(rule.getSeverity())
       .addTags("acc");
-
     newRule.setDebtRemediationFunction(
       newRule.debtRemediationFunctions().linear(
         rule.getEffortMinutes() + "min"
@@ -78,8 +113,30 @@ public class ACCRuleDefinition implements RulesDefinition {
     );
   }
 
+  private ACCRulesFile getRulesFromFile() {
+    File file = new File(rulesFilePath);
+    String json;
+
+    try {
+      json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      LOGGER.error("Can't read json file acc rules", file.toURI().toString(), e);
+      return null;
+    }
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+
+    try {
+      return objectMapper.readValue(json, ACCRulesFile.class);
+    } catch (IOException e) {
+      LOGGER.error("Can't serialize json acc rules to object", e);
+      return null;
+    }
+  }
+
   @CheckForNull
-  protected static ACCRulesFile getRulesFile() {
+  protected static ACCRulesFile getRulesFromResource() {
     String json;
 
     try {

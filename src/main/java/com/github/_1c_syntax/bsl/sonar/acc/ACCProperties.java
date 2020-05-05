@@ -35,6 +35,7 @@ public final class ACCProperties {
 
   // props key
   public static final String CREATE_EXTERNAL_ISSUES = "sonar.bsl.acc.createExternalIssues";
+  public static final String ACC_RULES_PATH  = "sonar.bsl.acc.accRulesPaths";
 
   public ACCProperties() {
     // only statics
@@ -53,6 +54,17 @@ public final class ACCProperties {
         .category(ACC_CATEGORY)
         .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
         .index(31)
+        .build(),
+      PropertyDefinition.builder(ACC_RULES_PATH)
+        .name("BSL Language Server ACC rules path")
+        .description(
+          "Path (absolute or relative) to json file with ACC rules"
+        )
+        .defaultValue("")
+        .type(PropertyType.STRING)
+        .category(ACC_CATEGORY)
+        .onQualifiers(Qualifiers.APP)
+        .index(32)
         .build()
     );
   }

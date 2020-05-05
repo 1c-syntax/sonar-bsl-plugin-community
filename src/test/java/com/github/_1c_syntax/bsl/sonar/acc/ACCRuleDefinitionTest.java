@@ -22,7 +22,11 @@
 package com.github._1c_syntax.bsl.sonar.acc;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.rule.RulesDefinition;
+
+import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,12 +34,47 @@ class ACCRuleDefinitionTest {
 
   @Test
   public void testDefine() {
-    ACCRuleDefinition ruleDefinition = new ACCRuleDefinition();
+    Configuration config = new MapSettings().asConfig();
+    ACCRuleDefinition ruleDefinition = new ACCRuleDefinition(config);
     RulesDefinition.Context context = new RulesDefinition.Context();
     ruleDefinition.define(context);
 
     assertThat(context.repositories()).hasSize(1);
-    assertThat(context.repository(ACCRuleDefinition.REPOSITORY_KEY)).isNotNull();
+    RulesDefinition.Repository repository = context.repository(ACCRuleDefinition.REPOSITORY_KEY);
+    assertThat(repository).isNotNull();
+    assertThat(repository.rules()).hasSize(467);
+  }
+
+  @Test
+  public void testEmptyExternalFilePath() {
+    Configuration config = new MapSettings()
+      .setProperty(ACCProperties.ACC_RULES_PATH, "")
+      .asConfig();
+    ACCRuleDefinition ruleDefinition = new ACCRuleDefinition(config);
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    ruleDefinition.define(context);
+
+    assertThat(context.repositories()).hasSize(1);
+    RulesDefinition.Repository repository = context.repository(ACCRuleDefinition.REPOSITORY_KEY);
+    assertThat(repository).isNotNull();
+    assertThat(repository.rules()).hasSize(467);
+  }
+
+  @Test
+  public void testExternalFile() {
+    File baseDir = new File("src/test/resources").getAbsoluteFile();
+    File fileRules = new File(baseDir, "acc-test.json");
+    Configuration config = new MapSettings()
+      .setProperty(ACCProperties.ACC_RULES_PATH, fileRules.getAbsolutePath())
+      .asConfig();
+    ACCRuleDefinition ruleDefinition = new ACCRuleDefinition(config);
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    ruleDefinition.define(context);
+
+    assertThat(context.repositories()).hasSize(1);
+    RulesDefinition.Repository repository = context.repository(ACCRuleDefinition.REPOSITORY_KEY);
+    assertThat(repository).isNotNull();
+    assertThat(repository.rules()).hasSize(469);
   }
 
 }

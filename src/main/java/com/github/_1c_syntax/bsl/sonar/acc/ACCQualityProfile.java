@@ -33,10 +33,9 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
   private final List<String> rulesBSL;
   private final ACCRulesFile rulesFile;
 
-
   public ACCQualityProfile() {
     this.rulesBSL = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
-    this.rulesFile = ACCRuleDefinition.getRulesFile();
+    this.rulesFile = ACCRuleDefinition.getRulesFromResource();
   }
 
   @Override
