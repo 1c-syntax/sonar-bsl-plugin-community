@@ -31,11 +31,11 @@ import java.util.List;
 public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
 
   private final List<String> rulesBSL;
-  private final ACCRulesFile rulesFile;
+  private ACCRulesFile rulesFile;
 
   public ACCQualityProfile() {
     this.rulesBSL = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
-    this.rulesFile = ACCRuleDefinition.getRulesFromResource();
+    ACCRuleDefinition.getRulesFromResource().ifPresent((ACCRulesFile file) -> this.rulesFile = file);
   }
 
   @Override

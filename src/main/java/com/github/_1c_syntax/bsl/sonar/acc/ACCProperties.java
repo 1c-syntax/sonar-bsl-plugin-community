@@ -22,6 +22,7 @@
 package com.github._1c_syntax.bsl.sonar.acc;
 
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
+import lombok.experimental.UtilityClass;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
@@ -29,19 +30,15 @@ import org.sonar.api.resources.Qualifiers;
 import java.util.Arrays;
 import java.util.List;
 
-public final class ACCProperties {
+@UtilityClass
+public class ACCProperties {
 
-  private static final String ACC_CATEGORY = "ACC";
+  private final String ACC_CATEGORY = "ACC";
 
-  // props key
-  public static final String CREATE_EXTERNAL_ISSUES = "sonar.bsl.acc.createExternalIssues";
-  public static final String ACC_RULES_PATH  = "sonar.bsl.acc.accRulesPaths";
+  public final String CREATE_EXTERNAL_ISSUES = "sonar.bsl.acc.createExternalIssues";
+  public final String ACC_RULES_PATH  = "sonar.bsl.acc.accRulesPaths";
 
-  public ACCProperties() {
-    // only statics
-  }
-
-  public static List<PropertyDefinition> getProperties() {
+  public List<PropertyDefinition> getProperties() {
     return Arrays.asList(
       PropertyDefinition.builder(CREATE_EXTERNAL_ISSUES)
         .name("Create external issues with acc sources")

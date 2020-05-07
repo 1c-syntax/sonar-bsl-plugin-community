@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -37,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ACCRuleDefinition implements RulesDefinition {
 
@@ -68,18 +70,10 @@ public class ACCRuleDefinition implements RulesDefinition {
   }
 
   private void loadRules() {
-    ACCRulesFile rulesFile = getRulesFromResource();
-
-    if (rulesFile != null) {
-      rulesFile.getRules().forEach(this::createRule);
-    }
+    getRulesFromResource().ifPresent((ACCRulesFile file) -> file.getRules().forEach(this::createRule));
 
     if (loadFromFile) {
-      rulesFile = getRulesFromFile();
-
-      if (rulesFile != null) {
-        rulesFile.getRules().forEach(this::createRule);
-      }
+      getRulesFromFile().ifPresent((ACCRulesFile file) -> file.getRules().forEach(this::createRule));
     }
   }
 
@@ -113,7 +107,7 @@ public class ACCRuleDefinition implements RulesDefinition {
     );
   }
 
-  private ACCRulesFile getRulesFromFile() {
+  private Optional<ACCRulesFile> getRulesFromFile() {
     File file = new File(rulesFilePath);
     String json;
 
@@ -121,22 +115,13 @@ public class ACCRuleDefinition implements RulesDefinition {
       json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
     } catch (IOException e) {
       LOGGER.error("Can't read json file acc rules", file.toURI().toString(), e);
-      return null;
+      return Optional.empty();
     }
 
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-
-    try {
-      return objectMapper.readValue(json, ACCRulesFile.class);
-    } catch (IOException e) {
-      LOGGER.error("Can't serialize json acc rules to object", e);
-      return null;
-    }
+    return getAccRulesFile(json);
   }
 
-  @CheckForNull
-  protected static ACCRulesFile getRulesFromResource() {
+  protected static Optional<ACCRulesFile> getRulesFromResource() {
     String json;
 
     try {
@@ -146,16 +131,20 @@ public class ACCRuleDefinition implements RulesDefinition {
       );
     } catch (IOException e) {
       LOGGER.error("Can't read json file acc rules", e);
-      return null;
+      return Optional.empty();
     }
 
+    return getAccRulesFile(json);
+  }
+
+  private static Optional<ACCRulesFile> getAccRulesFile(String json) {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
     try {
-      return objectMapper.readValue(json, ACCRulesFile.class);
+      return Optional.of(objectMapper.readValue(json, ACCRulesFile.class));
     } catch (IOException e) {
       LOGGER.error("Can't serialize json acc rules to object", e);
-      return null;
+      return Optional.empty();
     }
   }
 
