@@ -161,6 +161,7 @@ public class BSLCoreSensor implements Sensor {
       );
 
       var bslServerContext = new ServerContext(configurationRoot);
+      bslServerContext.populateContext();
 
       try (ProgressBar pb = new ProgressBar("", inputFilesList.size(), ProgressBarStyle.ASCII)) {
         inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
