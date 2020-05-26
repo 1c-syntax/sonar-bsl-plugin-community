@@ -36,6 +36,7 @@ public class ACCProperties {
   private final String ACC_CATEGORY = "ACC";
 
   public final String CREATE_EXTERNAL_ISSUES = "sonar.bsl.acc.createExternalIssues";
+  public final boolean CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE = true;
   public final String ACC_RULES_PATH  = "sonar.bsl.acc.accRulesPaths";
 
   public List<PropertyDefinition> getProperties() {
@@ -45,7 +46,7 @@ public class ACCProperties {
         .description(
           "Create external issue if no active rule was found"
         )
-        .defaultValue(Boolean.TRUE.toString())
+        .defaultValue(Boolean.valueOf(CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE).toString())
         .type(PropertyType.BOOLEAN)
         .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
         .category(ACC_CATEGORY)

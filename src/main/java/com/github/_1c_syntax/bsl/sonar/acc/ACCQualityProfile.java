@@ -23,7 +23,6 @@ package com.github._1c_syntax.bsl.sonar.acc;
 
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
-import org.jetbrains.annotations.NotNull;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
 import java.util.List;
@@ -39,7 +38,7 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
   }
 
   @Override
-  public void define(@NotNull Context context) {
+  public void define(Context context) {
 
     if (rulesFile == null) {
       return;

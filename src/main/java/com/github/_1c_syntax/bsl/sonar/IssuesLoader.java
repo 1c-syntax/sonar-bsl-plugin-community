@@ -63,7 +63,7 @@ public class IssuesLoader {
   private final Map<DiagnosticSeverity, RuleType> ruleTypeMap;
   private final FileSystem fileSystem;
   private final FilePredicates predicates;
-  private boolean createExternalIssuesWithACCSources;
+  private final boolean createExternalIssuesWithACCSources;
 
   public IssuesLoader(SensorContext context) {
     this.context = context;
@@ -71,10 +71,8 @@ public class IssuesLoader {
     this.predicates = fileSystem.predicates();
     this.severityMap = createDiagnosticSeverityMap();
     this.ruleTypeMap = createRuleTypeMap();
-    context.config().getBoolean(ACCProperties.CREATE_EXTERNAL_ISSUES).ifPresentOrElse(
-      value -> { this.createExternalIssuesWithACCSources = value; },
-      () -> { this.createExternalIssuesWithACCSources = true; }
-    );
+    this.createExternalIssuesWithACCSources = context.config().getBoolean(ACCProperties.CREATE_EXTERNAL_ISSUES)
+      .orElse(ACCProperties.CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE);
   }
 
   public void createIssue(InputFile inputFile, Diagnostic diagnostic) {
