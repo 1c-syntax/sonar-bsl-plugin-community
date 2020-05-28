@@ -35,7 +35,7 @@ public class ACCProperties {
 
   private final String ACC_CATEGORY = "ACC";
 
-  public final String ACC_ENABLED = "sonar.bsl.acc.enable";
+  public final String ACC_ENABLED = "sonar.bsl.acc.enabled";
   public final boolean ENABLE_ACC_DEFAULT_VALUE = false;
   public final String CREATE_EXTERNAL_ISSUES = "sonar.bsl.acc.createExternalIssues";
   public final boolean CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE = true;
