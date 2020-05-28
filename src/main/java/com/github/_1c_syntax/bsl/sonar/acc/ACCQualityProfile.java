@@ -36,11 +36,13 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
   private final List<String> rulesBSL;
   private ACCRulesFile rulesFile;
   private final List<ACCRulesFile> externalFiles = new ArrayList<>();
+  private final boolean notEnabled;
 
   public ACCQualityProfile(Configuration config) {
     this.rulesBSL = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
     ACCRulesFileReader.getRulesFromResource().ifPresent((ACCRulesFile file) -> this.rulesFile = file);
 
+    notEnabled = !config.getBoolean(ACCProperties.ACC_ENABLED).orElse(ACCProperties.ENABLE_ACC_DEFAULT_VALUE);
     ACCRulesFileReader loader = new ACCRulesFileReader(config.getStringArray(ACCProperties.ACC_RULES_PATHS));
 
     while (loader.hasMore()) {
@@ -51,7 +53,7 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
   @Override
   public void define(Context context) {
 
-    if (rulesFile == null) {
+    if (notEnabled || rulesFile == null) {
       return;
     }
 

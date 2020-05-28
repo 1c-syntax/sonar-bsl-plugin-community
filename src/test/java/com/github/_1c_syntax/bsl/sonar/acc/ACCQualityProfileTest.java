@@ -44,6 +44,21 @@ class ACCQualityProfileTest {
     ACCQualityProfile profile = new ACCQualityProfile(config);
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     profile.define(context);
+    assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).isNull();
+  }
+
+  @Test
+  void testQualityProfileEnabled() {
+    File baseDir = new File("src/test/resources").getAbsoluteFile();
+    File fileRules = new File(baseDir, "acc-test.json");
+    File fileRulesSecond = new File(baseDir, "acc-test-second.json");
+    Configuration config = new MapSettings()
+      .setProperty(ACCProperties.ACC_ENABLED, true)
+      .setProperty(ACCProperties.ACC_RULES_PATHS, fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
+      .asConfig();
+    ACCQualityProfile profile = new ACCQualityProfile(config);
+    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    profile.define(context);
     assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(3);
   }
 

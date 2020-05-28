@@ -35,12 +35,26 @@ public class ACCProperties {
 
   private final String ACC_CATEGORY = "ACC";
 
+  public final String ACC_ENABLED = "sonar.bsl.acc.enable";
+  public final boolean ENABLE_ACC_DEFAULT_VALUE = false;
   public final String CREATE_EXTERNAL_ISSUES = "sonar.bsl.acc.createExternalIssues";
   public final boolean CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE = true;
-  public final String ACC_RULES_PATH  = "sonar.bsl.acc.accRulesPaths";
+  public final String ACC_RULES_PATHS = "sonar.bsl.acc.accRulesPaths";
 
   public List<PropertyDefinition> getProperties() {
     return Arrays.asList(
+      PropertyDefinition.builder(ACC_ENABLED)
+        .name("Enable acc rules")
+        .description(
+          "Enable acc rules. Need restart server"
+        )
+        .defaultValue(Boolean.valueOf(ENABLE_ACC_DEFAULT_VALUE).toString())
+        .type(PropertyType.BOOLEAN)
+        .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
+        .category(ACC_CATEGORY)
+        .onQualifiers(Qualifiers.APP)
+        .index(31)
+        .build(),
       PropertyDefinition.builder(CREATE_EXTERNAL_ISSUES)
         .name("Create external issues with acc sources")
         .description(
@@ -51,9 +65,9 @@ public class ACCProperties {
         .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
         .category(ACC_CATEGORY)
         .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
-        .index(31)
+        .index(32)
         .build(),
-      PropertyDefinition.builder(ACC_RULES_PATH)
+      PropertyDefinition.builder(ACC_RULES_PATHS)
         .name("BSL Language Server ACC rules path")
         .description(
           "Path (absolute or relative) to json file with ACC rules"
@@ -62,7 +76,8 @@ public class ACCProperties {
         .type(PropertyType.STRING)
         .category(ACC_CATEGORY)
         .onQualifiers(Qualifiers.APP)
-        .index(32)
+        .multiValues(true)
+        .index(33)
         .build()
     );
   }
