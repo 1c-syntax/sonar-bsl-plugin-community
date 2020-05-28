@@ -48,7 +48,7 @@ class ACCRuleDefinitionTest {
   @Test
   public void testEmptyExternalFilePath() {
     Configuration config = new MapSettings()
-      .setProperty(ACCProperties.ACC_RULES_PATH, "")
+      .setProperty(ACCProperties.ACC_RULES_PATHS, "")
       .asConfig();
     ACCRuleDefinition ruleDefinition = new ACCRuleDefinition(config);
     RulesDefinition.Context context = new RulesDefinition.Context();
@@ -64,8 +64,9 @@ class ACCRuleDefinitionTest {
   public void testExternalFile() {
     File baseDir = new File("src/test/resources").getAbsoluteFile();
     File fileRules = new File(baseDir, "acc-test.json");
+    File fileRulesSecond = new File(baseDir, "acc-test-second.json");
     Configuration config = new MapSettings()
-      .setProperty(ACCProperties.ACC_RULES_PATH, fileRules.getAbsolutePath())
+      .setProperty(ACCProperties.ACC_RULES_PATHS, fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
       .asConfig();
     ACCRuleDefinition ruleDefinition = new ACCRuleDefinition(config);
     RulesDefinition.Context context = new RulesDefinition.Context();

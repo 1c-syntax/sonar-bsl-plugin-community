@@ -23,7 +23,11 @@ package com.github._1c_syntax.bsl.sonar.acc;
 
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+
+import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +35,13 @@ class ACCQualityProfileTest {
 
   @Test
   void testQualityProfile() {
-    ACCQualityProfile profile = new ACCQualityProfile();
+    File baseDir = new File("src/test/resources").getAbsoluteFile();
+    File fileRules = new File(baseDir, "acc-test.json");
+    File fileRulesSecond = new File(baseDir, "acc-test-second.json");
+    Configuration config = new MapSettings()
+      .setProperty(ACCProperties.ACC_RULES_PATHS, fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
+      .asConfig();
+    ACCQualityProfile profile = new ACCQualityProfile(config);
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     profile.define(context);
     assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(3);

@@ -35,8 +35,7 @@ import org.sonar.api.utils.log.Loggers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class ACCRuleDefinition implements RulesDefinition {
 
@@ -46,16 +45,10 @@ public class ACCRuleDefinition implements RulesDefinition {
   private static final Logger LOGGER = Loggers.get(ACCRuleDefinition.class);
 
   private NewRepository repository;
-  private boolean loadFromFile = false;
-  private String rulesFilePath;
+  private final String[] rulesFilePaths;
 
   public ACCRuleDefinition(Configuration config) {
-    config.get(ACCProperties.ACC_RULES_PATH).ifPresent(value -> {
-      if (!value.isEmpty()) {
-        loadFromFile = true;
-        rulesFilePath = value;
-      }
-    });
+    rulesFilePaths = config.getStringArray(ACCProperties.ACC_RULES_PATHS);
   }
 
   @Override
@@ -68,10 +61,14 @@ public class ACCRuleDefinition implements RulesDefinition {
   }
 
   private void loadRules() {
-    getRulesFromResource().ifPresent((ACCRulesFile file) -> file.getRules().forEach(this::createRule));
+    ACCRulesFileReader
+      .getRulesFromResource()
+      .ifPresent((ACCRulesFile file) -> file.getRules().forEach(this::createRule));
 
-    if (loadFromFile) {
-      getRulesFromFile().ifPresent((ACCRulesFile file) -> file.getRules().forEach(this::createRule));
+    ACCRulesFileReader loader = new ACCRulesFileReader(rulesFilePaths);
+
+    while (loader.hasMore()) {
+      loader.getNext().ifPresent((ACCRulesFile file) -> file.getRules().forEach(this::createRule));
     }
   }
 
@@ -103,47 +100,6 @@ public class ACCRuleDefinition implements RulesDefinition {
         rule.getEffortMinutes() + "min"
       )
     );
-  }
-
-  private Optional<ACCRulesFile> getRulesFromFile() {
-    File file = new File(rulesFilePath);
-    String json;
-
-    try {
-      json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      LOGGER.error("Can't read json file acc rules", file.toURI().toString(), e);
-      return Optional.empty();
-    }
-
-    return getAccRulesFile(json);
-  }
-
-  protected static Optional<ACCRulesFile> getRulesFromResource() {
-    String json;
-
-    try {
-      json = IOUtils.toString(
-        Objects.requireNonNull(ACCRuleDefinition.class.getClassLoader().getResourceAsStream("acc.json")),
-        StandardCharsets.UTF_8.name()
-      );
-    } catch (IOException e) {
-      LOGGER.error("Can't read json file acc rules", e);
-      return Optional.empty();
-    }
-
-    return getAccRulesFile(json);
-  }
-
-  private static Optional<ACCRulesFile> getAccRulesFile(String json) {
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-    try {
-      return Optional.of(objectMapper.readValue(json, ACCRulesFile.class));
-    } catch (IOException e) {
-      LOGGER.error("Can't serialize json acc rules to object", e);
-      return Optional.empty();
-    }
   }
 
 }
