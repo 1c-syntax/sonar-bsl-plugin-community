@@ -25,15 +25,12 @@ import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 public class ACCRuleDefinition implements RulesDefinition {
 
   public static final String REPOSITORY_KEY = "acc-rules";
   public static final String SOURCE = "acc";
   private static final String REPOSITORY_NAME = "ACC rules";
-  private static final Logger LOGGER = Loggers.get(ACCRuleDefinition.class);
 
   private NewRepository repository;
   private final String[] rulesFilePaths;
