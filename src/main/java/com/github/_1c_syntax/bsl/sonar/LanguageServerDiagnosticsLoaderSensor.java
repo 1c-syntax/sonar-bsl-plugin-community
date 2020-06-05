@@ -101,7 +101,7 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     }
 
     List<Diagnostic> diagnostics = fileInfo.getDiagnostics();
-    diagnostics.forEach(diagnostic -> processDiagnostic(inputFile, diagnostic));
+    diagnostics.forEach((Diagnostic diagnostic) -> processDiagnostic(inputFile, diagnostic));
   }
 
   private void processDiagnostic(InputFile inputFile, Diagnostic diagnostic) {

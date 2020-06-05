@@ -26,7 +26,6 @@ import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

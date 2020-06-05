@@ -48,7 +48,7 @@ public class ACCProperties {
         .description(
           "Enable acc rules. Need restart server"
         )
-        .defaultValue(Boolean.valueOf(ENABLE_ACC_DEFAULT_VALUE).toString())
+        .defaultValue(Boolean.toString(ENABLE_ACC_DEFAULT_VALUE))
         .type(PropertyType.BOOLEAN)
         .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
         .category(ACC_CATEGORY)
@@ -60,7 +60,7 @@ public class ACCProperties {
         .description(
           "Create external issue if no active rule was found"
         )
-        .defaultValue(Boolean.valueOf(CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE).toString())
+        .defaultValue(Boolean.toString(CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE))
         .type(PropertyType.BOOLEAN)
         .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
         .category(ACC_CATEGORY)

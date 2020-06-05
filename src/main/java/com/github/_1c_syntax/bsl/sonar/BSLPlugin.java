@@ -25,8 +25,8 @@ import com.github._1c_syntax.bsl.sonar.acc.ACCProperties;
 import com.github._1c_syntax.bsl.sonar.acc.ACCQualityProfile;
 import com.github._1c_syntax.bsl.sonar.acc.ACCRuleDefinition;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
-import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
+import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import org.sonar.api.Plugin;
 
 public class BSLPlugin implements Plugin {

@@ -114,16 +114,13 @@ public class IssuesLoader {
             LOGGER.warn("Can't find inputFile for absolute path {}", path);
             return;
           }
-
           NewIssueLocation newIssueLocation = getNewIssueLocation(
             issue,
             relatedInputFile,
             relatedInformationEntry.getLocation().getRange(),
             relatedInformationEntry.getMessage()
           );
-          if (newIssueLocation != null) {
-            issue.addLocation(newIssueLocation);
-          }
+          issue.addLocation(newIssueLocation);
         }
       );
     }
@@ -172,9 +169,7 @@ public class IssuesLoader {
             relatedInformationEntry.getLocation().getRange(),
             relatedInformationEntry.getMessage()
           );
-          if (newIssueLocation != null) {
-            issue.addLocation(newIssueLocation);
-          }
+          issue.addLocation(newIssueLocation);
         }
       );
     }

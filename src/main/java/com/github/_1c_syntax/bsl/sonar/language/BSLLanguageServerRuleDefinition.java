@@ -24,7 +24,9 @@ package com.github._1c_syntax.bsl.sonar.language;
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
@@ -108,7 +110,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .map(DiagnosticInfo::new)
       .filter(DiagnosticInfo::isActivatedByDefault)
       .map(DiagnosticInfo::getCode)
-      .map(diagnosticCode -> diagnosticCode.getStringValue())
+      .map((DiagnosticCode diagnosticCode) -> diagnosticCode.getStringValue())
       .collect(Collectors.toList());
   }
 
@@ -145,7 +147,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   private void setUpRuleParams(NewRule newRule) {
     diagnosticInfo.getParameters()
-      .forEach(diagnosticParameter -> {
+      .forEach((DiagnosticParameterInfo diagnosticParameter) -> {
         RuleParamType ruleParamType = getRuleParamType(diagnosticParameter.getType());
         if (ruleParamType == null) {
           LOGGER.error(
