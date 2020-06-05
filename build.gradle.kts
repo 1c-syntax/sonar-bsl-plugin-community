@@ -10,6 +10,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version("5.2.0")
     id("com.github.ben-manes.versions") version "0.28.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
+    id("io.franzbecker.gradle-lombok") version "3.1.0"
 }
 
 group = "com.github.1c-syntax"
@@ -42,6 +43,7 @@ dependencies {
     implementation("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
     implementation("me.tongfei:progressbar:0.8.1")
+    compileOnly("org.projectlombok:lombok:1.18.8")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)

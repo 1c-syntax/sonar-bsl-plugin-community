@@ -21,6 +21,7 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.Plugin;
@@ -38,14 +39,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BSLPluginTest {
 
   private static final Version VERSION_7_9 = Version.create(7, 9);
-  private BSLPlugin bslPlugin = new BSLPlugin();
+  private final BSLPlugin bslPlugin = new BSLPlugin();
 
   @Test
   void testGetExtensions() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_7_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     bslPlugin.define(context);
-    assertThat((List<?>) context.getExtensions()).hasSize(13);
+    assertThat((List<?>) context.getExtensions()).hasSize(18);
   }
 
   @Test
@@ -53,7 +54,7 @@ class BSLPluginTest {
     BSLQualityProfile profile = new BSLQualityProfile();
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     profile.define(context);
-    assertThat(context.profilesByLanguageAndName()).hasSize(1);
+    assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(1);
   }
 
 }
