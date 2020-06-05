@@ -88,7 +88,7 @@ public class BSLCoreSensor implements Sensor {
   private final DiagnosticProvider diagnosticProvider;
   private final IssuesLoader issuesLoader;
 
-  private boolean calculateCoverLoc;
+  private final boolean calculateCoverLoc;
 
   public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
     this.context = context;
@@ -494,7 +494,7 @@ public class BSLCoreSensor implements Sensor {
 
   }
 
-  private static Object castDiagnosticParameterValue(String valueToCast, Class type) {
+  private static Object castDiagnosticParameterValue(String valueToCast, Class<?> type) {
     Object value;
     if (type == Integer.class) {
       value = Integer.parseInt(valueToCast);
