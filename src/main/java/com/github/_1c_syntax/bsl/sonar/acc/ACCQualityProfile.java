@@ -77,7 +77,7 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
       .stream()
       .filter(ACCRulesFile.ACCRule::isActive)
       .map(ACCRulesFile.ACCRule::getCode)
-      .forEach(key -> {
+      .forEach((String key) -> {
         profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key);
         activatedRules.add(key);
       });
@@ -100,10 +100,10 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
       .stream()
       .filter(ACCRulesFile.ACCRule::isNeedForCertificate)
       .map(ACCRulesFile.ACCRule::getCode)
-      .forEach(key -> {
+      .forEach((String key) -> {
         profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key);
         activatedRules.add(key);
-      });;
+      });
     externalFiles.stream()
         .map(ACCRulesFile::getRules)
         .flatMap(Collection::stream)

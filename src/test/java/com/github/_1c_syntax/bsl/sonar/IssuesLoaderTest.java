@@ -40,14 +40,14 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssuesLoaderTest {
+class IssuesLoaderTest {
 
     private final String BASE_PATH = "src/test/resources/src";
     private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
     private final String FILE_NAME = "test.bsl";
 
     @Test
-    public void test_createExtIssue() {
+    void test_createExtIssue() {
 
         final String issueCode = "Test";
         final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
@@ -72,7 +72,7 @@ public class IssuesLoaderTest {
     }
 
     @Test
-    public void test_createIssue() {
+    void test_createIssue() {
 
         final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
         final String diagnosticName = "OneStatementPerLine";

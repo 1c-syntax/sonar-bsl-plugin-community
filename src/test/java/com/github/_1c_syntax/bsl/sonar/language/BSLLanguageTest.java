@@ -27,10 +27,10 @@ import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BSLLanguageTest {
+class BSLLanguageTest {
 
     @Test
-    public void test_create() {
+    void test_create() {
 
         MapSettings settings = new MapSettings();
         settings.setProperty(

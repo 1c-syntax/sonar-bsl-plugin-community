@@ -52,8 +52,8 @@ class BSLCoreSensorTest {
   private final String BASE_PATH = "src/test/resources/src";
   private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
   private final String FILE_NAME = "test.bsl";
-  final Version SONAR_VERSION = Version.create(7, 9);
-  private SensorContextTester context = SensorContextTester.create(BASE_DIR);
+  private final Version SONAR_VERSION = Version.create(7, 9);
+  private final SensorContextTester context = SensorContextTester.create(BASE_DIR);
 
   @Test
   void testDescriptor() {

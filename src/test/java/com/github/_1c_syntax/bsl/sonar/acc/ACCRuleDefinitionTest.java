@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ACCRuleDefinitionTest {
 
   @Test
-  public void testDefine() {
+  void testDefine() {
     Configuration config = new MapSettings()
       .setProperty(ACCProperties.ACC_ENABLED, true)
       .asConfig();
@@ -48,7 +48,7 @@ class ACCRuleDefinitionTest {
   }
 
   @Test
-  public void testEmptyExternalFilePath() {
+  void testEmptyExternalFilePath() {
     Configuration config = new MapSettings()
       .setProperty(ACCProperties.ACC_ENABLED, true)
       .setProperty(ACCProperties.ACC_RULES_PATHS, "")
@@ -64,7 +64,7 @@ class ACCRuleDefinitionTest {
   }
 
   @Test
-  public void testExternalFile() {
+  void testExternalFile() {
     File baseDir = new File("src/test/resources").getAbsoluteFile();
     File fileRules = new File(baseDir, "acc-test.json");
     File fileRulesSecond = new File(baseDir, "acc-test-second.json");

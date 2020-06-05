@@ -38,14 +38,14 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LanguageServerDiagnosticsLoaderSensorTest {
+class LanguageServerDiagnosticsLoaderSensorTest {
 
     private final String BASE_PATH = "src/test/resources/src";
     private final File BASE_DIR = new File(BASE_PATH);
     private final String FILE_NAME = "test.bsl";
 
     @Test
-    public void test_describe() {
+    void test_describe() {
 
         SensorContextTester context = SensorContextTester.create(BASE_DIR);
         LanguageServerDiagnosticsLoaderSensor diagnosticsLoaderSensor = new LanguageServerDiagnosticsLoaderSensor(context);
@@ -56,7 +56,7 @@ public class LanguageServerDiagnosticsLoaderSensorTest {
     }
 
     @Test
-    public void test_execute() {
+    void test_execute() {
 
         InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
 

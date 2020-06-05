@@ -128,7 +128,7 @@ public class IssuesLoader {
     issue.save();
   }
 
-  private boolean isACCDiagnostic(Diagnostic diagnostic) {
+  private static boolean isACCDiagnostic(Diagnostic diagnostic) {
     return ACCRuleDefinition.SOURCE.equals(diagnostic.getSource());
   }
 
