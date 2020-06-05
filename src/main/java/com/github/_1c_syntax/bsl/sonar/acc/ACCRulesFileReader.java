@@ -64,7 +64,7 @@ public class ACCRulesFileReader {
 
     try {
       json = IOUtils.toString(
-          Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("acc.json")),
+          Objects.requireNonNull(ACCRuleDefinition.class.getClassLoader().getResourceAsStream("acc.json")),
           StandardCharsets.UTF_8.name()
       );
     } catch (IOException e) {
