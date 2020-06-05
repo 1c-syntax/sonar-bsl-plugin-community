@@ -68,18 +68,27 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
       "ACC - full check",
       BSLLanguage.KEY
     );
+    activateDefaultRules(profile);
+    profile.done();
+  }
+
+  private void activateDefaultRules(NewBuiltInQualityProfile profile) {
+    ArrayList<String> activatedRules = new ArrayList<>();
     rulesFile.getRules()
       .stream()
       .filter(ACCRulesFile.ACCRule::isActive)
       .map(ACCRulesFile.ACCRule::getCode)
-      .forEach(key -> profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
+      .forEach(key -> {
+        profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key);
+        activatedRules.add(key);
+      });
     externalFiles.stream()
         .map(ACCRulesFile::getRules)
         .flatMap(Collection::stream)
         .filter(ACCRulesFile.ACCRule::isActive)
         .map(ACCRulesFile.ACCRule::getCode)
+        .filter(key -> !activatedRules.contains(key))
         .forEach(key -> profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
-    profile.done();
   }
 
   private void addACC1CCertifiedProfile(Context context) {
@@ -87,16 +96,21 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
       "ACC - 1C:Compatible",
       BSLLanguage.KEY
     );
+    ArrayList<String> activatedRules = new ArrayList<>();
     rulesFile.getRules()
       .stream()
       .filter(ACCRulesFile.ACCRule::isNeedForCertificate)
       .map(ACCRulesFile.ACCRule::getCode)
-      .forEach(key -> profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
+      .forEach(key -> {
+        profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key);
+        activatedRules.add(key);
+      });;
     externalFiles.stream()
         .map(ACCRulesFile::getRules)
         .flatMap(Collection::stream)
         .filter(ACCRulesFile.ACCRule::isNeedForCertificate)
         .map(ACCRulesFile.ACCRule::getCode)
+        .filter(key -> !activatedRules.contains(key))
         .forEach(key -> profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
     profile.done();
   }
@@ -106,17 +120,7 @@ public class ACCQualityProfile implements BuiltInQualityProfilesDefinition {
       "BSL - all rules",
       BSLLanguage.KEY
     );
-    rulesFile.getRules()
-      .stream()
-      .filter(ACCRulesFile.ACCRule::isActive)
-      .map(ACCRulesFile.ACCRule::getCode)
-      .forEach(key -> profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
-    externalFiles.stream()
-        .map(ACCRulesFile::getRules)
-        .flatMap(Collection::stream)
-        .filter(ACCRulesFile.ACCRule::isActive)
-        .map(ACCRulesFile.ACCRule::getCode)
-        .forEach(key -> profile.activateRule(ACCRuleDefinition.REPOSITORY_KEY, key));
+    activateDefaultRules(profile);
     rulesBSL
       .forEach(key -> profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, key));
     profile.done();

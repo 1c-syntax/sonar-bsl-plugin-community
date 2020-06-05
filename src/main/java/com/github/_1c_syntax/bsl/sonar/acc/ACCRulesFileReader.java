@@ -39,23 +39,24 @@ public class ACCRulesFileReader {
   private static final Logger LOGGER = Loggers.get(ACCRulesFileReader.class);
 
   private final String[] filePaths;
-  private int current = 0;
+  private int current;
 
   public ACCRulesFileReader(String[] filePaths) {
-    this.filePaths = filePaths;
+    this.filePaths = filePaths.clone();
   }
 
   public Optional<ACCRulesFile> getNext() {
     if (hasMore()) {
+      Optional<ACCRulesFile> rules = getRulesFromFile();
       current++;
-      return getRulesFromFile();
+      return rules;
     }
 
     return Optional.empty();
   }
 
   public boolean hasMore() {
-    return current < filePaths.length - 1;
+    return current < filePaths.length;
   }
 
   public static Optional<ACCRulesFile> getRulesFromResource() {
@@ -63,7 +64,7 @@ public class ACCRulesFileReader {
 
     try {
       json = IOUtils.toString(
-          Objects.requireNonNull(ACCRuleDefinition.class.getClassLoader().getResourceAsStream("acc.json")),
+          Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("acc.json")),
           StandardCharsets.UTF_8.name()
       );
     } catch (IOException e) {
