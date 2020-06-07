@@ -5,12 +5,12 @@ plugins {
     jacoco
     java
     `maven-publish`
-    id("org.sonarqube") version "2.8"
+    id("org.sonarqube") version "3.0"
     id("com.github.hierynomus.license") version "0.15.0"
     id("com.github.johnrengelman.shadow") version("5.2.0")
     id("com.github.ben-manes.versions") version "0.28.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.franzbecker.gradle-lombok") version "3.1.0"
+    id("io.franzbecker.gradle-lombok") version "4.0.0"
 }
 
 group = "com.github.1c-syntax"
@@ -29,7 +29,7 @@ val junitVersion = "5.6.1"
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    implementation("com.github.1c-syntax:bsl-language-server:0.15.0-RC3")
+    implementation("com.github.1c-syntax:bsl-language-server:0.15.2")
     implementation("com.github.1c-syntax", "utils", "0.3.0")
 
     implementation("com.google.code.findbugs:jsr305:3.0.2")
@@ -43,13 +43,13 @@ dependencies {
     implementation("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
     implementation("me.tongfei:progressbar:0.8.1")
-    compileOnly("org.projectlombok:lombok:1.18.8")
+    compileOnly("org.projectlombok:lombok:1.18.12")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
-    
-    testCompile("org.assertj:assertj-core:3.15.0")
-    testCompile("org.mockito:mockito-core:3.3.3")
+
+    testImplementation("org.assertj:assertj-core:3.16.1")
+    testImplementation("org.mockito:mockito-core:3.3.3")
 }
 
 java {
