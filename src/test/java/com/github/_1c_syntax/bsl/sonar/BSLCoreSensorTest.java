@@ -2,7 +2,7 @@
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
  * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -21,7 +21,7 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import org.junit.jupiter.api.Test;
@@ -52,8 +52,8 @@ class BSLCoreSensorTest {
   private final String BASE_PATH = "src/test/resources/src";
   private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
   private final String FILE_NAME = "test.bsl";
-  final Version SONAR_VERSION = Version.create(7, 9);
-  private SensorContextTester context = SensorContextTester.create(BASE_DIR);
+  private final Version SONAR_VERSION = Version.create(7, 9);
+  private final SensorContextTester context = SensorContextTester.create(BASE_DIR);
 
   @Test
   void testDescriptor() {
@@ -98,7 +98,7 @@ class BSLCoreSensorTest {
 
     context = createSensorContext();
     setActiveRules(context, diagnosticName, ruleKey);
-    context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY, DiagnosticLanguage.EN.getLanguageCode());
+    context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY, Language.EN.getLanguageCode());
     sensor = new BSLCoreSensor(context, fileLinesContextFactory);
     sensor.execute(context);
 
@@ -121,7 +121,7 @@ class BSLCoreSensorTest {
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
-    
+
   }
 
   @Test

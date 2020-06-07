@@ -2,7 +2,7 @@
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
  * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -21,8 +21,8 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.languageserver.configuration.ComputeDiagnosticsSkipSupport;
-import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import com.github._1c_syntax.bsl.languageserver.configuration.Language;
+import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.ComputeTrigger;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 
 public final class BSLCommunityProperties {
 
@@ -45,16 +46,17 @@ public final class BSLCommunityProperties {
   public static final String BSL_CALCULATE_LINE_TO_COVER_KEY = "sonar.bsl.calculateLineCover";
 
   public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
-  public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = DiagnosticLanguage.RU.getLanguageCode();
+  public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = Language.RU.getLanguageCode();
   public static final String LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE
-    = ComputeDiagnosticsSkipSupport.NEVER.name().toLowerCase(Locale.ENGLISH);
+    = ComputeTrigger.NEVER.name().toLowerCase(Locale.ENGLISH);
+
   public static final String LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE = ".bsl-language-server.json";
   public static final Boolean LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE = Boolean.FALSE;
   public static final String BSL_FILE_EXTENSIONS_DEFAULT_VALUE = ".bsl,.os";
   public static final Boolean BSL_CALCULATE_LINE_TO_COVER_VALUE = Boolean.FALSE;
 
+  public static final String BSL_CATEGORY = "1C (BSL)";
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
-  private static final String BSL_CATEGORY = "1C (BSL)";
   private static final String BSL_SUBCATEGORY = "1C (BSL) Community";
 
 
@@ -71,7 +73,7 @@ public final class BSLCommunityProperties {
         )
         .defaultValue(LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
         .type(PropertyType.SINGLE_SELECT_LIST)
-        .options(DiagnosticLanguage.RU.getLanguageCode(), DiagnosticLanguage.EN.getLanguageCode())
+        .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
         .category(BSL_CATEGORY)
         .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
         .index(0)
@@ -92,7 +94,7 @@ public final class BSLCommunityProperties {
         .category(BSL_CATEGORY)
         .defaultValue(LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE)
         .type(PropertyType.SINGLE_SELECT_LIST)
-        .options(Stream.of(ComputeDiagnosticsSkipSupport.values())
+        .options(Stream.of(ComputeTrigger.values())
           .map(value -> value.name().toLowerCase(Locale.ENGLISH).replace("_", " "))
           .collect(Collectors.toList())
         )

@@ -2,7 +2,7 @@
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
  * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -28,10 +28,10 @@ import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BSLLanguageServerRuleDefinitionTest {
+class BSLLanguageServerRuleDefinitionTest {
 
     @Test
-    public void test_init() {
+    void test_init() {
         Configuration config = new MapSettings().asConfig();
         BSLLanguageServerRuleDefinition ruleDefinition = new BSLLanguageServerRuleDefinition(config);
         RulesDefinition.Context context = new RulesDefinition.Context();

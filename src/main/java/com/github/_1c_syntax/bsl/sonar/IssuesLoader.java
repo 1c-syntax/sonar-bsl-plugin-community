@@ -2,7 +2,7 @@
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
  * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -22,6 +22,8 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
+import com.github._1c_syntax.bsl.sonar.acc.ACCProperties;
+import com.github._1c_syntax.bsl.sonar.acc.ACCRuleDefinition;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import org.eclipse.lsp4j.Diagnostic;
@@ -61,6 +63,7 @@ public class IssuesLoader {
   private final Map<DiagnosticSeverity, RuleType> ruleTypeMap;
   private final FileSystem fileSystem;
   private final FilePredicates predicates;
+  private final boolean createExternalIssuesWithACCSources;
 
   public IssuesLoader(SensorContext context) {
     this.context = context;
@@ -68,24 +71,31 @@ public class IssuesLoader {
     this.predicates = fileSystem.predicates();
     this.severityMap = createDiagnosticSeverityMap();
     this.ruleTypeMap = createRuleTypeMap();
+    this.createExternalIssuesWithACCSources = context.config().getBoolean(ACCProperties.CREATE_EXTERNAL_ISSUES)
+      .orElse(ACCProperties.CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE);
   }
 
   public void createIssue(InputFile inputFile, Diagnostic diagnostic) {
 
-    RuleKey ruleKey = RuleKey.of(
-      BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
-      DiagnosticCode.getStringValue(diagnostic.getCode())
-    );
+    boolean needCreateExternalIssue = true;
+    String code = DiagnosticCode.getStringValue(diagnostic.getCode());
+    String keyRepository = BSLLanguageServerRuleDefinition.REPOSITORY_KEY;
+
+    if (isACCDiagnostic(diagnostic)) {
+      needCreateExternalIssue = this.createExternalIssuesWithACCSources;
+      keyRepository = ACCRuleDefinition.REPOSITORY_KEY;
+    }
+
+    RuleKey ruleKey = RuleKey.of(keyRepository, code);
     ActiveRule activeRule = context.activeRules().find(ruleKey);
-    if (activeRule == null) {
+
+    if (needCreateExternalIssue && activeRule == null) {
       createExternalIssue(inputFile, diagnostic);
       return;
     }
 
     NewIssue issue = context.newIssue();
-
     issue.forRule(ruleKey);
-
     NewIssueLocation location = IssuesLoader.getNewIssueLocation(
       issue,
       inputFile,
@@ -104,16 +114,13 @@ public class IssuesLoader {
             LOGGER.warn("Can't find inputFile for absolute path {}", path);
             return;
           }
-
           NewIssueLocation newIssueLocation = getNewIssueLocation(
             issue,
             relatedInputFile,
             relatedInformationEntry.getLocation().getRange(),
             relatedInformationEntry.getMessage()
           );
-          if (newIssueLocation != null) {
-            issue.addLocation(newIssueLocation);
-          }
+          issue.addLocation(newIssueLocation);
         }
       );
     }
@@ -121,10 +128,19 @@ public class IssuesLoader {
     issue.save();
   }
 
+  private static boolean isACCDiagnostic(Diagnostic diagnostic) {
+    return ACCRuleDefinition.SOURCE.equals(diagnostic.getSource());
+  }
+
   private void createExternalIssue(InputFile inputFile, Diagnostic diagnostic) {
     NewExternalIssue issue = context.newExternalIssue();
 
-    issue.engineId("bsl-language-server");
+    if (isACCDiagnostic(diagnostic)) {
+      issue.engineId(ACCRuleDefinition.SOURCE);
+    } else {
+      issue.engineId("bsl-language-server");
+    }
+
     issue.ruleId(DiagnosticCode.getStringValue(diagnostic.getCode()));
     issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
     issue.severity(severityMap.get(diagnostic.getSeverity()));
@@ -153,9 +169,7 @@ public class IssuesLoader {
             relatedInformationEntry.getLocation().getRange(),
             relatedInformationEntry.getMessage()
           );
-          if (newIssueLocation != null) {
-            issue.addLocation(newIssueLocation);
-          }
+          issue.addLocation(newIssueLocation);
         }
       );
     }

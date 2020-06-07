@@ -2,7 +2,7 @@
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
  * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -21,9 +21,12 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+import com.github._1c_syntax.bsl.sonar.acc.ACCProperties;
+import com.github._1c_syntax.bsl.sonar.acc.ACCQualityProfile;
+import com.github._1c_syntax.bsl.sonar.acc.ACCRuleDefinition;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
-import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
+import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import org.sonar.api.Plugin;
 
 public class BSLPlugin implements Plugin {
@@ -34,10 +37,13 @@ public class BSLPlugin implements Plugin {
     context.addExtension(BSLQualityProfile.class);
 
     context.addExtensions(BSLCommunityProperties.getProperties());
+    context.addExtensions(ACCProperties.getProperties());
     context.addExtension(BSLLanguageServerRuleDefinition.class);
+    context.addExtension(ACCQualityProfile.class);
+    context.addExtension(ACCRuleDefinition.class);
 
     context.addExtension(BSLCoreSensor.class);
     context.addExtension(LanguageServerDiagnosticsLoaderSensor.class);
-
   }
+
 }

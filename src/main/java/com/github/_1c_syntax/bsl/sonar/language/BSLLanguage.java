@@ -2,7 +2,7 @@
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
  * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -22,14 +22,17 @@
 package com.github._1c_syntax.bsl.sonar.language;
 
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
+import lombok.EqualsAndHashCode;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
+@EqualsAndHashCode(callSuper = false, exclude = "configuration")
 public class BSLLanguage extends AbstractLanguage {
 
   public static final String KEY = "bsl";
   public static final String NAME = "1C (BSL)";
-  private Configuration configuration;
+
+  private final Configuration configuration;
 
   public BSLLanguage(Configuration configuration) {
     super(KEY, NAME);

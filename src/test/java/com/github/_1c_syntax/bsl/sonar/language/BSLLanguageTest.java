@@ -2,7 +2,7 @@
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
  * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -27,10 +27,10 @@ import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BSLLanguageTest {
+class BSLLanguageTest {
 
     @Test
-    public void test_create() {
+    void test_create() {
 
         MapSettings settings = new MapSettings();
         settings.setProperty(

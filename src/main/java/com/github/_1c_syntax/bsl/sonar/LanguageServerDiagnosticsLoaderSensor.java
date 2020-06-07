@@ -2,7 +2,7 @@
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
  * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -101,7 +101,7 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     }
 
     List<Diagnostic> diagnostics = fileInfo.getDiagnostics();
-    diagnostics.forEach(diagnostic -> processDiagnostic(inputFile, diagnostic));
+    diagnostics.forEach((Diagnostic diagnostic) -> processDiagnostic(inputFile, diagnostic));
   }
 
   private void processDiagnostic(InputFile inputFile, Diagnostic diagnostic) {
