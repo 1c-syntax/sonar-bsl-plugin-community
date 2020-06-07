@@ -55,8 +55,8 @@ public final class BSLCommunityProperties {
   public static final String BSL_FILE_EXTENSIONS_DEFAULT_VALUE = ".bsl,.os";
   public static final Boolean BSL_CALCULATE_LINE_TO_COVER_VALUE = Boolean.FALSE;
 
+  public static final String BSL_CATEGORY = "1C (BSL)";
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
-  private static final String BSL_CATEGORY = "1C (BSL)";
   private static final String BSL_SUBCATEGORY = "1C (BSL) Community";
 
 

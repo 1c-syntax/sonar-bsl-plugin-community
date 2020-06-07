@@ -30,10 +30,12 @@ import org.sonar.api.resources.Qualifiers;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.github._1c_syntax.bsl.sonar.BSLCommunityProperties.BSL_CATEGORY;
+
 @UtilityClass
 public class ACCProperties {
 
-  private final String ACC_CATEGORY = "ACC";
+  private final String ACC_SUBCATEGORY = "ACC";
 
   public final String ACC_ENABLED = "sonar.bsl.acc.enabled";
   public final boolean ENABLE_ACC_DEFAULT_VALUE = false;
@@ -44,14 +46,15 @@ public class ACCProperties {
   public List<PropertyDefinition> getProperties() {
     return Arrays.asList(
       PropertyDefinition.builder(ACC_ENABLED)
-        .name("Enable acc rules")
+        .name("Enable 1C:ACC rules")
         .description(
-          "Enable acc rules. Need restart server"
+          "Enable 1C:ACC (1С:АПК) rules. Need restart server"
         )
         .defaultValue(Boolean.toString(ENABLE_ACC_DEFAULT_VALUE))
         .type(PropertyType.BOOLEAN)
         .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
-        .category(ACC_CATEGORY)
+        .category(BSL_CATEGORY)
+        .subCategory(ACC_SUBCATEGORY)
         .onQualifiers(Qualifiers.APP)
         .index(31)
         .build(),
@@ -63,18 +66,20 @@ public class ACCProperties {
         .defaultValue(Boolean.toString(CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE))
         .type(PropertyType.BOOLEAN)
         .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
-        .category(ACC_CATEGORY)
+        .category(BSL_CATEGORY)
+        .subCategory(ACC_SUBCATEGORY)
         .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
         .index(32)
         .build(),
       PropertyDefinition.builder(ACC_RULES_PATHS)
-        .name("BSL Language Server ACC rules path")
+        .name("1C:ACC rules path")
         .description(
-          "Path (absolute or relative) to json file with ACC rules"
+          "Path (absolute or relative) to json file with 1C:ACC rules"
         )
         .defaultValue("")
         .type(PropertyType.STRING)
-        .category(ACC_CATEGORY)
+        .category(BSL_CATEGORY)
+        .subCategory(ACC_SUBCATEGORY)
         .onQualifiers(Qualifiers.APP)
         .multiValues(true)
         .index(33)
