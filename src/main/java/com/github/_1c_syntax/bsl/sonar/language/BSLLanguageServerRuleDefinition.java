@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   public static final String REPOSITORY_KEY = "bsl-language-server";
+  public static final String PARAMETERS_TAG_NAME = "parameters";
   private static final String REPOSITORY_NAME = "BSL Language Server";
   private static final Logger LOGGER = Loggers.get(BSLLanguageServerRuleDefinition.class);
 
@@ -130,6 +131,10 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .map(String::toLowerCase)
       .toArray(String[]::new);
 
+    if (!diagnosticInfo.getParameters().isEmpty()) {
+      newRule.addTags(PARAMETERS_TAG_NAME);
+    }
+
     if (tagsName.length > 0) {
       newRule.addTags(tagsName);
     }
@@ -175,7 +180,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
     return Language.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH));
   }
-
 
   @CheckForNull
   private static RuleParamType getRuleParamType(Class<?> type) {

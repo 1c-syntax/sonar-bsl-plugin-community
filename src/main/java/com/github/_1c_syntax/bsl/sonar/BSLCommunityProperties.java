@@ -22,7 +22,7 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
-import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.ComputeTrigger;
+import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
@@ -48,7 +48,7 @@ public final class BSLCommunityProperties {
   public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = Language.RU.getLanguageCode();
   public static final String LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE
-    = ComputeTrigger.NEVER.name().toLowerCase(Locale.ENGLISH);
+    = SkipSupport.NEVER.name().toLowerCase(Locale.ENGLISH);
 
   public static final String LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE = ".bsl-language-server.json";
   public static final Boolean LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE = Boolean.FALSE;
@@ -94,7 +94,7 @@ public final class BSLCommunityProperties {
         .category(BSL_CATEGORY)
         .defaultValue(LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE)
         .type(PropertyType.SINGLE_SELECT_LIST)
-        .options(Stream.of(ComputeTrigger.values())
+        .options(Stream.of(SkipSupport.values())
           .map(value -> value.name().toLowerCase(Locale.ENGLISH).replace("_", " "))
           .collect(Collectors.toList())
         )

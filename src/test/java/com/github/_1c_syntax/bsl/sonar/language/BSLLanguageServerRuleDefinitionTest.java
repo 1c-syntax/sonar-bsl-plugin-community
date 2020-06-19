@@ -26,6 +26,8 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.rule.RulesDefinition;
 
+import java.util.Objects;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BSLLanguageServerRuleDefinitionTest {
@@ -39,6 +41,28 @@ class BSLLanguageServerRuleDefinitionTest {
 
         assertThat(context.repositories()).hasSize(1);
         assertThat(context.repository(BSLLanguageServerRuleDefinition.REPOSITORY_KEY)).isNotNull();
+    }
+
+    @Test
+    void testCheckTagParameters() {
+        Configuration config = new MapSettings().asConfig();
+        BSLLanguageServerRuleDefinition ruleDefinition = new BSLLanguageServerRuleDefinition(config);
+        RulesDefinition.Context context = new RulesDefinition.Context();
+        ruleDefinition.define(context);
+
+        assertThat(context.repositories()).hasSize(1);
+        assertThat(Objects.requireNonNull(context.repository(BSLLanguageServerRuleDefinition.REPOSITORY_KEY))
+            .rules().stream()
+            .filter(rule -> !rule.params().isEmpty())
+            .filter(rule -> !rule.tags().contains(BSLLanguageServerRuleDefinition.PARAMETERS_TAG_NAME))
+            .count()
+        ).isZero();
+        assertThat(Objects.requireNonNull(context.repository(BSLLanguageServerRuleDefinition.REPOSITORY_KEY))
+            .rules().stream()
+            .filter(rule -> rule.params().isEmpty())
+            .filter(rule -> rule.tags().contains(BSLLanguageServerRuleDefinition.PARAMETERS_TAG_NAME))
+            .count()
+        ).isZero();
     }
 
 }
