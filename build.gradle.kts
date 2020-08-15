@@ -29,7 +29,7 @@ val junitVersion = "5.6.1"
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    implementation("com.github.1c-syntax:bsl-language-server:0.15.2")
+    implementation("com.github.1c-syntax:bsl-language-server:1daa0aaa18cfc900b9d6fc0eb705b41fcf0be644")
     implementation("com.github.1c-syntax", "utils", "0.3.0")
 
     implementation("com.google.code.findbugs:jsr305:3.0.2")
