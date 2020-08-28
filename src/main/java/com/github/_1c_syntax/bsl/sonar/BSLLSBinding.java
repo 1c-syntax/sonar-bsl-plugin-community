@@ -23,28 +23,20 @@ package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.infrastructure.DiagnosticInfosConfiguration;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import org.springframework.boot.Banner;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Import;
+import org.springframework.core.io.DefaultResourceLoader;
 
 import java.util.Collection;
 import java.util.Map;
 
-@SpringBootConfiguration
-@Import({
-  LanguageServerConfiguration.class,
-  ServerContext.class,
-  DiagnosticInfosConfiguration.class
-})
-//@ComponentScan(
-//  value = "com.github._1c_syntax.bsl.languageserver",
-//  lazyInit = true
-//)
+@SpringBootApplication(
+  scanBasePackages = {"com.github._1c_syntax.bsl.languageserver"}
+)
 public class BSLLSBinding {
 
   private static final ApplicationContext context = createContext();
@@ -64,11 +56,15 @@ public class BSLLSBinding {
   }
 
   private static ApplicationContext createContext() {
-    return new SpringApplicationBuilder(BSLLSBinding.class)
+    var springApplication = new SpringApplicationBuilder(BSLLSBinding.class)
       .bannerMode(Banner.Mode.OFF)
       .web(WebApplicationType.NONE)
       .logStartupInfo(false)
-      .build()
-      .run();
+      .resourceLoader(new DefaultResourceLoader(BSLLSBinding.class.getClassLoader()))
+      .lazyInitialization(true)
+      .properties(Map.of("app.command.line.runner.enabled", "false"))
+      .build();
+
+    return springApplication.run();
   }
 }
