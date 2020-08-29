@@ -29,7 +29,7 @@ val junitVersion = "5.6.1"
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    implementation("com.github.1c-syntax", "bsl-language-server", "a85ec3481044e72f67bc163e38abc51d58260a8e")
+    implementation("com.github.1c-syntax", "bsl-language-server", "d17e900fb306361b888f1e7c305807345da56278")
 
     implementation("org.apache.commons:commons-lang3:3.10")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.10.3")
