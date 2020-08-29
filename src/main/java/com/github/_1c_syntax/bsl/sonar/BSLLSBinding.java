@@ -41,6 +41,10 @@ public class BSLLSBinding {
 
   private static final ApplicationContext context = createContext();
 
+  public BSLLSBinding() {
+    // public constructor is needed for spring initialization
+  }
+
   @SuppressWarnings("unchecked")
   public static Collection<DiagnosticInfo> getDiagnosticInfos() {
     return (Collection<DiagnosticInfo>) context.getBean("diagnosticInfos", Map.class)
@@ -56,15 +60,14 @@ public class BSLLSBinding {
   }
 
   private static ApplicationContext createContext() {
-    var springApplication = new SpringApplicationBuilder(BSLLSBinding.class)
+    return new SpringApplicationBuilder(BSLLSBinding.class)
       .bannerMode(Banner.Mode.OFF)
       .web(WebApplicationType.NONE)
       .logStartupInfo(false)
       .resourceLoader(new DefaultResourceLoader(BSLLSBinding.class.getClassLoader()))
       .lazyInitialization(true)
       .properties(Map.of("app.command.line.runner.enabled", "false"))
-      .build();
-
-    return springApplication.run();
+      .build()
+      .run();
   }
 }
