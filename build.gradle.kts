@@ -11,7 +11,6 @@ plugins {
     id("com.github.ben-manes.versions") version "0.28.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
     id("io.franzbecker.gradle-lombok") version "4.0.0"
-    id("org.springframework.boot") version "2.3.3.RELEASE"
 }
 
 group = "com.github.1c-syntax"
@@ -30,23 +29,10 @@ val junitVersion = "5.6.1"
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    implementation("org.springframework.boot:spring-boot-starter:2.3.3.RELEASE")
-
-    implementation("com.github.1c-syntax", "bsl-language-server", "4466505062f312de26a20236c7d7dab22de11c32") {
-        exclude("org.springframework.boot", "spring-boot-starter")
-        exclude("com.github.1c-syntax", "mdclasses")
-    }
-    implementation("com.github.1c-syntax", "bsl-parser", "0.15.0")
-    implementation("com.github.1c-syntax", "mdclasses", "0.6.0") {
-        exclude("org.slf4j", "slf4j-api")
-    }
-    implementation("com.github.1c-syntax", "utils", "0.3.0")
+    implementation("com.github.1c-syntax", "bsl-language-server", "a85ec3481044e72f67bc163e38abc51d58260a8e")
 
     implementation("org.apache.commons:commons-lang3:3.10")
-    implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.9.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.10.3")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.3")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.3")
 
     implementation("com.google.code.findbugs:jsr305:3.0.2")
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
