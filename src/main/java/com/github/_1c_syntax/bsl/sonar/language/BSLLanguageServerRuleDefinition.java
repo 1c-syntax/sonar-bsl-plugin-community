@@ -106,10 +106,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   }
 
   public static List<String> getActivatedRuleKeys() {
-
-    var diagnosticInfos = BSLLSBinding.getDiagnosticInfos();
-//    return DiagnosticSupplier.getDiagnosticClasses()
-    return diagnosticInfos
+    return BSLLSBinding.getDiagnosticInfos()
       .stream()
       .filter(DiagnosticInfo::isActivatedByDefault)
       .map(DiagnosticInfo::getCode)
