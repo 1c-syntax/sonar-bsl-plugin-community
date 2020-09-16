@@ -21,17 +21,15 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+import com.github._1c_syntax.bsl.languageserver.BSLLSBinding;
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import com.github._1c_syntax.bsl.languageserver.context.MetricStorage;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
-import com.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
@@ -68,6 +66,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -85,7 +84,6 @@ public class BSLCoreSensor implements Sensor {
   private final boolean langServerEnabled;
   private final List<String> sourcesList;
   private final LanguageServerConfiguration languageServerConfiguration;
-  private final DiagnosticProvider diagnosticProvider;
   private final IssuesLoader issuesLoader;
 
   private final boolean calculateCoverLoc;
@@ -108,8 +106,6 @@ public class BSLCoreSensor implements Sensor {
       .orElse(Collections.singletonList("."));
 
     languageServerConfiguration = getLanguageServerConfiguration();
-    DiagnosticSupplier diagnosticSupplier = new DiagnosticSupplier(languageServerConfiguration);
-    diagnosticProvider = new DiagnosticProvider(diagnosticSupplier);
     issuesLoader = new IssuesLoader(context);
   }
 
@@ -160,7 +156,8 @@ public class BSLCoreSensor implements Sensor {
         sourceDir
       );
 
-      var bslServerContext = new ServerContext(configurationRoot);
+      var bslServerContext = BSLLSBinding.getServerContext();
+      bslServerContext.setConfigurationRoot(configurationRoot);
       bslServerContext.populateContext();
 
       try (ProgressBar pb = new ProgressBar("", inputFilesList.size(), ProgressBarStyle.ASCII)) {
@@ -192,9 +189,8 @@ public class BSLCoreSensor implements Sensor {
     DocumentContext documentContext = bslServerContext.addDocument(uri, content);
 
     if (langServerEnabled) {
-      diagnosticProvider.computeDiagnostics(documentContext)
+      documentContext.getDiagnostics()
         .forEach(diagnostic -> issuesLoader.createIssue(inputFile, diagnostic));
-      diagnosticProvider.clearComputedDiagnostics(documentContext);
     }
 
     saveCpd(inputFile, documentContext);
@@ -329,6 +325,7 @@ public class BSLCoreSensor implements Sensor {
       .map(Boolean::parseBoolean)
       .orElse(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE);
 
+    var configuration = BSLLSBinding.getLanguageServerConfiguration();
     if (overrideConfiguration) {
       String configurationPath = context.config()
         .get(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY)
@@ -337,13 +334,13 @@ public class BSLCoreSensor implements Sensor {
       File configurationFile = new File(configurationPath);
       if (configurationFile.exists()) {
         LOGGER.info("BSL LS configuration file exists. Overriding SonarQube rules' settings...");
-        return LanguageServerConfiguration.create(configurationFile);
+        configuration.update(configurationFile);
+        return configuration;
       } else {
         LOGGER.error("Can't find bsl configuration file {}. Using SonarQube config instead.", configurationPath);
       }
     }
 
-    LanguageServerConfiguration configuration = LanguageServerConfiguration.create();
     String diagnosticLanguageCode = context.config()
       .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
@@ -365,10 +362,9 @@ public class BSLCoreSensor implements Sensor {
     ActiveRules activeRules = context.activeRules();
 
     Map<String, Either<Boolean, Map<String, Object>>> diagnostics = new HashMap<>();
-    List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticSupplier.getDiagnosticClasses();
+    Collection<DiagnosticInfo> diagnosticInfos = BSLLSBinding.getDiagnosticInfos();
 
-    for (Class<? extends BSLDiagnostic> diagnosticClass : diagnosticClasses) {
-      DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticClass);
+    for (DiagnosticInfo diagnosticInfo : diagnosticInfos) {
       String diagnosticCode = diagnosticInfo.getCode().getStringValue();
       ActiveRule activeRule = activeRules.find(
         RuleKey.of(
