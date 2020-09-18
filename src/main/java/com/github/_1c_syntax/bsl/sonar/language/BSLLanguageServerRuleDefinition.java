@@ -88,7 +88,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   @Override
   public void define(Context context) {
-
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
@@ -103,6 +102,8 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       });
 
     repository.done();
+
+    BSLLSBinding.getApplicationContext().close();
   }
 
   public static List<String> getActivatedRuleKeys() {

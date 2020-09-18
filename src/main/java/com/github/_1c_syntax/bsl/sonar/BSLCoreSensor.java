@@ -83,7 +83,6 @@ public class BSLCoreSensor implements Sensor {
 
   private final boolean langServerEnabled;
   private final List<String> sourcesList;
-  private final LanguageServerConfiguration languageServerConfiguration;
   private final IssuesLoader issuesLoader;
 
   private final boolean calculateCoverLoc;
@@ -105,7 +104,6 @@ public class BSLCoreSensor implements Sensor {
           .collect(Collectors.toList()))
       .orElse(Collections.singletonList("."));
 
-    languageServerConfiguration = getLanguageServerConfiguration();
     issuesLoader = new IssuesLoader(context);
   }
 
@@ -148,6 +146,8 @@ public class BSLCoreSensor implements Sensor {
           .orElse(baseDir.toPath());
       }));
 
+    LanguageServerConfiguration languageServerConfiguration = getLanguageServerConfiguration();
+
     inputFilesByPath.forEach((Path sourceDir, List<InputFile> inputFilesList) -> {
       LOGGER.info("Source dir: {}", sourceDir);
 
@@ -173,6 +173,7 @@ public class BSLCoreSensor implements Sensor {
       bslServerContext.clear();
     });
 
+    BSLLSBinding.getApplicationContext().close();
   }
 
 
