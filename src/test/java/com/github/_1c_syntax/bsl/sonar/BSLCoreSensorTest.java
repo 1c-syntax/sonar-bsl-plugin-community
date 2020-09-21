@@ -40,6 +40,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -231,10 +232,10 @@ class BSLCoreSensorTest {
       .build();
   }
 
-
   private SensorContextTester createSensorContext() {
     SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(SONAR_VERSION);
     SensorContextTester context = SensorContextTester.create(BASE_DIR);
+    context.fileSystem().setEncoding(StandardCharsets.UTF_8);
     context.setRuntime(sonarRuntime);
 
     InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
