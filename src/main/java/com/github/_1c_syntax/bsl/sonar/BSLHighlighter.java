@@ -22,15 +22,28 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
+import com.github._1c_syntax.bsl.languageserver.utils.Ranges;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
+import com.github._1c_syntax.bsl.parser.SDBLLexer;
+import com.github._1c_syntax.bsl.parser.Tokenizer;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.Token;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class BSLHighlighter {
@@ -38,33 +51,133 @@ public class BSLHighlighter {
   private final SensorContext context;
 
   public void saveHighlighting(InputFile inputFile, DocumentContext documentContext) {
-    NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
+    Set<HighlightingData> highlightingData = new HashSet<>(documentContext.getTokens().size());
 
-    documentContext.getTokens().forEach((Token token) -> {
-      TypeOfText typeOfText = getTypeOfText(token.getType());
+    // populate bsl highlight data
+    documentContext.getTokens().forEach(token ->
+      highlightToken(token, highlightingData, getTypeOfTextBSL(token.getType()))
+    );
 
-      if (typeOfText == null) {
+    // todo: grouping by по номеру строки на список токенов, чтобы не пришлось фильтровать по рэнжу кучу лишних токенов
+    // compute and populate sdbl highlight data
+    List<Token> queryTokens = documentContext.getQueries().stream()
+      .map(Tokenizer::getTokens)
+      .flatMap(Collection::stream)
+      .collect(Collectors.toList());
+    Set<HighlightingData> highlightingDataSDBL = new HashSet<>(queryTokens.size());
+
+    queryTokens.forEach(token -> highlightToken(token, highlightingDataSDBL, getTypeOfTextSDBL(token.getType())));
+
+    // find bsl strings to check overlap with sdbl tokens
+    Set<HighlightingData> strings = highlightingData.stream()
+      .filter(data -> data.getType() == TypeOfText.STRING)
+      .collect(Collectors.toSet());
+
+    strings.forEach((HighlightingData string) -> {
+      Range stringRange = string.getRange();
+
+      // find overlapping tokens
+      List<HighlightingData> currentTokens = highlightingDataSDBL.stream()
+        .filter(sdblData -> Ranges.containsRange(stringRange, sdblData.getRange()))
+        .sorted(Comparator.comparing(data -> data.getRange().getStart().getCharacter()))
+        .collect(Collectors.toList());
+
+      if (currentTokens.isEmpty()) {
         return;
       }
 
-      int line = token.getLine();
-      int charPositionInLine = token.getCharPositionInLine();
-      String tokenText = token.getText();
+      // disable current bsl token
+      string.setActive(false);
 
-      highlighting.highlight(
-        line,
-        charPositionInLine,
-        line,
-        charPositionInLine + tokenText.length(),
-        typeOfText
-      );
+      // split current bsl token to parts excluding sdbl tokens
+      Position start = stringRange.getStart();
+      int line = start.getLine();
+      int startChar;
+      int endChar = start.getCharacter();
+      for (HighlightingData currentToken : currentTokens) {
+        startChar = endChar;
+        endChar = currentToken.getRange().getStart().getCharacter();
+        TypeOfText typeOfText = string.getType();
+
+        if (startChar < endChar) {
+          // add string part
+          highlightingData.add(new HighlightingData(
+            line,
+            startChar,
+            endChar,
+            typeOfText
+          ));
+        }
+
+        endChar = currentToken.getRange().getEnd().getCharacter();
+      }
+
+      // add final string part
+      startChar = endChar;
+      endChar = string.getRange().getEnd().getCharacter();
+      TypeOfText typeOfText = string.getType();
+
+      if (startChar < endChar) {
+        highlightingData.add(new HighlightingData(
+          line,
+          startChar,
+          endChar,
+          typeOfText
+        ));
+      }
     });
+
+    // merge collected bsl tokens with sdbl tokens
+    highlightingData.addAll(highlightingDataSDBL);
+
+    // save only active tokens
+    NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
+
+    highlightingData.stream()
+      .filter(HighlightingData::isActive)
+      .forEach(data ->
+        highlighting.highlight(
+          data.getRange().getStart().getLine(),
+          data.getRange().getStart().getCharacter(),
+          data.getRange().getEnd().getLine(),
+          data.getRange().getEnd().getCharacter(),
+          data.getType()
+        )
+      );
 
     highlighting.save();
   }
 
+  public void highlightToken(
+    Token token,
+    Collection<HighlightingData> highlightingData,
+    @Nullable TypeOfText typeOfText
+  ) {
+    if (typeOfText == null) {
+      return;
+    }
+
+    int line = token.getLine();
+    int charPositionInLine = token.getCharPositionInLine();
+    String tokenText = token.getText();
+
+    Range range = Ranges.create(
+      line,
+      charPositionInLine,
+      line,
+      charPositionInLine + tokenText.length()
+    );
+
+    HighlightingData data = new HighlightingData(
+      range,
+      typeOfText
+    );
+
+    highlightingData.add(data);
+  }
+
   @Nullable
-  private static TypeOfText getTypeOfText(int tokenType) {
+  private static TypeOfText getTypeOfTextBSL(int tokenType) {
 
     TypeOfText typeOfText = null;
 
@@ -200,5 +313,60 @@ public class BSLHighlighter {
 
     return typeOfText;
 
+  }
+
+  @Nullable
+  private static TypeOfText getTypeOfTextSDBL(int tokenType) {
+
+    TypeOfText typeOfText = null;
+
+    switch (tokenType) {
+      case SDBLLexer.SELECT:
+      case SDBLLexer.ALLOWED:
+      case SDBLLexer.AS:
+      case SDBLLexer.FROM:
+      case SDBLLexer.AUTOORDER:
+        typeOfText = TypeOfText.KEYWORD;
+        break;
+      case SDBLLexer.SEMICOLON:
+        typeOfText = TypeOfText.KEYWORD_LIGHT;
+        break;
+      case SDBLLexer.TRUE:
+      case SDBLLexer.FALSE:
+      case SDBLLexer.UNDEFINED:
+      case SDBLLexer.NULL:
+      case SDBLLexer.DECIMAL:
+      case SDBLLexer.FLOAT:
+        typeOfText = TypeOfText.CONSTANT;
+        break;
+      case SDBLLexer.STR:
+        typeOfText = TypeOfText.STRING;
+        break;
+      case SDBLLexer.LINE_COMMENT:
+        typeOfText = TypeOfText.COMMENT;
+        break;
+
+      case SDBLLexer.AMPERSAND:
+        typeOfText = TypeOfText.ANNOTATION;
+        break;
+      default:
+        // no-op
+    }
+
+    return typeOfText;
+
+  }
+
+  @Data
+  @RequiredArgsConstructor
+  @EqualsAndHashCode(exclude = "active")
+  private static class HighlightingData {
+    private final Range range;
+    private final TypeOfText type;
+    private boolean active = true;
+
+    public HighlightingData(int line, int startChar, int endChar, TypeOfText type) {
+      this(Ranges.create(line, startChar, endChar), type);
+    }
   }
 }
