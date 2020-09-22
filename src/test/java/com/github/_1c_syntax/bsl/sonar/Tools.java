@@ -23,38 +23,36 @@ package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class Tools {
 
-    public static InputFile inputFileBSL(String name, File baseDir) {
+  public static InputFile inputFileBSL(String name, File baseDir, String content) {
+    return TestInputFileBuilder.create("moduleKey", name)
+      .setModuleBaseDir(baseDir.toPath())
+      .setType(InputFile.Type.MAIN)
+      .setLanguage(BSLLanguage.KEY)
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents(content)
+      .initMetadata(content)
+      .build();
+  }
 
-        File file = new File(baseDir.getAbsoluteFile(), name);
-        String content;
-        try {
-            content = readFile(file.toPath().toString());
-        } catch (IOException e) {
-            content = "Значение = 1; Значение2 = 1;";
-        }
+  public static InputFile inputFileBSL(String name, File baseDir) {
 
-        DefaultInputFile inputFile = TestInputFileBuilder.create("moduleKey", name)
-                .setModuleBaseDir(baseDir.toPath())
-                //.setCharset(StandardCharsets.UTF_8)
-                .setType(InputFile.Type.MAIN)
-                .setLanguage(BSLLanguage.KEY)
-                .initMetadata(content)
-                .build();
-        return inputFile;
+    File file = new File(baseDir.getAbsoluteFile(), name);
+    String content;
+    try {
+      content = Files.readString(file.toPath(), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      content = "Значение = 1; Значение2 = 1;";
     }
 
-    private static String readFile(String path) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded);
-    }
+    return inputFileBSL(name, baseDir, content);
+  }
 }
