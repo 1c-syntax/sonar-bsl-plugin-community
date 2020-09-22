@@ -84,9 +84,16 @@ public class BSLCoreSensor implements Sensor {
 
   private final boolean calculateCoverLoc;
 
-  public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
+  public BSLCoreSensor(
+    SensorContext context,
+    FileLinesContextFactory fileLinesContextFactory,
+    BSLHighlighter highlighter,
+    IssuesLoader issuesLoader
+  ) {
     this.context = context;
     this.fileLinesContextFactory = fileLinesContextFactory;
+    this.highlighter = highlighter;
+    this.issuesLoader = issuesLoader;
 
     langServerEnabled = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
@@ -101,8 +108,6 @@ public class BSLCoreSensor implements Sensor {
           .collect(Collectors.toList()))
       .orElse(Collections.singletonList("."));
 
-    issuesLoader = new IssuesLoader(context);
-    highlighter = new BSLHighlighter(context);
   }
 
   @Override

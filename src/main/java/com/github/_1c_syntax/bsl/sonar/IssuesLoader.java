@@ -43,8 +43,10 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import javax.annotation.CheckForNull;
 import java.net.URI;
@@ -54,6 +56,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+@ScannerSide
+@SonarLintSide
 public class IssuesLoader {
 
   private static final Logger LOGGER = Loggers.get(IssuesLoader.class);

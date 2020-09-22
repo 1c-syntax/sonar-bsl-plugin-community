@@ -36,6 +36,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.scanner.ScannerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -49,6 +51,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@ScannerSide
+@SonarLintSide
 public class BSLHighlighter {
 
   private static final Set<Integer> BSL_KEYWORDS = createBslKeywords();
