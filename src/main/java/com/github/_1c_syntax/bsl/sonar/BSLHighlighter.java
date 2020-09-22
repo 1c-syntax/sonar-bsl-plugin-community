@@ -51,6 +51,24 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BSLHighlighter {
 
+  private static final Set<Integer> BSL_KEYWORDS = createBslKeywords();
+  private static final Set<Integer> BSL_SEPARATORS = createBslSeparators();
+  private static final Set<Integer> BSL_LITERALS = createBslLiterals();
+  private static final Set<Integer> BSL_STRINGS = createBslStrings();
+  private static final Set<Integer> BSL_COMMENTS = createBslComments();
+  private static final Set<Integer> BSL_PREPROCESSOR = createBslPreprocessor();
+  private static final Set<Integer> BSL_ANNOTATIONS = createBslAnnotations();
+
+  private static final Set<Integer> SDBL_KEYWORDS = createSdblKeywords();
+  private static final Set<Integer> SDBL_FUNCTIONS = createSdblFunctions();
+  private static final Set<Integer> SDBL_METADATA_TYPES = createSdblMetadataTypes();
+  private static final Set<Integer> SDBL_VIRTUAL_TABLES = createSdblVirtualTables();
+  private static final Set<Integer> SDBL_LITERALS = createSdblLiterals();
+  private static final Set<Integer> SDBL_SEPARATORS = createSdblSeparators();
+  private static final Set<Integer> SDBL_STRINGS = createSdblStrings();
+  private static final Set<Integer> SDBL_COMMENTS = createSdblComments();
+  private static final Set<Integer> SDBL_PARAMETERS = createSdblParameters();
+
   private final SensorContext context;
 
   public void saveHighlighting(InputFile inputFile, DocumentContext documentContext) {
@@ -191,147 +209,319 @@ public class BSLHighlighter {
 
   @Nullable
   private static TypeOfText getTypeOfTextBSL(int tokenType) {
+    TypeOfText typeOfText;
 
-    TypeOfText typeOfText = null;
-
-    switch (tokenType) {
-      case BSLLexer.PROCEDURE_KEYWORD:
-      case BSLLexer.FUNCTION_KEYWORD:
-      case BSLLexer.ENDPROCEDURE_KEYWORD:
-      case BSLLexer.ENDFUNCTION_KEYWORD:
-      case BSLLexer.EXPORT_KEYWORD:
-      case BSLLexer.VAL_KEYWORD:
-      case BSLLexer.ENDIF_KEYWORD:
-      case BSLLexer.ENDDO_KEYWORD:
-      case BSLLexer.IF_KEYWORD:
-      case BSLLexer.ELSIF_KEYWORD:
-      case BSLLexer.ELSE_KEYWORD:
-      case BSLLexer.THEN_KEYWORD:
-      case BSLLexer.WHILE_KEYWORD:
-      case BSLLexer.DO_KEYWORD:
-      case BSLLexer.FOR_KEYWORD:
-      case BSLLexer.TO_KEYWORD:
-      case BSLLexer.EACH_KEYWORD:
-      case BSLLexer.IN_KEYWORD:
-      case BSLLexer.TRY_KEYWORD:
-      case BSLLexer.EXCEPT_KEYWORD:
-      case BSLLexer.ENDTRY_KEYWORD:
-      case BSLLexer.RETURN_KEYWORD:
-      case BSLLexer.CONTINUE_KEYWORD:
-      case BSLLexer.RAISE_KEYWORD:
-      case BSLLexer.VAR_KEYWORD:
-      case BSLLexer.NOT_KEYWORD:
-      case BSLLexer.OR_KEYWORD:
-      case BSLLexer.AND_KEYWORD:
-      case BSLLexer.NEW_KEYWORD:
-      case BSLLexer.GOTO_KEYWORD:
-      case BSLLexer.BREAK_KEYWORD:
-      case BSLLexer.EXECUTE_KEYWORD:
-      case BSLLexer.ADDHANDLER_KEYWORD:
-      case BSLLexer.REMOVEHANDLER_KEYWORD:
-        typeOfText = TypeOfText.KEYWORD;
-        break;
-      case BSLLexer.SEMICOLON:
-      case BSLLexer.QUESTION:
-      case BSLLexer.PLUS:
-      case BSLLexer.MINUS:
-      case BSLLexer.MUL:
-      case BSLLexer.QUOTIENT:
-      case BSLLexer.MODULO:
-      case BSLLexer.ASSIGN:
-      case BSLLexer.LESS_OR_EQUAL:
-      case BSLLexer.LESS:
-      case BSLLexer.NOT_EQUAL:
-      case BSLLexer.GREATER_OR_EQUAL:
-      case BSLLexer.GREATER:
-      case BSLLexer.COMMA:
-      case BSLLexer.COLON:
-      case BSLLexer.TILDA:
-        typeOfText = TypeOfText.KEYWORD_LIGHT;
-        break;
-      case BSLLexer.TRUE:
-      case BSLLexer.FALSE:
-      case BSLLexer.UNDEFINED:
-      case BSLLexer.NULL:
-      case BSLLexer.DATETIME:
-      case BSLLexer.DECIMAL:
-      case BSLLexer.FLOAT:
-        typeOfText = TypeOfText.CONSTANT;
-        break;
-      case BSLLexer.STRING:
-      case BSLLexer.STRINGSTART:
-      case BSLLexer.STRINGPART:
-      case BSLLexer.STRINGTAIL:
-      case BSLLexer.PREPROC_STRING:
-      case BSLLexer.PREPROC_STRINGSTART:
-      case BSLLexer.PREPROC_STRINGTAIL:
-      case BSLLexer.PREPROC_STRINGPART:
-        typeOfText = TypeOfText.STRING;
-        break;
-      case BSLLexer.LINE_COMMENT:
-      case BSLLexer.PREPROC_LINE_COMMENT:
-        typeOfText = TypeOfText.COMMENT;
-        break;
-      case BSLLexer.HASH:
-      case BSLLexer.PREPROC_USE_KEYWORD:
-      case BSLLexer.PREPROC_REGION:
-      case BSLLexer.PREPROC_END_REGION:
-      case BSLLexer.PREPROC_AND_KEYWORD:
-      case BSLLexer.PREPROC_OR_KEYWORD:
-      case BSLLexer.PREPROC_NOT_KEYWORD:
-      case BSLLexer.PREPROC_IF_KEYWORD:
-      case BSLLexer.PREPROC_THEN_KEYWORD:
-      case BSLLexer.PREPROC_ELSIF_KEYWORD:
-      case BSLLexer.PREPROC_ELSE_KEYWORD:
-      case BSLLexer.PREPROC_ENDIF_KEYWORD:
-      case BSLLexer.PREPROC_EXCLAMATION_MARK:
-      case BSLLexer.PREPROC_LPAREN:
-      case BSLLexer.PREPROC_RPAREN:
-      case BSLLexer.PREPROC_MOBILEAPPCLIENT_SYMBOL:
-      case BSLLexer.PREPROC_MOBILEAPPSERVER_SYMBOL:
-      case BSLLexer.PREPROC_MOBILECLIENT_SYMBOL:
-      case BSLLexer.PREPROC_THICKCLIENTORDINARYAPPLICATION_SYMBOL:
-      case BSLLexer.PREPROC_THICKCLIENTMANAGEDAPPLICATION_SYMBOL:
-      case BSLLexer.PREPROC_EXTERNALCONNECTION_SYMBOL:
-      case BSLLexer.PREPROC_THINCLIENT_SYMBOL:
-      case BSLLexer.PREPROC_WEBCLIENT_SYMBOL:
-      case BSLLexer.PREPROC_ATCLIENT_SYMBOL:
-      case BSLLexer.PREPROC_CLIENT_SYMBOL:
-      case BSLLexer.PREPROC_ATSERVER_SYMBOL:
-      case BSLLexer.PREPROC_SERVER_SYMBOL:
-      case BSLLexer.PREPROC_INSERT_SYMBOL:
-      case BSLLexer.PREPROC_ENDINSERT_SYMBOL:
-      case BSLLexer.PREPROC_DELETE_SYMBOL:
-      case BSLLexer.PREPROC_ENDDELETE_SYMBOL:
-      case BSLLexer.PREPROC_IDENTIFIER:
-      case BSLLexer.PREPROC_ANY:
-        typeOfText = TypeOfText.PREPROCESS_DIRECTIVE;
-        break;
-      case BSLLexer.AMPERSAND:
-      case BSLLexer.ANNOTATION_AFTER_SYMBOL:
-      case BSLLexer.ANNOTATION_AROUND_SYMBOL:
-      case BSLLexer.ANNOTATION_ATCLIENT_SYMBOL:
-      case BSLLexer.ANNOTATION_ATCLIENTATSERVER_SYMBOL:
-      case BSLLexer.ANNOTATION_ATCLIENTATSERVERNOCONTEXT_SYMBOL:
-      case BSLLexer.ANNOTATION_ATSERVER_SYMBOL:
-      case BSLLexer.ANNOTATION_ATSERVERNOCONTEXT_SYMBOL:
-      case BSLLexer.ANNOTATION_BEFORE_SYMBOL:
-      case BSLLexer.ANNOTATION_CHANGEANDVALIDATE_SYMBOL:
-      case BSLLexer.ANNOTATION_CUSTOM_SYMBOL:
-        typeOfText = TypeOfText.ANNOTATION;
-        break;
-      default:
-        // no-op
+    if (BSL_KEYWORDS.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD;
+    } else if (BSL_SEPARATORS.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD_LIGHT;
+    } else if (BSL_LITERALS.contains(tokenType)) {
+      typeOfText = TypeOfText.CONSTANT;
+    } else if (BSL_STRINGS.contains(tokenType)) {
+      typeOfText = TypeOfText.STRING;
+    } else if (BSL_COMMENTS.contains(tokenType)) {
+      typeOfText = TypeOfText.COMMENT;
+    } else if (BSL_PREPROCESSOR.contains(tokenType)) {
+      typeOfText = TypeOfText.PREPROCESS_DIRECTIVE;
+    } else if (BSL_ANNOTATIONS.contains(tokenType)) {
+      typeOfText = TypeOfText.ANNOTATION;
+    } else {
+      typeOfText = null;
     }
 
     return typeOfText;
-
   }
 
   @Nullable
   private static TypeOfText getTypeOfTextSDBL(int tokenType) {
+    TypeOfText typeOfText;
 
-    Set<Integer> keywords = Set.of(
+    if (SDBL_KEYWORDS.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD;
+    } else if (SDBL_FUNCTIONS.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD_LIGHT;
+    } else if (SDBL_METADATA_TYPES.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD_LIGHT;
+    } else if (SDBL_VIRTUAL_TABLES.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD_LIGHT;
+    } else if (SDBL_LITERALS.contains(tokenType)) {
+      typeOfText = TypeOfText.CONSTANT;
+    } else if (SDBL_SEPARATORS.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD_LIGHT;
+    } else if (SDBL_STRINGS.contains(tokenType)) {
+      typeOfText = TypeOfText.STRING;
+    } else if (SDBL_COMMENTS.contains(tokenType)) {
+      typeOfText = TypeOfText.COMMENT;
+    } else if (SDBL_PARAMETERS.contains(tokenType)) {
+      typeOfText = TypeOfText.ANNOTATION;
+    } else {
+      typeOfText = null;
+    }
+
+    return typeOfText;
+  }
+
+  private static Set<HighlightingData> newHashSet(Integer line) {
+    return new HashSet<>();
+  }
+
+  private static Set<Integer> createBslAnnotations() {
+    return Set.of(
+      BSLLexer.AMPERSAND,
+      BSLLexer.ANNOTATION_AFTER_SYMBOL,
+      BSLLexer.ANNOTATION_AROUND_SYMBOL,
+      BSLLexer.ANNOTATION_ATCLIENT_SYMBOL,
+      BSLLexer.ANNOTATION_ATCLIENTATSERVER_SYMBOL,
+      BSLLexer.ANNOTATION_ATCLIENTATSERVERNOCONTEXT_SYMBOL,
+      BSLLexer.ANNOTATION_ATSERVER_SYMBOL,
+      BSLLexer.ANNOTATION_ATSERVERNOCONTEXT_SYMBOL,
+      BSLLexer.ANNOTATION_BEFORE_SYMBOL,
+      BSLLexer.ANNOTATION_CHANGEANDVALIDATE_SYMBOL,
+      BSLLexer.ANNOTATION_CUSTOM_SYMBOL
+    );
+  }
+
+  private static Set<Integer> createBslPreprocessor() {
+    return Set.of(
+      BSLLexer.HASH,
+      BSLLexer.PREPROC_USE_KEYWORD,
+      BSLLexer.PREPROC_REGION,
+      BSLLexer.PREPROC_END_REGION,
+      BSLLexer.PREPROC_AND_KEYWORD,
+      BSLLexer.PREPROC_OR_KEYWORD,
+      BSLLexer.PREPROC_NOT_KEYWORD,
+      BSLLexer.PREPROC_IF_KEYWORD,
+      BSLLexer.PREPROC_THEN_KEYWORD,
+      BSLLexer.PREPROC_ELSIF_KEYWORD,
+      BSLLexer.PREPROC_ELSE_KEYWORD,
+      BSLLexer.PREPROC_ENDIF_KEYWORD,
+      BSLLexer.PREPROC_EXCLAMATION_MARK,
+      BSLLexer.PREPROC_LPAREN,
+      BSLLexer.PREPROC_RPAREN,
+      BSLLexer.PREPROC_MOBILEAPPCLIENT_SYMBOL,
+      BSLLexer.PREPROC_MOBILEAPPSERVER_SYMBOL,
+      BSLLexer.PREPROC_MOBILECLIENT_SYMBOL,
+      BSLLexer.PREPROC_THICKCLIENTORDINARYAPPLICATION_SYMBOL,
+      BSLLexer.PREPROC_THICKCLIENTMANAGEDAPPLICATION_SYMBOL,
+      BSLLexer.PREPROC_EXTERNALCONNECTION_SYMBOL,
+      BSLLexer.PREPROC_THINCLIENT_SYMBOL,
+      BSLLexer.PREPROC_WEBCLIENT_SYMBOL,
+      BSLLexer.PREPROC_ATCLIENT_SYMBOL,
+      BSLLexer.PREPROC_CLIENT_SYMBOL,
+      BSLLexer.PREPROC_ATSERVER_SYMBOL,
+      BSLLexer.PREPROC_SERVER_SYMBOL,
+      BSLLexer.PREPROC_INSERT_SYMBOL,
+      BSLLexer.PREPROC_ENDINSERT_SYMBOL,
+      BSLLexer.PREPROC_DELETE_SYMBOL,
+      BSLLexer.PREPROC_ENDDELETE_SYMBOL,
+      BSLLexer.PREPROC_IDENTIFIER,
+      BSLLexer.PREPROC_ANY
+    );
+  }
+
+  private static Set<Integer> createBslComments() {
+    return Set.of(
+      BSLLexer.LINE_COMMENT,
+      BSLLexer.PREPROC_LINE_COMMENT
+    );
+  }
+
+  private static Set<Integer> createBslStrings() {
+    return Set.of(
+      BSLLexer.STRING,
+      BSLLexer.STRINGSTART,
+      BSLLexer.STRINGPART,
+      BSLLexer.STRINGTAIL,
+      BSLLexer.PREPROC_STRING,
+      BSLLexer.PREPROC_STRINGSTART,
+      BSLLexer.PREPROC_STRINGTAIL,
+      BSLLexer.PREPROC_STRINGPART
+    );
+  }
+
+  private static Set<Integer> createBslLiterals() {
+    return Set.of(
+      BSLLexer.TRUE,
+      BSLLexer.FALSE,
+      BSLLexer.UNDEFINED,
+      BSLLexer.NULL,
+      BSLLexer.DATETIME,
+      BSLLexer.DECIMAL,
+      BSLLexer.FLOAT
+    );
+  }
+
+  private static Set<Integer> createBslSeparators() {
+    return Set.of(
+      BSLLexer.SEMICOLON,
+      BSLLexer.QUESTION,
+      BSLLexer.PLUS,
+      BSLLexer.MINUS,
+      BSLLexer.MUL,
+      BSLLexer.QUOTIENT,
+      BSLLexer.MODULO,
+      BSLLexer.ASSIGN,
+      BSLLexer.LESS_OR_EQUAL,
+      BSLLexer.LESS,
+      BSLLexer.NOT_EQUAL,
+      BSLLexer.GREATER_OR_EQUAL,
+      BSLLexer.GREATER,
+      BSLLexer.COMMA,
+      BSLLexer.COLON,
+      BSLLexer.TILDA
+    );
+  }
+
+  private static Set<Integer> createBslKeywords() {
+    return Set.of(
+      BSLLexer.PROCEDURE_KEYWORD,
+      BSLLexer.FUNCTION_KEYWORD,
+      BSLLexer.ENDPROCEDURE_KEYWORD,
+      BSLLexer.ENDFUNCTION_KEYWORD,
+      BSLLexer.EXPORT_KEYWORD,
+      BSLLexer.VAL_KEYWORD,
+      BSLLexer.ENDIF_KEYWORD,
+      BSLLexer.ENDDO_KEYWORD,
+      BSLLexer.IF_KEYWORD,
+      BSLLexer.ELSIF_KEYWORD,
+      BSLLexer.ELSE_KEYWORD,
+      BSLLexer.THEN_KEYWORD,
+      BSLLexer.WHILE_KEYWORD,
+      BSLLexer.DO_KEYWORD,
+      BSLLexer.FOR_KEYWORD,
+      BSLLexer.TO_KEYWORD,
+      BSLLexer.EACH_KEYWORD,
+      BSLLexer.IN_KEYWORD,
+      BSLLexer.TRY_KEYWORD,
+      BSLLexer.EXCEPT_KEYWORD,
+      BSLLexer.ENDTRY_KEYWORD,
+      BSLLexer.RETURN_KEYWORD,
+      BSLLexer.CONTINUE_KEYWORD,
+      BSLLexer.RAISE_KEYWORD,
+      BSLLexer.VAR_KEYWORD,
+      BSLLexer.NOT_KEYWORD,
+      BSLLexer.OR_KEYWORD,
+      BSLLexer.AND_KEYWORD,
+      BSLLexer.NEW_KEYWORD,
+      BSLLexer.GOTO_KEYWORD,
+      BSLLexer.BREAK_KEYWORD,
+      BSLLexer.EXECUTE_KEYWORD,
+      BSLLexer.ADDHANDLER_KEYWORD,
+      BSLLexer.REMOVEHANDLER_KEYWORD
+    );
+  }
+
+  private static Set<Integer> createSdblSeparators() {
+    return Set.of(
+      SDBLLexer.SEMICOLON,
+      SDBLLexer.PLUS,
+      SDBLLexer.MINUS,
+      SDBLLexer.MUL,
+      SDBLLexer.QUOTIENT,
+      SDBLLexer.ASSIGN,
+      SDBLLexer.LESS_OR_EQUAL,
+      SDBLLexer.LESS,
+      SDBLLexer.NOT_EQUAL,
+      SDBLLexer.GREATER_OR_EQUAL,
+      SDBLLexer.GREATER,
+      SDBLLexer.COMMA,
+      SDBLLexer.BRACE,
+      SDBLLexer.BRACE_START
+    );
+  }
+
+  private static Set<Integer> createSdblLiterals() {
+    return Set.of(
+      SDBLLexer.TRUE,
+      SDBLLexer.FALSE,
+      SDBLLexer.UNDEFINED,
+      SDBLLexer.NULL,
+      SDBLLexer.DECIMAL,
+      SDBLLexer.FLOAT
+    );
+  }
+
+  private static Set<Integer> createSdblVirtualTables() {
+    return Set.of(
+      SDBLLexer.ACTUAL_ACTION_PERIOD_VT,
+      SDBLLexer.BALANCE_VT,
+      SDBLLexer.BALANCE_AND_TURNOVERS_VT,
+      SDBLLexer.BOUNDARIES_VT,
+      SDBLLexer.DR_CR_TURNOVERS_VT,
+      SDBLLexer.EXT_DIMENSIONS_VT,
+      SDBLLexer.RECORDS_WITH_EXT_DIMENSIONS_VT,
+      SDBLLexer.SCHEDULE_DATA_VT,
+      SDBLLexer.SLICEFIRST_VT,
+      SDBLLexer.SLICELAST_VT,
+      SDBLLexer.TASK_BY_PERFORMER_VT,
+      SDBLLexer.TURNOVERS_VT
+    );
+  }
+
+  private static Set<Integer> createSdblMetadataTypes() {
+    return Set.of(
+      SDBLLexer.ACCOUNTING_REGISTER_TYPE,
+      SDBLLexer.ACCUMULATION_REGISTER_TYPE,
+      SDBLLexer.BUSINESS_PROCESS_TYPE,
+      SDBLLexer.CALCULATION_REGISTER_TYPE,
+      SDBLLexer.CATALOG_TYPE,
+      SDBLLexer.CHART_OF_ACCOUNTS_TYPE,
+      SDBLLexer.CHART_OF_CALCULATION_TYPES_TYPE,
+      SDBLLexer.CHART_OF_CHARACTERISTIC_TYPES_TYPE,
+      SDBLLexer.CONSTANT_TYPE,
+      SDBLLexer.DOCUMENT_TYPE,
+      SDBLLexer.DOCUMENT_JOURNAL_TYPE,
+      SDBLLexer.ENUM_TYPE,
+      SDBLLexer.EXCHANGE_PLAN_TYPE,
+      SDBLLexer.EXTERNAL_DATA_SOURCE_TYPE,
+      SDBLLexer.FILTER_CRITERION_TYPE,
+      SDBLLexer.INFORMATION_REGISTER_TYPE,
+      SDBLLexer.SEQUENCE_TYPE,
+      SDBLLexer.TASK_TYPE
+    );
+  }
+
+  private static Set<Integer> createSdblFunctions() {
+    return Set.of(
+      SDBLLexer.AVG,
+      SDBLLexer.BEGINOFPERIOD,
+      SDBLLexer.BOOLEAN,
+      SDBLLexer.COUNT,
+      SDBLLexer.DATE,
+      SDBLLexer.DATEADD,
+      SDBLLexer.DATEDIFF,
+      SDBLLexer.DATETIME,
+      SDBLLexer.DAY,
+      SDBLLexer.DAYOFYEAR,
+      SDBLLexer.EMPTYTABLE,
+      SDBLLexer.ENDOFPERIOD,
+      SDBLLexer.HALFYEAR,
+      SDBLLexer.HOUR,
+      SDBLLexer.MAX,
+      SDBLLexer.MIN,
+      SDBLLexer.MINUTE,
+      SDBLLexer.MONTH,
+      SDBLLexer.NUMBER,
+      SDBLLexer.QUARTER,
+      SDBLLexer.PRESENTATION,
+      SDBLLexer.RECORDAUTONUMBER,
+      SDBLLexer.REFPRESENTATION,
+      SDBLLexer.SECOND,
+      SDBLLexer.STRING,
+      SDBLLexer.SUBSTRING,
+      SDBLLexer.SUM,
+      SDBLLexer.TENDAYS,
+      SDBLLexer.TYPE,
+      SDBLLexer.VALUE,
+      SDBLLexer.VALUETYPE,
+      SDBLLexer.WEEK,
+      SDBLLexer.WEEKDAY,
+      SDBLLexer.YEAR
+    );
+  }
+
+  private static Set<Integer> createSdblKeywords() {
+    return Set.of(
       SDBLLexer.ALL,
       SDBLLexer.ALLOWED,
       SDBLLexer.AND,
@@ -387,135 +577,25 @@ public class BSLHighlighter {
       SDBLLexer.REFS,
       SDBLLexer.UPDATE
     );
-
-    Set<Integer> functions = Set.of(
-      SDBLLexer.AVG,
-      SDBLLexer.BEGINOFPERIOD,
-      SDBLLexer.BOOLEAN,
-      SDBLLexer.COUNT,
-      SDBLLexer.DATE,
-      SDBLLexer.DATEADD,
-      SDBLLexer.DATEDIFF,
-      SDBLLexer.DATETIME,
-      SDBLLexer.DAY,
-      SDBLLexer.DAYOFYEAR,
-      SDBLLexer.EMPTYTABLE,
-      SDBLLexer.ENDOFPERIOD,
-      SDBLLexer.HALFYEAR,
-      SDBLLexer.HOUR,
-      SDBLLexer.MAX,
-      SDBLLexer.MIN,
-      SDBLLexer.MINUTE,
-      SDBLLexer.MONTH,
-      SDBLLexer.NUMBER,
-      SDBLLexer.QUARTER,
-      SDBLLexer.PRESENTATION,
-      SDBLLexer.RECORDAUTONUMBER,
-      SDBLLexer.REFPRESENTATION,
-      SDBLLexer.SECOND,
-      SDBLLexer.STRING,
-      SDBLLexer.SUBSTRING,
-      SDBLLexer.SUM,
-      SDBLLexer.TENDAYS,
-      SDBLLexer.TYPE,
-      SDBLLexer.VALUE,
-      SDBLLexer.VALUETYPE,
-      SDBLLexer.WEEK,
-      SDBLLexer.WEEKDAY,
-      SDBLLexer.YEAR
-    );
-
-    Set<Integer> metadataTypes = Set.of(
-      SDBLLexer.ACCOUNTING_REGISTER_TYPE,
-      SDBLLexer.ACCUMULATION_REGISTER_TYPE,
-      SDBLLexer.BUSINESS_PROCESS_TYPE,
-      SDBLLexer.CALCULATION_REGISTER_TYPE,
-      SDBLLexer.CATALOG_TYPE,
-      SDBLLexer.CHART_OF_ACCOUNTS_TYPE,
-      SDBLLexer.CHART_OF_CALCULATION_TYPES_TYPE,
-      SDBLLexer.CHART_OF_CHARACTERISTIC_TYPES_TYPE,
-      SDBLLexer.CONSTANT_TYPE,
-      SDBLLexer.DOCUMENT_TYPE,
-      SDBLLexer.DOCUMENT_JOURNAL_TYPE,
-      SDBLLexer.ENUM_TYPE,
-      SDBLLexer.EXCHANGE_PLAN_TYPE,
-      SDBLLexer.EXTERNAL_DATA_SOURCE_TYPE,
-      SDBLLexer.FILTER_CRITERION_TYPE,
-      SDBLLexer.INFORMATION_REGISTER_TYPE,
-      SDBLLexer.SEQUENCE_TYPE,
-      SDBLLexer.TASK_TYPE
-    );
-
-    Set<Integer> virtualTables = Set.of(
-      SDBLLexer.ACTUAL_ACTION_PERIOD_VT,
-      SDBLLexer.BALANCE_VT,
-      SDBLLexer.BALANCE_AND_TURNOVERS_VT,
-      SDBLLexer.BOUNDARIES_VT,
-      SDBLLexer.DR_CR_TURNOVERS_VT,
-      SDBLLexer.EXT_DIMENSIONS_VT,
-      SDBLLexer.RECORDS_WITH_EXT_DIMENSIONS_VT,
-      SDBLLexer.SCHEDULE_DATA_VT,
-      SDBLLexer.SLICEFIRST_VT,
-      SDBLLexer.SLICELAST_VT,
-      SDBLLexer.TASK_BY_PERFORMER_VT,
-      SDBLLexer.TURNOVERS_VT
-    );
-
-    Set<Integer> literals = Set.of(
-      SDBLLexer.TRUE,
-      SDBLLexer.FALSE,
-      SDBLLexer.UNDEFINED,
-      SDBLLexer.NULL,
-      SDBLLexer.DECIMAL,
-      SDBLLexer.FLOAT
-    );
-
-    Set<Integer> separators = Set.of(
-      SDBLLexer.SEMICOLON,
-      SDBLLexer.PLUS,
-      SDBLLexer.MINUS,
-      SDBLLexer.MUL,
-      SDBLLexer.QUOTIENT,
-      SDBLLexer.ASSIGN,
-      SDBLLexer.LESS_OR_EQUAL,
-      SDBLLexer.LESS,
-      SDBLLexer.NOT_EQUAL,
-      SDBLLexer.GREATER_OR_EQUAL,
-      SDBLLexer.GREATER,
-      SDBLLexer.COMMA,
-      SDBLLexer.BRACE,
-      SDBLLexer.BRACE_START
-    );
-
-    TypeOfText typeOfText = null;
-
-    if (keywords.contains(tokenType)) {
-      typeOfText = TypeOfText.KEYWORD;
-    } else if (functions.contains(tokenType)) {
-      typeOfText = TypeOfText.KEYWORD_LIGHT;
-    } else if (metadataTypes.contains(tokenType)) {
-      typeOfText = TypeOfText.KEYWORD_LIGHT;
-    } else if (virtualTables.contains(tokenType)) {
-      typeOfText = TypeOfText.KEYWORD_LIGHT;
-    } else if (literals.contains(tokenType)) {
-      typeOfText = TypeOfText.CONSTANT;
-    } else if (separators.contains(tokenType)) {
-      typeOfText = TypeOfText.KEYWORD_LIGHT;
-    } else if (SDBLLexer.STR == tokenType) {
-      typeOfText = TypeOfText.STRING;
-    } else if (SDBLLexer.LINE_COMMENT == tokenType) {
-      typeOfText = TypeOfText.COMMENT;
-    } else if (SDBLLexer.AMPERSAND == tokenType || SDBLLexer.PARAMETER_IDENTIFIER == tokenType) {
-      typeOfText = TypeOfText.ANNOTATION;
-    } else {
-      // no-op
-    }
-
-    return typeOfText;
   }
 
-  private static Set<HighlightingData> newHashSet(Integer line) {
-    return new HashSet<>();
+  private static Set<Integer> createSdblStrings() {
+    return Set.of(
+      SDBLLexer.STR
+    );
+  }
+
+  private static Set<Integer> createSdblComments() {
+    return Set.of(
+      SDBLLexer.LINE_COMMENT
+    );
+  }
+
+  private static Set<Integer> createSdblParameters() {
+    return Set.of(
+      SDBLLexer.AMPERSAND,
+      SDBLLexer.PARAMETER_IDENTIFIER
+    );
   }
 
   @Data
