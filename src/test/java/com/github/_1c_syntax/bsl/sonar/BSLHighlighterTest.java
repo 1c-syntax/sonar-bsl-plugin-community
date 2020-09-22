@@ -24,6 +24,7 @@ package com.github._1c_syntax.bsl.sonar;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.parser.SDBLLexer;
+import com.github._1c_syntax.bsl.parser.SDBLTokenizer;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.Vocabulary;
@@ -121,7 +122,7 @@ class BSLHighlighterTest {
     checkTokenTypeAtPosition(componentKey, 4, 6, TypeOfText.KEYWORD);
     checkTokenTypeAtPosition(componentKey, 4, 10, TypeOfText.STRING);
     checkTokenTypeAtPosition(componentKey, 4, 13, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 4, 16, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 4, 16, TypeOfText.KEYWORD_LIGHT);
 
     checkTokenTypeAtPosition(componentKey, 5, 0, TypeOfText.STRING);
     checkTokenTypeAtPosition(componentKey, 5, 1, TypeOfText.KEYWORD);
@@ -160,7 +161,7 @@ class BSLHighlighterTest {
     for (var tokenType = 1; tokenType <= maxTokenType; tokenType++) {
       var token = new CommonToken(tokenType, "a");
       token.setLine(1);
-      token.setCharPositionInLine(tokenType);
+      token.setCharPositionInLine(tokenType - 1);
       tokens.add(token);
     }
 
@@ -168,8 +169,13 @@ class BSLHighlighterTest {
       .map(Token::getText)
       .collect(Collectors.joining());
 
-    when(documentContext.getTokens()).thenReturn(tokens);
-
+    if (vocabulary.equals(SDBLLexer.VOCABULARY)) {
+      SDBLTokenizer sdblTokenizer = mock(SDBLTokenizer.class);
+      when(sdblTokenizer.getTokens()).thenReturn(tokens);
+      when(documentContext.getQueries()).thenReturn(List.of(sdblTokenizer));
+    } else {
+      when(documentContext.getTokens()).thenReturn(tokens);
+    }
     inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR, content);
   }
 
@@ -190,7 +196,7 @@ class BSLHighlighterTest {
           return;
         }
 
-        List<TypeOfText> typeOfTexts = context.highlightingTypeAt(componentKey, 1, tokenType);
+        List<TypeOfText> typeOfTexts = context.highlightingTypeAt(componentKey, 1, tokenType - 1);
         assertThat(typeOfTexts)
           .as("Symbolic token name %s should maps to typeOfText %s", symbolicTokenName, typeOfText)
           .contains(typeOfText);
@@ -282,47 +288,173 @@ class BSLHighlighterTest {
 
   private Map<String, TypeOfText> getHighlightingMapSDBL(Vocabulary vocabulary) {
 
+    Set<String> keywords = Set.of(
+      "ALL",
+      "ALLOWED",
+      "AND",
+      "AS",
+      "ASC",
+      "AUTOORDER",
+      "BETWEEN",
+      "BY_EN",
+      "CASE",
+      "CAST",
+      "DESC",
+      "DISTINCT",
+      "DROP",
+      "ELSE",
+      "END",
+      "ESCAPE",
+      "FALSE",
+      "FOR",
+      "FROM",
+      "FULL",
+      "GROUP",
+      "HAVING",
+      "HIERARCHY_EN",
+      "HIERARCHII_RU",
+      "HIERARCHYA_RU",
+      "IN",
+      "INDEX",
+      "INNER",
+      "INTO",
+      "IS",
+      "ISNULL",
+      "JOIN",
+      "LEFT",
+      "LIKE",
+      "NOT",
+      "OF",
+      "ON_EN",
+      "OR",
+      "ORDER",
+      "OUTER",
+      "OVERALL",
+      "PO_RU",
+      "RIGHT",
+      "SELECT",
+      "THEN",
+      "TOP",
+      "TOTALS",
+      "UNION",
+      "WHEN",
+      "WHERE",
+      "ONLY",
+      "PERIODS",
+      "REFS",
+      "UPDATE"
+    );
+
+    Set<String> functions = Set.of(
+      "AVG",
+      "BEGINOFPERIOD",
+      "BOOLEAN",
+      "COUNT",
+      "DATE",
+      "DATEADD",
+      "DATEDIFF",
+      "DATETIME",
+      "DAY",
+      "DAYOFYEAR",
+      "EMPTYTABLE",
+      "ENDOFPERIOD",
+      "HALFYEAR",
+      "HOUR",
+      "MAX",
+      "MIN",
+      "MINUTE",
+      "MONTH",
+      "NUMBER",
+      "QUARTER",
+      "PRESENTATION",
+      "RECORDAUTONUMBER",
+      "REFPRESENTATION",
+      "SECOND",
+      "STRING",
+      "SUBSTRING",
+      "SUM",
+      "TENDAYS",
+      "TYPE",
+      "VALUE",
+      "VALUETYPE",
+      "WEEK",
+      "WEEKDAY",
+      "YEAR"
+    );
+
+    Set<String> metadataTypes = Set.of(
+      "ACCOUNTING_REGISTER_TYPE",
+      "ACCUMULATION_REGISTER_TYPE",
+      "BUSINESS_PROCESS_TYPE",
+      "CALCULATION_REGISTER_TYPE",
+      "CATALOG_TYPE",
+      "CHART_OF_ACCOUNTS_TYPE",
+      "CHART_OF_CALCULATION_TYPES_TYPE",
+      "CHART_OF_CHARACTERISTIC_TYPES_TYPE",
+      "CONSTANT_TYPE",
+      "DOCUMENT_TYPE",
+      "DOCUMENT_JOURNAL_TYPE",
+      "ENUM_TYPE",
+      "EXCHANGE_PLAN_TYPE",
+      "EXTERNAL_DATA_SOURCE_TYPE",
+      "FILTER_CRITERION_TYPE",
+      "INFORMATION_REGISTER_TYPE",
+      "SEQUENCE_TYPE",
+      "TASK_TYPE"
+    );
+
+    Set<String> virtualTables = Set.of(
+      "ACTUAL_ACTION_PERIOD_VT",
+      "BALANCE_VT",
+      "BALANCE_AND_TURNOVERS_VT",
+      "BOUNDARIES_VT",
+      "DR_CR_TURNOVERS_VT",
+      "EXT_DIMENSIONS_VT",
+      "RECORDS_WITH_EXT_DIMENSIONS_VT",
+      "SCHEDULE_DATA_VT",
+      "SLICEFIRST_VT",
+      "SLICELAST_VT",
+      "TASK_BY_PERFORMER_VT",
+      "TURNOVERS_VT"
+    );
+
     Set<String> literals = Set.of(
       "TRUE",
       "FALSE",
       "UNDEFINED",
-//      "NULL",
-//      "DATETIME",
+      "NULL",
       "DECIMAL",
       "FLOAT"
     );
 
     Set<String> separators = Set.of(
-//      "SEMICOLON",
-//      "QUESTION",
-//      "PLUS",
-//      "MINUS",
-//      "MUL",
-//      "QUOTIENT",
-//      "MODULO",
-//      "ASSIGN",
-//      "LESS_OR_EQUAL",
-//      "LESS",
-//      "NOT_EQUAL",
-//      "GREATER_OR_EQUAL",
-//      "GREATER",
-//      "COMMA",
-//      "COLON",
-//      "TILDA"
+      "SEMICOLON",
+      "PLUS",
+      "MINUS",
+      "MUL",
+      "QUOTIENT",
+      "ASSIGN",
+      "LESS_OR_EQUAL",
+      "LESS",
+      "NOT_EQUAL",
+      "GREATER_OR_EQUAL",
+      "GREATER",
+      "COMMA",
+      "BRACE",
+      "BRACE_START"
     );
 
     Set<String> noOpTypes = Set.of(
-//      "WHITE_SPACE",
-//      "DOT",
-//      "LBRACK",
-//      "RBRACK",
-//      "LPAREN",
-//      "RPAREN",
-//      "SQUOTE",
-//      "IDENTIFIER",
-//      "UNKNOWN",
-//      "PREPROC_NEWLINE",
-//      "BAR"
+      "WHITE_SPACE",
+      "DOT",
+      "LPAREN",
+      "RPAREN",
+      "ROUTEPOINT_FIELD",
+      "IDENTIFIER",
+      "INCORRECT_IDENTIFIER",
+      "BRACE_IDENTIFIER",
+      "UNKNOWN",
+      "BAR" // TODO: Убрать из лексера
     );
 
     int maxTokenType = vocabulary.getMaxTokenType();
@@ -338,20 +470,24 @@ class BSLHighlighterTest {
       TypeOfText typeOfText = null;
       if (noOpTypes.contains(ruleName)) {
         continue;
-      } else if (ruleName.endsWith("_KEYWORD") && !ruleName.startsWith("PREPROC_")) {
+      } else if (keywords.contains(ruleName)) {
         typeOfText = TypeOfText.KEYWORD;
       } else if (literals.contains(ruleName)) {
         typeOfText = TypeOfText.CONSTANT;
       } else if (separators.contains(ruleName)) {
         typeOfText = TypeOfText.KEYWORD_LIGHT;
-      } else if (ruleName.contains("STRING")) {
+      } else if (functions.contains(ruleName)) {
+        typeOfText = TypeOfText.KEYWORD_LIGHT;
+      } else if (metadataTypes.contains(ruleName)) {
+        typeOfText = TypeOfText.KEYWORD_LIGHT;
+      } else if (virtualTables.contains(ruleName)) {
+        typeOfText = TypeOfText.KEYWORD_LIGHT;
+      } else if (ruleName.equals("STR")) {
         typeOfText = TypeOfText.STRING;
       } else if (ruleName.contains("LINE_COMMENT")) {
         typeOfText = TypeOfText.COMMENT;
-      } else if (ruleName.equals("AMPERSAND") || ruleName.contains("ANNOTATION_")) {
+      } else if (ruleName.equals("AMPERSAND") || ruleName.equals("PARAMETER_IDENTIFIER")) {
         typeOfText = TypeOfText.ANNOTATION;
-      } else if (ruleName.equals("HASH") || ruleName.contains("PREPROC_")) {
-        typeOfText = TypeOfText.PREPROCESS_DIRECTIVE;
       }
 
       if (typeOfText == null) {

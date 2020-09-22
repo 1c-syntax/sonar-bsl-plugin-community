@@ -40,8 +40,11 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,15 +61,20 @@ public class BSLHighlighter {
       highlightToken(token, highlightingData, getTypeOfTextBSL(token.getType()))
     );
 
-    // todo: grouping by по номеру строки на список токенов, чтобы не пришлось фильтровать по рэнжу кучу лишних токенов
     // compute and populate sdbl highlight data
-    List<Token> queryTokens = documentContext.getQueries().stream()
+    Map<Integer, List<Token>> queryTokens = documentContext.getQueries().stream()
       .map(Tokenizer::getTokens)
       .flatMap(Collection::stream)
-      .collect(Collectors.toList());
-    Set<HighlightingData> highlightingDataSDBL = new HashSet<>(queryTokens.size());
+      .collect(Collectors.groupingBy(Token::getLine));
+    Map<Integer, Set<HighlightingData>> highlightingDataSDBL = new HashMap<>(queryTokens.size());
 
-    queryTokens.forEach(token -> highlightToken(token, highlightingDataSDBL, getTypeOfTextSDBL(token.getType())));
+    queryTokens.values().stream()
+      .flatMap(Collection::stream)
+      .forEach(token -> highlightToken(
+        token,
+        highlightingDataSDBL.computeIfAbsent(token.getLine(), BSLHighlighter::newHashSet),
+        getTypeOfTextSDBL(token.getType()))
+      );
 
     // find bsl strings to check overlap with sdbl tokens
     Set<HighlightingData> strings = highlightingData.stream()
@@ -77,7 +85,12 @@ public class BSLHighlighter {
       Range stringRange = string.getRange();
 
       // find overlapping tokens
-      List<HighlightingData> currentTokens = highlightingDataSDBL.stream()
+      Set<HighlightingData> dataOfCurrentLine = highlightingDataSDBL.get(stringRange.getStart().getLine());
+      if (Objects.isNull(dataOfCurrentLine)) {
+        return;
+      }
+
+      List<HighlightingData> currentTokens = dataOfCurrentLine.stream()
         .filter(sdblData -> Ranges.containsRange(stringRange, sdblData.getRange()))
         .sorted(Comparator.comparing(data -> data.getRange().getStart().getCharacter()))
         .collect(Collectors.toList());
@@ -128,7 +141,7 @@ public class BSLHighlighter {
     });
 
     // merge collected bsl tokens with sdbl tokens
-    highlightingData.addAll(highlightingDataSDBL);
+    highlightingDataSDBL.values().forEach(highlightingData::addAll);
 
     // save only active tokens
     NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
@@ -318,43 +331,191 @@ public class BSLHighlighter {
   @Nullable
   private static TypeOfText getTypeOfTextSDBL(int tokenType) {
 
+    Set<Integer> keywords = Set.of(
+      SDBLLexer.ALL,
+      SDBLLexer.ALLOWED,
+      SDBLLexer.AND,
+      SDBLLexer.AS,
+      SDBLLexer.ASC,
+      SDBLLexer.AUTOORDER,
+      SDBLLexer.BETWEEN,
+      SDBLLexer.BY_EN,
+      SDBLLexer.CASE,
+      SDBLLexer.CAST,
+      SDBLLexer.DESC,
+      SDBLLexer.DISTINCT,
+      SDBLLexer.DROP,
+      SDBLLexer.ELSE,
+      SDBLLexer.END,
+      SDBLLexer.ESCAPE,
+      SDBLLexer.FALSE,
+      SDBLLexer.FOR,
+      SDBLLexer.FROM,
+      SDBLLexer.FULL,
+      SDBLLexer.GROUP,
+      SDBLLexer.HAVING,
+      SDBLLexer.HIERARCHY_EN,
+      SDBLLexer.HIERARCHII_RU,
+      SDBLLexer.HIERARCHYA_RU,
+      SDBLLexer.IN,
+      SDBLLexer.INDEX,
+      SDBLLexer.INNER,
+      SDBLLexer.INTO,
+      SDBLLexer.IS,
+      SDBLLexer.ISNULL,
+      SDBLLexer.JOIN,
+      SDBLLexer.LEFT,
+      SDBLLexer.LIKE,
+      SDBLLexer.NOT,
+      SDBLLexer.OF,
+      SDBLLexer.ON_EN,
+      SDBLLexer.OR,
+      SDBLLexer.ORDER,
+      SDBLLexer.OUTER,
+      SDBLLexer.OVERALL,
+      SDBLLexer.PO_RU,
+      SDBLLexer.RIGHT,
+      SDBLLexer.SELECT,
+      SDBLLexer.THEN,
+      SDBLLexer.TOP,
+      SDBLLexer.TOTALS,
+      SDBLLexer.UNION,
+      SDBLLexer.WHEN,
+      SDBLLexer.WHERE,
+      SDBLLexer.ONLY,
+      SDBLLexer.PERIODS,
+      SDBLLexer.REFS,
+      SDBLLexer.UPDATE
+    );
+
+    Set<Integer> functions = Set.of(
+      SDBLLexer.AVG,
+      SDBLLexer.BEGINOFPERIOD,
+      SDBLLexer.BOOLEAN,
+      SDBLLexer.COUNT,
+      SDBLLexer.DATE,
+      SDBLLexer.DATEADD,
+      SDBLLexer.DATEDIFF,
+      SDBLLexer.DATETIME,
+      SDBLLexer.DAY,
+      SDBLLexer.DAYOFYEAR,
+      SDBLLexer.EMPTYTABLE,
+      SDBLLexer.ENDOFPERIOD,
+      SDBLLexer.HALFYEAR,
+      SDBLLexer.HOUR,
+      SDBLLexer.MAX,
+      SDBLLexer.MIN,
+      SDBLLexer.MINUTE,
+      SDBLLexer.MONTH,
+      SDBLLexer.NUMBER,
+      SDBLLexer.QUARTER,
+      SDBLLexer.PRESENTATION,
+      SDBLLexer.RECORDAUTONUMBER,
+      SDBLLexer.REFPRESENTATION,
+      SDBLLexer.SECOND,
+      SDBLLexer.STRING,
+      SDBLLexer.SUBSTRING,
+      SDBLLexer.SUM,
+      SDBLLexer.TENDAYS,
+      SDBLLexer.TYPE,
+      SDBLLexer.VALUE,
+      SDBLLexer.VALUETYPE,
+      SDBLLexer.WEEK,
+      SDBLLexer.WEEKDAY,
+      SDBLLexer.YEAR
+    );
+
+    Set<Integer> metadataTypes = Set.of(
+      SDBLLexer.ACCOUNTING_REGISTER_TYPE,
+      SDBLLexer.ACCUMULATION_REGISTER_TYPE,
+      SDBLLexer.BUSINESS_PROCESS_TYPE,
+      SDBLLexer.CALCULATION_REGISTER_TYPE,
+      SDBLLexer.CATALOG_TYPE,
+      SDBLLexer.CHART_OF_ACCOUNTS_TYPE,
+      SDBLLexer.CHART_OF_CALCULATION_TYPES_TYPE,
+      SDBLLexer.CHART_OF_CHARACTERISTIC_TYPES_TYPE,
+      SDBLLexer.CONSTANT_TYPE,
+      SDBLLexer.DOCUMENT_TYPE,
+      SDBLLexer.DOCUMENT_JOURNAL_TYPE,
+      SDBLLexer.ENUM_TYPE,
+      SDBLLexer.EXCHANGE_PLAN_TYPE,
+      SDBLLexer.EXTERNAL_DATA_SOURCE_TYPE,
+      SDBLLexer.FILTER_CRITERION_TYPE,
+      SDBLLexer.INFORMATION_REGISTER_TYPE,
+      SDBLLexer.SEQUENCE_TYPE,
+      SDBLLexer.TASK_TYPE
+    );
+
+    Set<Integer> virtualTables = Set.of(
+      SDBLLexer.ACTUAL_ACTION_PERIOD_VT,
+      SDBLLexer.BALANCE_VT,
+      SDBLLexer.BALANCE_AND_TURNOVERS_VT,
+      SDBLLexer.BOUNDARIES_VT,
+      SDBLLexer.DR_CR_TURNOVERS_VT,
+      SDBLLexer.EXT_DIMENSIONS_VT,
+      SDBLLexer.RECORDS_WITH_EXT_DIMENSIONS_VT,
+      SDBLLexer.SCHEDULE_DATA_VT,
+      SDBLLexer.SLICEFIRST_VT,
+      SDBLLexer.SLICELAST_VT,
+      SDBLLexer.TASK_BY_PERFORMER_VT,
+      SDBLLexer.TURNOVERS_VT
+    );
+
+    Set<Integer> literals = Set.of(
+      SDBLLexer.TRUE,
+      SDBLLexer.FALSE,
+      SDBLLexer.UNDEFINED,
+      SDBLLexer.NULL,
+      SDBLLexer.DECIMAL,
+      SDBLLexer.FLOAT
+    );
+
+    Set<Integer> separators = Set.of(
+      SDBLLexer.SEMICOLON,
+      SDBLLexer.PLUS,
+      SDBLLexer.MINUS,
+      SDBLLexer.MUL,
+      SDBLLexer.QUOTIENT,
+      SDBLLexer.ASSIGN,
+      SDBLLexer.LESS_OR_EQUAL,
+      SDBLLexer.LESS,
+      SDBLLexer.NOT_EQUAL,
+      SDBLLexer.GREATER_OR_EQUAL,
+      SDBLLexer.GREATER,
+      SDBLLexer.COMMA,
+      SDBLLexer.BRACE,
+      SDBLLexer.BRACE_START
+    );
+
     TypeOfText typeOfText = null;
 
-    switch (tokenType) {
-      case SDBLLexer.SELECT:
-      case SDBLLexer.ALLOWED:
-      case SDBLLexer.AS:
-      case SDBLLexer.FROM:
-      case SDBLLexer.AUTOORDER:
-        typeOfText = TypeOfText.KEYWORD;
-        break;
-      case SDBLLexer.SEMICOLON:
-        typeOfText = TypeOfText.KEYWORD_LIGHT;
-        break;
-      case SDBLLexer.TRUE:
-      case SDBLLexer.FALSE:
-      case SDBLLexer.UNDEFINED:
-      case SDBLLexer.NULL:
-      case SDBLLexer.DECIMAL:
-      case SDBLLexer.FLOAT:
-        typeOfText = TypeOfText.CONSTANT;
-        break;
-      case SDBLLexer.STR:
-        typeOfText = TypeOfText.STRING;
-        break;
-      case SDBLLexer.LINE_COMMENT:
-        typeOfText = TypeOfText.COMMENT;
-        break;
-
-      case SDBLLexer.AMPERSAND:
-        typeOfText = TypeOfText.ANNOTATION;
-        break;
-      default:
-        // no-op
+    if (keywords.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD;
+    } else if (functions.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD_LIGHT;
+    } else if (metadataTypes.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD_LIGHT;
+    } else if (virtualTables.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD_LIGHT;
+    } else if (literals.contains(tokenType)) {
+      typeOfText = TypeOfText.CONSTANT;
+    } else if (separators.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD_LIGHT;
+    } else if (SDBLLexer.STR == tokenType) {
+      typeOfText = TypeOfText.STRING;
+    } else if (SDBLLexer.LINE_COMMENT == tokenType) {
+      typeOfText = TypeOfText.COMMENT;
+    } else if (SDBLLexer.AMPERSAND == tokenType || SDBLLexer.PARAMETER_IDENTIFIER == tokenType) {
+      typeOfText = TypeOfText.ANNOTATION;
+    } else {
+      // no-op
     }
 
     return typeOfText;
+  }
 
+  private static Set<HighlightingData> newHashSet(Integer line) {
+    return new HashSet<>();
   }
 
   @Data
