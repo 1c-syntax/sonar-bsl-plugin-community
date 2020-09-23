@@ -21,9 +21,8 @@
  */
 package com.github._1c_syntax.bsl.sonar.language;
 
+import com.github._1c_syntax.bsl.languageserver.BSLLSBinding;
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
@@ -62,14 +61,15 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
 
   private final Configuration config;
-  private final Language language;
   private final Parser markdownParser;
   private final HtmlRenderer htmlRenderer;
   private DiagnosticInfo diagnosticInfo;
 
   public BSLLanguageServerRuleDefinition(Configuration config) {
     this.config = config;
-    this.language = createDiagnosticLanguage();
+
+    var configuration = BSLLSBinding.getLanguageServerConfiguration();
+    configuration.setLanguage(createDiagnosticLanguage());
 
     List<Extension> extensions = Arrays.asList(
       TablesExtension.create(),
@@ -88,27 +88,27 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   @Override
   public void define(Context context) {
-
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
 
-    DiagnosticSupplier.getDiagnosticClasses()
-      .forEach((Class<? extends BSLDiagnostic> diagnostic) -> {
-        diagnosticInfo = new DiagnosticInfo(diagnostic, language);
+    var diagnosticInfos = BSLLSBinding.getDiagnosticInfos();
+
+    diagnosticInfos.forEach((DiagnosticInfo currentDiagnosticInfo) -> {
+        diagnosticInfo = currentDiagnosticInfo;
         NewRule newRule = repository.createRule(diagnosticInfo.getCode().getStringValue());
         setUpNewRule(newRule);
         setUpRuleParams(newRule);
       });
 
     repository.done();
+
+    BSLLSBinding.getApplicationContext().close();
   }
 
   public static List<String> getActivatedRuleKeys() {
-
-    return DiagnosticSupplier.getDiagnosticClasses()
+    return BSLLSBinding.getDiagnosticInfos()
       .stream()
-      .map(DiagnosticInfo::new)
       .filter(DiagnosticInfo::isActivatedByDefault)
       .map(DiagnosticInfo::getCode)
       .map((DiagnosticCode diagnosticCode) -> diagnosticCode.getStringValue())

@@ -21,18 +21,15 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+import com.github._1c_syntax.bsl.languageserver.BSLLSBinding;
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import com.github._1c_syntax.bsl.languageserver.context.MetricStorage;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
-import com.github._1c_syntax.bsl.languageserver.providers.DiagnosticProvider;
-import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.utils.Absolute;
@@ -52,8 +49,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
-import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
-import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -61,13 +56,13 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -84,9 +79,8 @@ public class BSLCoreSensor implements Sensor {
 
   private final boolean langServerEnabled;
   private final List<String> sourcesList;
-  private final LanguageServerConfiguration languageServerConfiguration;
-  private final DiagnosticProvider diagnosticProvider;
   private final IssuesLoader issuesLoader;
+  private final BSLHighlighter highlighter;
 
   private final boolean calculateCoverLoc;
 
@@ -107,10 +101,8 @@ public class BSLCoreSensor implements Sensor {
           .collect(Collectors.toList()))
       .orElse(Collections.singletonList("."));
 
-    languageServerConfiguration = getLanguageServerConfiguration();
-    DiagnosticSupplier diagnosticSupplier = new DiagnosticSupplier(languageServerConfiguration);
-    diagnosticProvider = new DiagnosticProvider(diagnosticSupplier);
     issuesLoader = new IssuesLoader(context);
+    highlighter = new BSLHighlighter(context);
   }
 
   @Override
@@ -152,6 +144,8 @@ public class BSLCoreSensor implements Sensor {
           .orElse(baseDir.toPath());
       }));
 
+    LanguageServerConfiguration languageServerConfiguration = getLanguageServerConfiguration();
+
     inputFilesByPath.forEach((Path sourceDir, List<InputFile> inputFilesList) -> {
       LOGGER.info("Source dir: {}", sourceDir);
 
@@ -160,7 +154,8 @@ public class BSLCoreSensor implements Sensor {
         sourceDir
       );
 
-      var bslServerContext = new ServerContext(configurationRoot);
+      var bslServerContext = BSLLSBinding.getServerContext();
+      bslServerContext.setConfigurationRoot(configurationRoot);
       bslServerContext.populateContext();
 
       try (ProgressBar pb = new ProgressBar("", inputFilesList.size(), ProgressBarStyle.ASCII)) {
@@ -176,6 +171,7 @@ public class BSLCoreSensor implements Sensor {
       bslServerContext.clear();
     });
 
+    BSLLSBinding.getApplicationContext().close();
   }
 
 
@@ -192,13 +188,12 @@ public class BSLCoreSensor implements Sensor {
     DocumentContext documentContext = bslServerContext.addDocument(uri, content);
 
     if (langServerEnabled) {
-      diagnosticProvider.computeDiagnostics(documentContext)
+      documentContext.getDiagnostics()
         .forEach(diagnostic -> issuesLoader.createIssue(inputFile, diagnostic));
-      diagnosticProvider.clearComputedDiagnostics(documentContext);
     }
 
     saveCpd(inputFile, documentContext);
-    saveHighlighting(inputFile, documentContext);
+    highlighter.saveHighlighting(inputFile, documentContext);
     saveMeasures(inputFile, documentContext);
 
     saveCoverageLoc(inputFile, documentContext);
@@ -230,34 +225,6 @@ public class BSLCoreSensor implements Sensor {
     synchronized (this) {
       cpdTokens.save();
     }
-
-  }
-
-  private void saveHighlighting(InputFile inputFile, DocumentContext documentContext) {
-
-    NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
-
-    documentContext.getTokens().forEach((Token token) -> {
-      TypeOfText typeOfText = getTypeOfText(token.getType());
-
-      if (typeOfText == null) {
-        return;
-      }
-
-      int line = token.getLine();
-      int charPositionInLine = token.getCharPositionInLine();
-      String tokenText = token.getText();
-
-      highlighting.highlight(
-        line,
-        charPositionInLine,
-        line,
-        charPositionInLine + tokenText.length(),
-        typeOfText
-      );
-    });
-
-    highlighting.save();
 
   }
 
@@ -329,6 +296,7 @@ public class BSLCoreSensor implements Sensor {
       .map(Boolean::parseBoolean)
       .orElse(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE);
 
+    var configuration = BSLLSBinding.getLanguageServerConfiguration();
     if (overrideConfiguration) {
       String configurationPath = context.config()
         .get(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY)
@@ -337,13 +305,13 @@ public class BSLCoreSensor implements Sensor {
       File configurationFile = new File(configurationPath);
       if (configurationFile.exists()) {
         LOGGER.info("BSL LS configuration file exists. Overriding SonarQube rules' settings...");
-        return LanguageServerConfiguration.create(configurationFile);
+        configuration.update(configurationFile);
+        return configuration;
       } else {
         LOGGER.error("Can't find bsl configuration file {}. Using SonarQube config instead.", configurationPath);
       }
     }
 
-    LanguageServerConfiguration configuration = LanguageServerConfiguration.create();
     String diagnosticLanguageCode = context.config()
       .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
@@ -365,10 +333,9 @@ public class BSLCoreSensor implements Sensor {
     ActiveRules activeRules = context.activeRules();
 
     Map<String, Either<Boolean, Map<String, Object>>> diagnostics = new HashMap<>();
-    List<Class<? extends BSLDiagnostic>> diagnosticClasses = DiagnosticSupplier.getDiagnosticClasses();
+    Collection<DiagnosticInfo> diagnosticInfos = BSLLSBinding.getDiagnosticInfos();
 
-    for (Class<? extends BSLDiagnostic> diagnosticClass : diagnosticClasses) {
-      DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticClass);
+    for (DiagnosticInfo diagnosticInfo : diagnosticInfos) {
       String diagnosticCode = diagnosticInfo.getCode().getStringValue();
       ActiveRule activeRule = activeRules.find(
         RuleKey.of(
@@ -402,96 +369,6 @@ public class BSLCoreSensor implements Sensor {
     configuration.getDiagnosticsOptions().setParameters(diagnostics);
 
     return configuration;
-  }
-
-  @Nullable
-  private static TypeOfText getTypeOfText(int tokenType) {
-
-    TypeOfText typeOfText = null;
-
-    switch (tokenType) {
-      case BSLLexer.PROCEDURE_KEYWORD:
-      case BSLLexer.FUNCTION_KEYWORD:
-      case BSLLexer.ENDPROCEDURE_KEYWORD:
-      case BSLLexer.ENDFUNCTION_KEYWORD:
-      case BSLLexer.EXPORT_KEYWORD:
-      case BSLLexer.VAL_KEYWORD:
-      case BSLLexer.ENDIF_KEYWORD:
-      case BSLLexer.ENDDO_KEYWORD:
-      case BSLLexer.IF_KEYWORD:
-      case BSLLexer.ELSIF_KEYWORD:
-      case BSLLexer.ELSE_KEYWORD:
-      case BSLLexer.THEN_KEYWORD:
-      case BSLLexer.WHILE_KEYWORD:
-      case BSLLexer.DO_KEYWORD:
-      case BSLLexer.FOR_KEYWORD:
-      case BSLLexer.TO_KEYWORD:
-      case BSLLexer.EACH_KEYWORD:
-      case BSLLexer.IN_KEYWORD:
-      case BSLLexer.TRY_KEYWORD:
-      case BSLLexer.EXCEPT_KEYWORD:
-      case BSLLexer.ENDTRY_KEYWORD:
-      case BSLLexer.RETURN_KEYWORD:
-      case BSLLexer.CONTINUE_KEYWORD:
-      case BSLLexer.RAISE_KEYWORD:
-      case BSLLexer.VAR_KEYWORD:
-      case BSLLexer.NOT_KEYWORD:
-      case BSLLexer.OR_KEYWORD:
-      case BSLLexer.AND_KEYWORD:
-      case BSLLexer.NEW_KEYWORD:
-      case BSLLexer.GOTO_KEYWORD:
-      case BSLLexer.BREAK_KEYWORD:
-      case BSLLexer.EXECUTE_KEYWORD:
-        typeOfText = TypeOfText.KEYWORD;
-        break;
-      case BSLLexer.TRUE:
-      case BSLLexer.FALSE:
-      case BSLLexer.UNDEFINED:
-      case BSLLexer.NULL:
-      case BSLLexer.DATETIME:
-      case BSLLexer.DECIMAL:
-      case BSLLexer.FLOAT:
-        typeOfText = TypeOfText.CONSTANT;
-        break;
-      case BSLLexer.STRING:
-      case BSLLexer.STRINGSTART:
-      case BSLLexer.STRINGPART:
-      case BSLLexer.STRINGTAIL:
-      case BSLLexer.PREPROC_STRING:
-        typeOfText = TypeOfText.STRING;
-        break;
-      case BSLLexer.LINE_COMMENT:
-        typeOfText = TypeOfText.COMMENT;
-        break;
-      case BSLLexer.HASH:
-      case BSLLexer.PREPROC_USE_KEYWORD:
-      case BSLLexer.PREPROC_REGION:
-      case BSLLexer.PREPROC_END_REGION:
-      case BSLLexer.PREPROC_AND_KEYWORD:
-      case BSLLexer.PREPROC_OR_KEYWORD:
-      case BSLLexer.PREPROC_NOT_KEYWORD:
-      case BSLLexer.PREPROC_IF_KEYWORD:
-      case BSLLexer.PREPROC_THEN_KEYWORD:
-      case BSLLexer.PREPROC_ELSIF_KEYWORD:
-      case BSLLexer.PREPROC_ELSE_KEYWORD:
-      case BSLLexer.PREPROC_ENDIF_KEYWORD:
-        typeOfText = TypeOfText.PREPROCESS_DIRECTIVE;
-        break;
-      case BSLLexer.AMPERSAND:
-      case BSLLexer.ANNOTATION_ATCLIENT_SYMBOL:
-      case BSLLexer.ANNOTATION_ATCLIENTATSERVER_SYMBOL:
-      case BSLLexer.ANNOTATION_ATCLIENTATSERVERNOCONTEXT_SYMBOL:
-      case BSLLexer.ANNOTATION_ATSERVER_SYMBOL:
-      case BSLLexer.ANNOTATION_ATSERVERNOCONTEXT_SYMBOL:
-      case BSLLexer.ANNOTATION_CUSTOM_SYMBOL:
-        typeOfText = TypeOfText.ANNOTATION;
-        break;
-      default:
-        // no-op
-    }
-
-    return typeOfText;
-
   }
 
   private static Object castDiagnosticParameterValue(String valueToCast, Class<?> type) {
