@@ -54,7 +54,8 @@ class IssuesLoaderTest {
 
         SensorContextTester context = SensorContextTester.create(BASE_DIR);
         InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
-        IssuesLoader issuesLoader = new IssuesLoader(context);
+        IssuesLoader issuesLoader = new IssuesLoader();
+        issuesLoader.setContext(context);
 
         Diagnostic diagnostic = new Diagnostic();
         diagnostic.setCode(issueCode);
@@ -91,7 +92,8 @@ class IssuesLoaderTest {
         InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
         context.fileSystem().add(inputFile);
 
-        IssuesLoader issuesLoader = new IssuesLoader(context);
+        IssuesLoader issuesLoader = new IssuesLoader();
+        issuesLoader.setContext(context);
 
         Diagnostic diagnostic = new Diagnostic();
         diagnostic.setCode(diagnosticName);

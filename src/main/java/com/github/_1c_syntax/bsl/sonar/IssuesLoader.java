@@ -62,19 +62,22 @@ public class IssuesLoader {
 
   private static final Logger LOGGER = Loggers.get(IssuesLoader.class);
 
-  private final SensorContext context;
   private final Map<DiagnosticSeverity, Severity> severityMap;
   private final Map<DiagnosticSeverity, RuleType> ruleTypeMap;
-  private final FileSystem fileSystem;
-  private final FilePredicates predicates;
-  private final boolean createExternalIssuesWithACCSources;
+  private SensorContext context;
+  private FileSystem fileSystem;
+  private FilePredicates predicates;
+  private boolean createExternalIssuesWithACCSources;
 
-  public IssuesLoader(SensorContext context) {
+  public IssuesLoader() {
+    this.severityMap = createDiagnosticSeverityMap();
+    this.ruleTypeMap = createRuleTypeMap();
+  }
+
+  public void setContext(SensorContext context) {
     this.context = context;
     this.fileSystem = context.fileSystem();
     this.predicates = fileSystem.predicates();
-    this.severityMap = createDiagnosticSeverityMap();
-    this.ruleTypeMap = createRuleTypeMap();
     this.createExternalIssuesWithACCSources = context.config().getBoolean(ACCProperties.CREATE_EXTERNAL_ISSUES)
       .orElse(ACCProperties.CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE);
   }

@@ -54,7 +54,6 @@ class BSLCoreSensorTest {
   private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
   private final String FILE_NAME = "test.bsl";
   private final Version SONAR_VERSION = Version.create(7, 9);
-  private final SensorContextTester context = SensorContextTester.create(BASE_DIR);
 
   @Test
   void testDescriptor() {
@@ -62,7 +61,7 @@ class BSLCoreSensorTest {
     BSLHighlighter highlighter = mock(BSLHighlighter.class);
     IssuesLoader issuesLoader = mock(IssuesLoader.class);
 
-    BSLCoreSensor sensor = new BSLCoreSensor(context, fileLinesContextFactory, highlighter, issuesLoader);
+    BSLCoreSensor sensor = new BSLCoreSensor(fileLinesContextFactory, highlighter, issuesLoader);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor.describe(sensorDescriptor);
 
@@ -89,7 +88,7 @@ class BSLCoreSensorTest {
 
     context = createSensorContext();
     setActiveRules(context, diagnosticName, ruleKey);
-    sensor = new BSLCoreSensor(context, fileLinesContextFactory, highlighter, issuesLoader);
+    sensor = new BSLCoreSensor(fileLinesContextFactory, highlighter, issuesLoader);
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
@@ -97,7 +96,7 @@ class BSLCoreSensorTest {
     context = createSensorContext();
     setActiveRules(context, diagnosticName, ruleKey);
     context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY, false);
-    sensor = new BSLCoreSensor(context, fileLinesContextFactory, highlighter, issuesLoader);
+    sensor = new BSLCoreSensor(fileLinesContextFactory, highlighter, issuesLoader);
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
@@ -105,7 +104,7 @@ class BSLCoreSensorTest {
     context = createSensorContext();
     setActiveRules(context, diagnosticName, ruleKey);
     context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY, Language.EN.getLanguageCode());
-    sensor = new BSLCoreSensor(context, fileLinesContextFactory, highlighter, issuesLoader);
+    sensor = new BSLCoreSensor(fileLinesContextFactory, highlighter, issuesLoader);
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
@@ -114,7 +113,7 @@ class BSLCoreSensorTest {
     setActiveRules(context, diagnosticName, ruleKey);
     context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_KEY, Boolean.TRUE.toString());
     context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY, Path.of(BASE_PATH, ".bsl-language-server.json").toString());
-    sensor = new BSLCoreSensor(context, fileLinesContextFactory, highlighter, issuesLoader);
+    sensor = new BSLCoreSensor(fileLinesContextFactory, highlighter, issuesLoader);
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
@@ -123,7 +122,7 @@ class BSLCoreSensorTest {
     setActiveRules(context, diagnosticName, ruleKey);
     context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_KEY, Boolean.TRUE.toString());
     context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY, "fake.file");
-    sensor = new BSLCoreSensor(context, fileLinesContextFactory, highlighter, issuesLoader);
+    sensor = new BSLCoreSensor(fileLinesContextFactory, highlighter, issuesLoader);
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
@@ -158,7 +157,7 @@ class BSLCoreSensorTest {
       .build();
     context.setActiveRules(activeRules);
 
-    BSLCoreSensor sensor = new BSLCoreSensor(context, fileLinesContextFactory, highlighter, issuesLoader);
+    BSLCoreSensor sensor = new BSLCoreSensor(fileLinesContextFactory, highlighter, issuesLoader);
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
@@ -184,7 +183,7 @@ class BSLCoreSensorTest {
     context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY, false);
     context.settings().setProperty(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_KEY, true);
     setActiveRules(context, diagnosticName, ruleKey);
-    sensor = new BSLCoreSensor(context, fileLinesContextFactory, highlighter, issuesLoader);
+    sensor = new BSLCoreSensor(fileLinesContextFactory, highlighter, issuesLoader);
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
@@ -209,7 +208,7 @@ class BSLCoreSensorTest {
     BSLHighlighter highlighter = mock(BSLHighlighter.class);
     IssuesLoader issuesLoader = mock(IssuesLoader.class);
 
-    BSLCoreSensor sensor = new BSLCoreSensor(context, fileLinesContextFactory, highlighter, issuesLoader);
+    BSLCoreSensor sensor = new BSLCoreSensor(fileLinesContextFactory, highlighter, issuesLoader);
 
     sensor.execute(context);
 
