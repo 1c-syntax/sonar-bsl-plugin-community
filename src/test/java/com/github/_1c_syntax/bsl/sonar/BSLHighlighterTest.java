@@ -84,7 +84,8 @@ class BSLHighlighterTest {
   void testMergeHighlightingTokens() {
     // given
     context = SensorContextTester.create(Path.of("."));
-    highlighter = new BSLHighlighter(context);
+    highlighter = new BSLHighlighter();
+    highlighter.setContext(context);
     String content = "А = \"ВЫБРАТЬ РАЗРЕШЕННЫЕ Поле.Один \n" +
       "|КАК \n" +
       "|  Один, 2 \n" +
@@ -153,7 +154,8 @@ class BSLHighlighterTest {
 
   private void initContext(Vocabulary vocabulary) {
     context = SensorContextTester.create(Path.of("."));
-    highlighter = new BSLHighlighter(context);
+    highlighter = new BSLHighlighter();
+    highlighter.setContext(context);
     documentContext = mock(DocumentContext.class);
     List<Token> tokens = new ArrayList<>();
 

@@ -57,10 +57,9 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
 
   private static final Logger LOGGER = Loggers.get(LanguageServerDiagnosticsLoaderSensor.class);
 
-  public LanguageServerDiagnosticsLoaderSensor(final SensorContext context) {
+  public LanguageServerDiagnosticsLoaderSensor(final SensorContext context, IssuesLoader issueLoader) {
     this.context = context;
-    this.issueLoader = new IssuesLoader(context);
-
+    this.issueLoader = issueLoader;
   }
 
   @Override

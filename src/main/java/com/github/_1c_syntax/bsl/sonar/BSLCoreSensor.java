@@ -33,6 +33,7 @@ import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticP
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.utils.Absolute;
+import lombok.RequiredArgsConstructor;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
@@ -71,39 +72,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@RequiredArgsConstructor
 public class BSLCoreSensor implements Sensor {
 
   private static final Logger LOGGER = Loggers.get(BSLCoreSensor.class);
-  private final SensorContext context;
   private final FileLinesContextFactory fileLinesContextFactory;
-
-  private final boolean langServerEnabled;
-  private final List<String> sourcesList;
-  private final IssuesLoader issuesLoader;
   private final BSLHighlighter highlighter;
+  private final IssuesLoader issuesLoader;
 
-  private final boolean calculateCoverLoc;
-
-  public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
-    this.context = context;
-    this.fileLinesContextFactory = fileLinesContextFactory;
-
-    langServerEnabled = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY)
-      .orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
-
-    calculateCoverLoc = context.config().getBoolean(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_KEY)
-      .orElse(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_VALUE);
-
-    sourcesList = context.config().get("sonar.sources")
-      .map(sources ->
-        Arrays.stream(StringUtils.split(sources, ","))
-          .map(String::strip)
-          .collect(Collectors.toList()))
-      .orElse(Collections.singletonList("."));
-
-    issuesLoader = new IssuesLoader(context);
-    highlighter = new BSLHighlighter(context);
-  }
+  private SensorContext context;
+  private boolean langServerEnabled;
+  private boolean calculateCoverLoc;
 
   @Override
   public void describe(SensorDescriptor descriptor) {
@@ -113,6 +92,23 @@ public class BSLCoreSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
+    this.context = context;
+    highlighter.setContext(context);
+    issuesLoader.setContext(context);
+
+    langServerEnabled = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY)
+      .orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
+
+    calculateCoverLoc = context.config().getBoolean(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_KEY)
+      .orElse(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_VALUE);
+
+    List<String> sourcesList = context.config().get("sonar.sources")
+      .map(sources ->
+        Arrays.stream(StringUtils.split(sources, ","))
+          .map(String::strip)
+          .collect(Collectors.toList()))
+      .orElse(Collections.singletonList("."));
+
     LOGGER.info("Parsing files...");
 
     FileSystem fileSystem = context.fileSystem();

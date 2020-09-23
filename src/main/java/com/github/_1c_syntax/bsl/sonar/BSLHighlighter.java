@@ -29,6 +29,7 @@ import com.github._1c_syntax.bsl.parser.Tokenizer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.antlr.v4.runtime.Token;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -36,6 +37,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.scanner.ScannerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -48,7 +51,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+@ScannerSide
+@SonarLintSide
 public class BSLHighlighter {
 
   private static final Set<Integer> BSL_KEYWORDS = createBslKeywords();
@@ -69,7 +73,8 @@ public class BSLHighlighter {
   private static final Set<Integer> SDBL_COMMENTS = createSdblComments();
   private static final Set<Integer> SDBL_PARAMETERS = createSdblParameters();
 
-  private final SensorContext context;
+  @Setter
+  private SensorContext context;
 
   public void saveHighlighting(InputFile inputFile, DocumentContext documentContext) {
     Set<HighlightingData> highlightingData = new HashSet<>(documentContext.getTokens().size());

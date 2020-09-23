@@ -37,6 +37,7 @@ import org.sonar.api.utils.Version;
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 class LanguageServerDiagnosticsLoaderSensorTest {
 
@@ -46,9 +47,9 @@ class LanguageServerDiagnosticsLoaderSensorTest {
 
     @Test
     void test_describe() {
-
         SensorContextTester context = SensorContextTester.create(BASE_DIR);
-        LanguageServerDiagnosticsLoaderSensor diagnosticsLoaderSensor = new LanguageServerDiagnosticsLoaderSensor(context);
+        IssuesLoader issuesLoader = mock(IssuesLoader.class);
+        var diagnosticsLoaderSensor = new LanguageServerDiagnosticsLoaderSensor(context, issuesLoader);
         DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
         diagnosticsLoaderSensor.describe(sensorDescriptor);
 
@@ -57,6 +58,8 @@ class LanguageServerDiagnosticsLoaderSensorTest {
 
     @Test
     void test_execute() {
+
+        IssuesLoader issuesLoader = mock(IssuesLoader.class);
 
         InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
 
@@ -76,7 +79,7 @@ class LanguageServerDiagnosticsLoaderSensorTest {
                 .build();
         context.setActiveRules(activeRules);
 
-        LanguageServerDiagnosticsLoaderSensor diagnosticsLoaderSensor = new LanguageServerDiagnosticsLoaderSensor(context);
+        var diagnosticsLoaderSensor = new LanguageServerDiagnosticsLoaderSensor(context, issuesLoader);
         diagnosticsLoaderSensor.execute(context);
 
         assertThat(context.isCancelled()).isFalse();
