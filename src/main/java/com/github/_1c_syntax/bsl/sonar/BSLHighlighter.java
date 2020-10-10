@@ -161,6 +161,13 @@ public class BSLHighlighter {
     // merge collected bsl tokens with sdbl tokens
     highlightingDataSDBL.values().forEach(highlightingData::addAll);
 
+    if (highlightingData.stream()
+            .filter(HighlightingData::isActive)
+            .findAny()
+            .isEmpty()) {
+      return;
+    }
+
     // save only active tokens
     NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
 
