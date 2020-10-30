@@ -120,7 +120,7 @@ public class BSLCoreSensor implements Sensor {
 
     var absoluteSourceDirs = sourcesList.stream()
       .map((String sourceDir) -> {
-        Path sourcePath = Path.of(sourceDir);
+        Path sourcePath = Path.of(sourceDir.trim());
         if (sourcePath.isAbsolute()) {
           return sourcePath;
         } else {
