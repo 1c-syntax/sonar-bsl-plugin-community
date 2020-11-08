@@ -90,8 +90,8 @@ class BSLHighlighterTest {
       "|  Один, 2 \n" +
       " |  КАК Два ИЗ Справочник.Поле\n" +
       "|АВТОУПОРЯДОЧИВАНИЕ;\";";
-    documentContext = new DocumentContext(URI.create("file:///fake.bsl"), content, null, null);
-    documentContext.rebuild(content);
+    documentContext = new DocumentContext(URI.create("file:///fake.bsl"), content, null, 0, null);
+    documentContext.rebuild(content, 1);
 
     inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR, content);
 

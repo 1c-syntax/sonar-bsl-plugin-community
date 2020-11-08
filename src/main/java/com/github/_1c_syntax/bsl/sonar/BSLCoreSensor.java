@@ -34,6 +34,7 @@ import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.utils.Absolute;
 import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.io.IOUtils;
@@ -158,7 +159,11 @@ public class BSLCoreSensor implements Sensor {
       bslServerContext.setConfigurationRoot(configurationRoot);
       bslServerContext.populateContext();
 
-      try (ProgressBar pb = new ProgressBar("", inputFilesList.size(), ProgressBarStyle.ASCII)) {
+      try (ProgressBar pb = new ProgressBarBuilder()
+        .setTaskName("")
+        .setInitialMax(inputFilesList.size())
+        .setStyle(ProgressBarStyle.ASCII)
+        .build()) {
         inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
           URI uri = inputFile.uri();
           LOGGER.debug(uri.toString());
@@ -185,7 +190,7 @@ public class BSLCoreSensor implements Sensor {
       LOGGER.warn("Can't read content of file " + uri, e);
       content = "";
     }
-    DocumentContext documentContext = bslServerContext.addDocument(uri, content);
+    DocumentContext documentContext = bslServerContext.addDocument(uri, content, 1);
 
     if (langServerEnabled) {
       documentContext.getDiagnostics()
