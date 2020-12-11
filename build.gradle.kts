@@ -7,8 +7,8 @@ plugins {
     `maven-publish`
     id("org.sonarqube") version "3.0"
     id("com.github.hierynomus.license") version "0.15.0"
-    id("com.github.johnrengelman.shadow") version("6.0.0")
-    id("com.github.ben-manes.versions") version "0.33.0"
+    id("com.github.johnrengelman.shadow") version("6.1.0")
+    id("com.github.ben-manes.versions") version "0.36.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
     id("io.franzbecker.gradle-lombok") version "4.0.0"
 }
@@ -29,7 +29,7 @@ val junitVersion = "5.7.0"
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    implementation("com.github.1c-syntax", "bsl-language-server", "0.16.2")
+    implementation("com.github.1c-syntax", "bsl-language-server", "0.17.0")
 
     implementation("org.apache.commons:commons-lang3:3.10")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.10.3")
@@ -44,14 +44,16 @@ dependencies {
     implementation("com.atlassian.commonmark", "commonmark-ext-autolink", commonmarkVersion)
     implementation("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
-    implementation("me.tongfei:progressbar:0.8.1")
-    compileOnly("org.projectlombok:lombok:1.18.12")
+    implementation("me.tongfei:progressbar:0.9.0")
+
+    compileOnly("org.projectlombok", "lombok", lombok.version)
+    annotationProcessor("org.projectlombok", "lombok", lombok.version)
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
 
-    testImplementation("org.assertj:assertj-core:3.17.2")
-    testImplementation("org.mockito:mockito-core:3.5.10")
+    testImplementation("org.assertj:assertj-core:3.18.1")
+    testImplementation("org.mockito:mockito-core:3.6.0")
 }
 
 java {
@@ -113,6 +115,11 @@ sonarqube {
         property("sonar.exclusions", "**/gen/**/*.*")
         property("sonar.coverage.jacoco.xmlReportPaths", "$buildDir/reports/jacoco/test/jacoco.xml")
     }
+}
+
+lombok {
+    version = "1.18.16"
+    sha256 = "7206cbbfd6efd5e85bceff29545633645650be58d58910a23b0d4835fbd15ed7"
 }
 
 tasks.jar {
