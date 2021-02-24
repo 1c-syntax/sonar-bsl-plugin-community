@@ -90,7 +90,7 @@ class BSLHighlighterTest {
       "|  Один, 2 \n" +
       " |  КАК Два ИЗ Справочник.Поле\n" +
       "|АВТОУПОРЯДОЧИВАНИЕ;\";";
-    documentContext = new DocumentContext(URI.create("file:///fake.bsl"), content, null, 0, null);
+    documentContext = new DocumentContext(URI.create("file:///fake.bsl"));
     documentContext.rebuild(content, 1);
 
     inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR, content);
@@ -244,6 +244,7 @@ class BSLHighlighterTest {
       "SQUOTE",
       "IDENTIFIER",
       "UNKNOWN",
+      "ANNOTATION_UKNOWN",
       "PREPROC_NEWLINE",
       "BAR"
     );
