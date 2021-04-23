@@ -96,7 +96,7 @@ public class IssuesLoader {
 
     NewIssue issue = context.newIssue();
     issue.forRule(ruleKey);
-    NewIssueLocation location = IssuesLoader.getNewIssueLocation(
+    NewIssueLocation location = getNewIssueLocation(
       issue,
       inputFile,
       diagnostic.getRange(),
@@ -223,15 +223,45 @@ public class IssuesLoader {
   private static TextRange getTextRange(InputFile inputFile, Range range) {
     Position start = range.getStart();
     Position end = range.getEnd();
-    return inputFile.newRange(
-      start.getLine() + 1,
-      start.getCharacter(),
-      end.getLine() + 1,
-      end.getCharacter()
-    );
+    int startLine = start.getLine() + 1;
+
+    TextRange textRange;
+
+    try {
+      textRange = inputFile.newRange(
+        startLine,
+        start.getCharacter(),
+        end.getLine() + 1,
+        end.getCharacter()
+      );
+    } catch (IllegalArgumentException e) {
+      LOGGER.error("Can't compute TextRange for given Range", e);
+
+      textRange = selectThisOrPreviousLine(inputFile, startLine);
+    }
+
+    return textRange;
 
   }
 
+  private static TextRange selectThisOrPreviousLine(InputFile inputFile, int line) {
+    int lines = inputFile.lines();
+
+    if (line == 0) {
+      return inputFile.newRange(1, 0, lines, 0);
+    }
+
+    if (lines >= line) {
+      try {
+        return inputFile.selectLine(line);
+      } catch (IllegalArgumentException e) {
+        LOGGER.error("Can't compute TextRange for given line", e);
+        return selectThisOrPreviousLine(inputFile, line - 1);
+      }
+    } else {
+      return selectThisOrPreviousLine(inputFile, lines);
+    }
+  }
 
   private static Map<DiagnosticSeverity, Severity> createDiagnosticSeverityMap() {
     Map<DiagnosticSeverity, Severity> map = new EnumMap<>(DiagnosticSeverity.class);
