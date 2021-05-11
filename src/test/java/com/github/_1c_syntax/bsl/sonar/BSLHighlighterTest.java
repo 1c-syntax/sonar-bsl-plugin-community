@@ -244,7 +244,7 @@ class BSLHighlighterTest {
       "SQUOTE",
       "IDENTIFIER",
       "UNKNOWN",
-      "ANNOTATION_UKNOWN",
+      "ANNOTATION_UNKNOWN",
       "PREPROC_NEWLINE",
       "BAR"
     );
