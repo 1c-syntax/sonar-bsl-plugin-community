@@ -5,12 +5,12 @@ plugins {
     jacoco
     java
     `maven-publish`
-    id("org.sonarqube") version "3.0"
+    id("org.sonarqube") version "3.2.0"
     id("com.github.hierynomus.license") version "0.15.0"
-    id("com.github.johnrengelman.shadow") version("6.1.0")
-    id("com.github.ben-manes.versions") version "0.36.0"
+    id("com.github.johnrengelman.shadow") version("7.0.0")
+    id("com.github.ben-manes.versions") version "0.38.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.franzbecker.gradle-lombok") version "4.0.0"
+    id("io.freefair.lombok") version "6.0.0-m2"
 }
 
 group = "com.github.1c-syntax"
@@ -32,9 +32,8 @@ dependencies {
     implementation("com.github.1c-syntax", "bsl-language-server", "18bdb6e2543db77ecba7ad67e620c5dc34dc0b42")
 
     implementation("org.apache.commons:commons-lang3:3.10")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.0")
 
-    implementation("com.google.code.findbugs:jsr305:3.0.2")
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
     implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.11.0.541")
 
@@ -44,16 +43,15 @@ dependencies {
     implementation("com.atlassian.commonmark", "commonmark-ext-autolink", commonmarkVersion)
     implementation("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
-    implementation("me.tongfei:progressbar:0.9.0")
+    implementation("me.tongfei:progressbar:0.9.1")
 
-    compileOnly("org.projectlombok", "lombok", lombok.version)
-    annotationProcessor("org.projectlombok", "lombok", lombok.version)
+    compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
 
-    testImplementation("org.assertj:assertj-core:3.18.1")
-    testImplementation("org.mockito:mockito-core:3.6.0")
+    testImplementation("org.assertj:assertj-core:3.19.0")
+    testImplementation("org.mockito:mockito-core:3.9.0")
 }
 
 java {
@@ -76,10 +74,6 @@ tasks.test {
     reports {
         html.isEnabled = true
     }
-}
-
-jacoco {
-    toolVersion = "0.8.2"
 }
 
 tasks.check {
@@ -115,11 +109,6 @@ sonarqube {
         property("sonar.exclusions", "**/gen/**/*.*")
         property("sonar.coverage.jacoco.xmlReportPaths", "$buildDir/reports/jacoco/test/jacoco.xml")
     }
-}
-
-lombok {
-    version = "1.18.16"
-    sha256 = "7206cbbfd6efd5e85bceff29545633645650be58d58910a23b0d4835fbd15ed7"
 }
 
 tasks.jar {
