@@ -323,6 +323,9 @@ public class BSLHighlighter {
       BSLLexer.PREPROC_DELETE,
       BSLLexer.PREPROC_ENDDELETE,
       BSLLexer.PREPROC_IDENTIFIER,
+      BSLLexer.PREPROC_LINUX,
+      BSLLexer.PREPROC_WINDOWS,
+      BSLLexer.PREPROC_MACOS,
       BSLLexer.PREPROC_ANY
     );
   }
