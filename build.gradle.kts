@@ -30,6 +30,8 @@ dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
     implementation("com.github.1c-syntax", "bsl-language-server", "18bdb6e2543db77ecba7ad67e620c5dc34dc0b42")
+    // todo: replace with new bsl ls
+    implementation("com.github.1c-syntax", "bsl-parser", "243f103b86a18359ad7d790dda5e61063f1297f5")
 
     implementation("org.apache.commons:commons-lang3:3.10")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.0")
