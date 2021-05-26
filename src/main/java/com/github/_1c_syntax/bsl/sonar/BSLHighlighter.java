@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright © 2018-2020
+ * Copyright © 2018-2021
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -284,7 +284,8 @@ public class BSLHighlighter {
       BSLLexer.ANNOTATION_ATSERVERNOCONTEXT_SYMBOL,
       BSLLexer.ANNOTATION_BEFORE_SYMBOL,
       BSLLexer.ANNOTATION_CHANGEANDVALIDATE_SYMBOL,
-      BSLLexer.ANNOTATION_CUSTOM_SYMBOL
+      BSLLexer.ANNOTATION_CUSTOM_SYMBOL,
+      BSLLexer.ANNOTATION_UNKNOWN
     );
   }
 
@@ -317,11 +318,14 @@ public class BSLHighlighter {
       BSLLexer.PREPROC_CLIENT_SYMBOL,
       BSLLexer.PREPROC_ATSERVER_SYMBOL,
       BSLLexer.PREPROC_SERVER_SYMBOL,
-      BSLLexer.PREPROC_INSERT_SYMBOL,
-      BSLLexer.PREPROC_ENDINSERT_SYMBOL,
-      BSLLexer.PREPROC_DELETE_SYMBOL,
-      BSLLexer.PREPROC_ENDDELETE_SYMBOL,
+      BSLLexer.PREPROC_INSERT,
+      BSLLexer.PREPROC_ENDINSERT,
+      BSLLexer.PREPROC_DELETE,
+      BSLLexer.PREPROC_ENDDELETE,
       BSLLexer.PREPROC_IDENTIFIER,
+      BSLLexer.PREPROC_LINUX,
+      BSLLexer.PREPROC_WINDOWS,
+      BSLLexer.PREPROC_MACOS,
       BSLLexer.PREPROC_ANY
     );
   }
@@ -414,7 +418,9 @@ public class BSLHighlighter {
       BSLLexer.BREAK_KEYWORD,
       BSLLexer.EXECUTE_KEYWORD,
       BSLLexer.ADDHANDLER_KEYWORD,
-      BSLLexer.REMOVEHANDLER_KEYWORD
+      BSLLexer.REMOVEHANDLER_KEYWORD,
+      BSLLexer.ASYNC_KEYWORD,
+      BSLLexer.WAIT_KEYWORD
     );
   }
 
