@@ -29,9 +29,7 @@ val junitVersion = "5.7.0"
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    implementation("com.github.1c-syntax", "bsl-language-server", "6c2a86e45f6b66354ad71d8e379fc032c182145e")
-    // todo: replace with new bsl ls
-    implementation("com.github.1c-syntax", "bsl-parser", "243f103b86a18359ad7d790dda5e61063f1297f5")
+    implementation("com.github.1c-syntax", "bsl-language-server", "0.18.1")
 
     implementation("org.apache.commons:commons-lang3:3.10")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.0")
