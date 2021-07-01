@@ -44,7 +44,7 @@
 
 Для анализа исходных кодов 1С используется утилита [sonar-scanner](https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner).
 
-Утилите неоходимо указать параметры анализа одним из нижеперечисленных способов:
+Утилите необходимо указать параметры анализа одним из нижеперечисленных способов:
 * в качестве аргументов командной строки, используя синтаксис -DимяПараметра=значениеПараметра
 * используя файл `sonar-project.properties`
 
@@ -91,7 +91,6 @@ sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH
 * `sonar.bsl.languageserver.overrideConfiguration` - переопределить настройки Quality Profile настройками из файла конфигурации BSL Language Server;
 * `sonar.bsl.languageserver.configurationPath` - путь к файлу конфигурации BSL Language Server для переопределения настроек;
 * `sonar.bsl.file.suffixes` - список расширений файлов для анализа. По умолчанию - `.bsl,.os`
-* `sonar.bsl.calculateLineCover` - расчитывать строки для покрытия тестами. По умолчанию - `false` - выключен
 
 ## Переключение языка имен правил и сообщений в замечаниях
 
@@ -136,24 +135,9 @@ sonar-scanner -Dsonar.bsl.languageserver.enabled=false
 sonar-scanner -Dsonar.bsl.languageserver.reportPaths=./bsl-json.json
 ```
 
-### Расчет строк для покрытия тестами
+### Расчет строк для покрытия тестами (Устарело)
 
-Расчитывает строки которые должны быть покрыты тестами. Используется для корректного подсчета процента покрытия при
- импорте файлов genericCoverage.xml содержащих только покрытые строки.
-
-```
-sonar.bsl.calculateLineCover=true
-sonar.coverageReportPaths=./genericCoverage.xml
-```
-
-```xml
-<coverage version="1">
-    <file path="...\Forms\Форма\Ext\Form\Module.bsl">
-        <lineToCover lineNumber="25" covered="true"/>
-        <lineToCover lineNumber="27" covered="true"/>
-    </file>
-</coverage>
-```
+Для расчета строк покрытия используйте утилиту Coverage41C или подобную, возвращающую полные данные по покрытию.
 
 ## Интеграция с Автоматизированная проверка конфигураций
 
