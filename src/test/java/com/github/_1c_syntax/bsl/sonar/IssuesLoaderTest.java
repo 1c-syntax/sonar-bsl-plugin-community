@@ -105,11 +105,39 @@ class IssuesLoaderTest {
     diagnostic.setMessage("Check message OneStatementPerLine");
     diagnostic.setRange(new Range(new Position(0, 0), new Position(0, 1)));
 
+    var uri = inputFile.uri().toString();
+    var relatedInformation = List.of(
+      new DiagnosticRelatedInformation(
+        new Location(uri, new Range(new Position(11, 0), new Position(11, 8))),
+        "+1"
+      ),
+      new DiagnosticRelatedInformation(
+        new Location(uri, new Range(new Position(12, 0), new Position(12, 5))),
+        "+1"
+      )
+    );
+    diagnostic.setRelatedInformation(relatedInformation);
+
     issuesLoader.createIssue(inputFile, diagnostic);
 
     assertThat(context.allIssues()).hasSize(1);
     DefaultIssue issue = (DefaultIssue) context.allIssues().toArray()[0];
     assertThat(issue.ruleKey()).isEqualTo(ruleKey);
+    assertThat(issue.flows())
+      .hasSize(2)
+      .anySatisfy(flow -> assertThat(flow.locations())
+        .hasSize(1)
+        .element(0)
+        .extracting(IssueLocation::textRange)
+        .isEqualTo(new DefaultTextRange(new DefaultTextPointer(12, 0), new DefaultTextPointer(12,8)))
+      )
+      .anySatisfy(flow -> assertThat(flow.locations())
+        .hasSize(1)
+        .element(0)
+        .extracting(IssueLocation::textRange)
+        .isEqualTo(new DefaultTextRange(new DefaultTextPointer(13, 0), new DefaultTextPointer(13,5)))
+      )
+    ;
 
   }
 }

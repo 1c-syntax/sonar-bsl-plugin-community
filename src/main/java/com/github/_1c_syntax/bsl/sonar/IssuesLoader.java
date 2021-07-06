@@ -140,7 +140,7 @@ public class IssuesLoader {
             LOGGER.warn("Can't find inputFile for absolute path {}", path);
             return;
           }
-          var newIssueLocation = newIssueLocationSupplier.get();
+          var relatedIssueLocation = newIssueLocationSupplier.get();
 
           var relatedTextRange = getTextRange(
             relatedInputFile,
@@ -148,11 +148,11 @@ public class IssuesLoader {
             ruleId
           );
 
-          location.on(relatedInputFile);
-          location.at(relatedTextRange);
-          location.message(relatedInformationEntry.getMessage());
+          relatedIssueLocation.on(relatedInputFile);
+          relatedIssueLocation.at(relatedTextRange);
+          relatedIssueLocation.message(relatedInformationEntry.getMessage());
 
-          newIssueAddLocationConsumer.accept(newIssueLocation);
+          newIssueAddLocationConsumer.accept(relatedIssueLocation);
         }
       );
     }
