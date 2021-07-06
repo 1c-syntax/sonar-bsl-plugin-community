@@ -36,6 +36,7 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
@@ -139,5 +140,47 @@ class IssuesLoaderTest {
       )
     ;
 
+  }
+
+  @Test
+  void issueWithIncorrectRange() {
+    // given
+    final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
+    final String diagnosticName = "OneStatementPerLine";
+    final RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
+
+    SensorContextTester context = SensorContextTester.create(BASE_DIR);
+
+    ActiveRules activeRules = new ActiveRulesBuilder()
+      .addRule(new NewActiveRule.Builder()
+        .setRuleKey(ruleKey)
+        .setName(diagnosticName)
+        .build())
+      .build();
+    context.setActiveRules(activeRules);
+
+    InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+    context.fileSystem().add(inputFile);
+
+    IssuesLoader issuesLoader = new IssuesLoader(context);
+
+    Diagnostic diagnostic = new Diagnostic();
+    diagnostic.setCode(diagnosticName);
+    diagnostic.setSeverity(issueSeverity);
+    diagnostic.setMessage("Check message OneStatementPerLine");
+
+    // when
+    diagnostic.setRange(new Range(new Position(3, 0), new Position(3, 25)));
+
+    issuesLoader.createIssue(inputFile, diagnostic);
+
+    // then
+    assertThat(context.allIssues())
+      .hasSize(1)
+      .element(0)
+      .extracting(Issue::primaryLocation)
+      .extracting(IssueLocation::textRange)
+      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(4, 0), new DefaultTextPointer(4,0)))
+    ;
   }
 }
