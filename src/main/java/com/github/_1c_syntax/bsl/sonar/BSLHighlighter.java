@@ -321,6 +321,7 @@ public class BSLHighlighter {
       BSLLexer.PREPROC_INSERT,
       BSLLexer.PREPROC_ENDINSERT,
       BSLLexer.PREPROC_DELETE,
+      BSLLexer.PREPROC_DELETE_ANY,
       BSLLexer.PREPROC_ENDDELETE,
       BSLLexer.PREPROC_IDENTIFIER,
       BSLLexer.PREPROC_LINUX,
@@ -343,10 +344,7 @@ public class BSLHighlighter {
       BSLLexer.STRINGSTART,
       BSLLexer.STRINGPART,
       BSLLexer.STRINGTAIL,
-      BSLLexer.PREPROC_STRING,
-      BSLLexer.PREPROC_STRINGSTART,
-      BSLLexer.PREPROC_STRINGTAIL,
-      BSLLexer.PREPROC_STRINGPART
+      BSLLexer.PREPROC_STRING
     );
   }
 
@@ -535,7 +533,6 @@ public class BSLHighlighter {
 
   private static Set<Integer> createSdblKeywords() {
     return Set.of(
-      SDBLLexer.ALL,
       SDBLLexer.ALLOWED,
       SDBLLexer.AND,
       SDBLLexer.AS,
@@ -552,43 +549,41 @@ public class BSLHighlighter {
       SDBLLexer.END,
       SDBLLexer.ESCAPE,
       SDBLLexer.FALSE,
-      SDBLLexer.FOR,
+      SDBLLexer.FOR_UPDATE,
       SDBLLexer.FROM,
-      SDBLLexer.FULL,
-      SDBLLexer.GROUP,
+      SDBLLexer.FULL_JOIN,
+      SDBLLexer.GROUP_BY,
       SDBLLexer.HAVING,
-      SDBLLexer.HIERARCHY_EN,
-      SDBLLexer.HIERARCHII_RU,
-      SDBLLexer.HIERARCHYA_RU,
+      SDBLLexer.HIERARCHY,
       SDBLLexer.IN,
-      SDBLLexer.INDEX,
-      SDBLLexer.INNER,
+      SDBLLexer.INDEX_BY,
+      SDBLLexer.INNER_JOIN,
       SDBLLexer.INTO,
+      SDBLLexer.IN_HIERARCHY,
       SDBLLexer.IS,
       SDBLLexer.ISNULL,
       SDBLLexer.JOIN,
-      SDBLLexer.LEFT,
+      SDBLLexer.LEFT_JOIN,
       SDBLLexer.LIKE,
       SDBLLexer.NOT,
       SDBLLexer.OF,
+      SDBLLexer.ONLY,
       SDBLLexer.ON_EN,
       SDBLLexer.OR,
-      SDBLLexer.ORDER,
-      SDBLLexer.OUTER,
+      SDBLLexer.ORDER_BY,
       SDBLLexer.OVERALL,
+      SDBLLexer.PERIODS,
       SDBLLexer.PO_RU,
-      SDBLLexer.RIGHT,
+      SDBLLexer.REFS,
+      SDBLLexer.RIGHT_JOIN,
       SDBLLexer.SELECT,
       SDBLLexer.THEN,
       SDBLLexer.TOP,
       SDBLLexer.TOTALS,
       SDBLLexer.UNION,
+      SDBLLexer.UNION_ALL,
       SDBLLexer.WHEN,
-      SDBLLexer.WHERE,
-      SDBLLexer.ONLY,
-      SDBLLexer.PERIODS,
-      SDBLLexer.REFS,
-      SDBLLexer.UPDATE
+      SDBLLexer.WHERE
     );
   }
 
