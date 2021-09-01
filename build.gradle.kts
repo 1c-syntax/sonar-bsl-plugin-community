@@ -29,13 +29,13 @@ val junitVersion = "5.7.0"
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
 
-    implementation("com.github.1c-syntax", "bsl-language-server", "a0594e2e41cc866673df038a0969ad139b60d67f")
+    implementation("com.github.1c-syntax", "bsl-language-server", "0.19.0-rc.1")
 
-    implementation("org.apache.commons:commons-lang3:3.10")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.0")
+    implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.5")
 
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
-    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.11.0.541")
+    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.15.0.699")
 
     // MD to HTML converter of BSL LS rule descriptions
     implementation("com.atlassian.commonmark", "commonmark", commonmarkVersion)
@@ -43,15 +43,15 @@ dependencies {
     implementation("com.atlassian.commonmark", "commonmark-ext-autolink", commonmarkVersion)
     implementation("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
-    implementation("me.tongfei:progressbar:0.9.1")
+    implementation("me.tongfei:progressbar:0.9.2")
 
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
 
-    testImplementation("org.assertj:assertj-core:3.19.0")
-    testImplementation("org.mockito:mockito-core:3.9.0")
+    testImplementation("org.assertj:assertj-core:3.20.2")
+    testImplementation("org.mockito:mockito-core:3.12.4")
 }
 
 java {
