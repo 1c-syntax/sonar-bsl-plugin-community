@@ -5,12 +5,12 @@ plugins {
     jacoco
     java
     `maven-publish`
-    id("org.sonarqube") version "3.2.0"
+    id("org.sonarqube") version "3.3"
     id("com.github.hierynomus.license") version "0.16.1"
     id("com.github.johnrengelman.shadow") version("7.0.0")
-    id("com.github.ben-manes.versions") version "0.38.0"
+    id("com.github.ben-manes.versions") version "0.39.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.freefair.lombok") version "6.0.0-m2"
+    id("io.freefair.lombok") version "6.2.0"
 }
 
 group = "com.github.1c-syntax"
@@ -23,8 +23,8 @@ repositories {
     }
 }
 
-val commonmarkVersion = "0.14.0"
-val junitVersion = "5.7.0"
+val commonmarkVersion = "0.17.0"
+val junitVersion = "5.8.0"
 
 dependencies {
     implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
