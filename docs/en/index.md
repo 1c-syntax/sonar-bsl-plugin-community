@@ -85,14 +85,14 @@ sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH
 - `sonar.bsl.languageserver.diagnosticLanguage` - the language of the rule names and message text of the triggered rules from the BSL Language Server. Default - `ru` - Russian;
 - `sonar.bsl.languageserver.enabled` - use the built-in BSL Language Server Diagnostic provider analyzer when running analysis via `sonar-scanner`. Default - `true` - enabled;
 - `sonar.bsl.languageserver.reportPaths` - the path to the report files in the internal format to the BSL Language Server - `json`. By default - `""` - not filled.
-- `sonar.bsl.languageserver.skipSupport` - skip computing diagnostics according to module's support mode. *Only if there is a parent configuration*. Available values:
+- `sonar.bsl.languageserver.skipSupport` - skip computing diagnostics according to module's support mode. *Only if there is a parent configuration*. In sonar-project.properties the value is specified without quote.  
+Available values:  
     * with support locked - modules for support with the prohibition of changes will be skipped ("locked");
     * with support - modules on support will be skipped;
     * never *default* - modules are not skipped
 - `sonar.bsl.languageserver.overrideConfiguration` - override Quality Profile settings with settings from BSL Language Server configuration file;
 - `sonar.bsl.languageserver.configurationPath` - path to BSL Language Server configuration file to override settings;
 - `sonar.bsl.file.suffixes` - list of file suffixes that will be scanned. Default - `.bsl,.os`
-- `sonar.bsl.calculateLineCover` - calculate locations for coverage.
 
 ## Language switch for rule names/descriptions and issue messages
 
@@ -137,21 +137,5 @@ To import the result to sonar-scanner utility, pass the parameter `sonar.bsl.lan
 sonar-scanner -Dsonar.bsl.languageserver.reportPaths=./bsl-json.json
 ```
 
-### Calculate loc for cover 
-
-Calculate locations for coverage. Use for correct code coverage when using genericCoverage.xml which contains only covered lines. 
-
-```
-sonar.bsl.calculateLineCover=true
-sonar.coverageReportPaths=./genericCoverage.xml
-```
-
-```xml
-<coverage version="1">
-    <file path="...\Forms\Form\Ext\Form\Module.bsl">
-        <lineToCover lineNumber="25" covered="true"/>
-        <lineToCover lineNumber="27" covered="true"/>
-    </file>
-</coverage>
-```
-  
+### Calculate loc for cover (Deprecated) 
+Use Coverage41C as full coverage report generator. 

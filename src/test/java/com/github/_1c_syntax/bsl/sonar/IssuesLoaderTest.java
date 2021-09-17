@@ -23,87 +23,164 @@ package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 
 import java.io.File;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class IssuesLoaderTest {
 
-    private final String BASE_PATH = "src/test/resources/src";
-    private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
-    private final String FILE_NAME = "test.bsl";
+  private final String BASE_PATH = "src/test/resources/src";
+  private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
+  private final String FILE_NAME = "test.bsl";
 
-    @Test
-    void test_createExtIssue() {
+  @Test
+  void test_createExtIssue() {
 
-        final String issueCode = "Test";
-        final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
+    final String issueCode = "Test";
+    final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
 
-        SensorContextTester context = SensorContextTester.create(BASE_DIR);
-        InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
-        IssuesLoader issuesLoader = new IssuesLoader(context);
+    SensorContextTester context = SensorContextTester.create(BASE_DIR);
+    InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+    IssuesLoader issuesLoader = new IssuesLoader(context);
 
-        Diagnostic diagnostic = new Diagnostic();
-        diagnostic.setCode(issueCode);
-        diagnostic.setSeverity(issueSeverity);
-        diagnostic.setMessage("Check message");
-        diagnostic.setRange(new Range(new Position(0, 0), new Position(0, 1)));
-        diagnostic.setRelatedInformation(null);
+    Diagnostic diagnostic = new Diagnostic();
+    diagnostic.setCode(issueCode);
+    diagnostic.setSeverity(issueSeverity);
+    diagnostic.setMessage("Check message");
+    diagnostic.setRange(new Range(new Position(0, 0), new Position(0, 1)));
+    diagnostic.setRelatedInformation(null);
 
-        issuesLoader.createIssue(inputFile, diagnostic);
+    issuesLoader.createIssue(inputFile, diagnostic);
 
-        assertThat(context.allExternalIssues()).hasSize(1);
-        DefaultExternalIssue issue = (DefaultExternalIssue) context.allExternalIssues().toArray()[0];
-        assertThat(issue.ruleId()).isEqualTo(issueCode);
+    assertThat(context.allExternalIssues()).hasSize(1);
+    DefaultExternalIssue issue = (DefaultExternalIssue) context.allExternalIssues().toArray()[0];
+    assertThat(issue.ruleId()).isEqualTo(issueCode);
 
-    }
+  }
 
-    @Test
-    void test_createIssue() {
+  @Test
+  void test_createIssue() {
 
-        final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
-        final String diagnosticName = "OneStatementPerLine";
-        final RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
+    final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
+    final String diagnosticName = "OneStatementPerLine";
+    final RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
 
-        SensorContextTester context = SensorContextTester.create(BASE_DIR);
+    SensorContextTester context = SensorContextTester.create(BASE_DIR);
 
-        ActiveRules activeRules = new ActiveRulesBuilder()
-                .addRule(new NewActiveRule.Builder()
-                        .setRuleKey(ruleKey)
-                        .setName(diagnosticName)
-                        .build())
-                .build();
-        context.setActiveRules(activeRules);
+    ActiveRules activeRules = new ActiveRulesBuilder()
+      .addRule(new NewActiveRule.Builder()
+        .setRuleKey(ruleKey)
+        .setName(diagnosticName)
+        .build())
+      .build();
+    context.setActiveRules(activeRules);
 
-        InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
-        context.fileSystem().add(inputFile);
+    InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+    context.fileSystem().add(inputFile);
 
-        IssuesLoader issuesLoader = new IssuesLoader(context);
+    IssuesLoader issuesLoader = new IssuesLoader(context);
 
-        Diagnostic diagnostic = new Diagnostic();
-        diagnostic.setCode(diagnosticName);
-        diagnostic.setSeverity(issueSeverity);
-        diagnostic.setMessage("Check message OneStatementPerLine");
-        diagnostic.setRange(new Range(new Position(0, 0), new Position(0, 1)));
+    Diagnostic diagnostic = new Diagnostic();
+    diagnostic.setCode(diagnosticName);
+    diagnostic.setSeverity(issueSeverity);
+    diagnostic.setMessage("Check message OneStatementPerLine");
+    diagnostic.setRange(new Range(new Position(0, 0), new Position(0, 1)));
 
-        issuesLoader.createIssue(inputFile, diagnostic);
+    var uri = inputFile.uri().toString();
+    var relatedInformation = List.of(
+      new DiagnosticRelatedInformation(
+        new Location(uri, new Range(new Position(11, 0), new Position(11, 8))),
+        "+1"
+      ),
+      new DiagnosticRelatedInformation(
+        new Location(uri, new Range(new Position(12, 0), new Position(12, 5))),
+        "+1"
+      )
+    );
+    diagnostic.setRelatedInformation(relatedInformation);
 
-        assertThat(context.allIssues()).hasSize(1);
-        DefaultIssue issue = (DefaultIssue) context.allIssues().toArray()[0];
-        assertThat(issue.ruleKey()).isEqualTo(ruleKey);
+    issuesLoader.createIssue(inputFile, diagnostic);
 
-    }
+    assertThat(context.allIssues()).hasSize(1);
+    DefaultIssue issue = (DefaultIssue) context.allIssues().toArray()[0];
+    assertThat(issue.ruleKey()).isEqualTo(ruleKey);
+    assertThat(issue.flows())
+      .hasSize(2)
+      .anySatisfy(flow -> assertThat(flow.locations())
+        .hasSize(1)
+        .element(0)
+        .extracting(IssueLocation::textRange)
+        .isEqualTo(new DefaultTextRange(new DefaultTextPointer(12, 0), new DefaultTextPointer(12,8)))
+      )
+      .anySatisfy(flow -> assertThat(flow.locations())
+        .hasSize(1)
+        .element(0)
+        .extracting(IssueLocation::textRange)
+        .isEqualTo(new DefaultTextRange(new DefaultTextPointer(13, 0), new DefaultTextPointer(13,5)))
+      )
+    ;
+
+  }
+
+  @Test
+  void issueWithIncorrectRange() {
+    // given
+    final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
+    final String diagnosticName = "OneStatementPerLine";
+    final RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
+
+    SensorContextTester context = SensorContextTester.create(BASE_DIR);
+
+    ActiveRules activeRules = new ActiveRulesBuilder()
+      .addRule(new NewActiveRule.Builder()
+        .setRuleKey(ruleKey)
+        .setName(diagnosticName)
+        .build())
+      .build();
+    context.setActiveRules(activeRules);
+
+    InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+    context.fileSystem().add(inputFile);
+
+    IssuesLoader issuesLoader = new IssuesLoader(context);
+
+    Diagnostic diagnostic = new Diagnostic();
+    diagnostic.setCode(diagnosticName);
+    diagnostic.setSeverity(issueSeverity);
+    diagnostic.setMessage("Check message OneStatementPerLine");
+
+    // when
+    diagnostic.setRange(new Range(new Position(3, 0), new Position(3, 25)));
+
+    issuesLoader.createIssue(inputFile, diagnostic);
+
+    // then
+    assertThat(context.allIssues())
+      .hasSize(1)
+      .element(0)
+      .extracting(Issue::primaryLocation)
+      .extracting(IssueLocation::textRange)
+      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(4, 0), new DefaultTextPointer(4,0)))
+    ;
+  }
 }

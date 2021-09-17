@@ -171,7 +171,6 @@ class BSLCoreSensorTest {
 
     context = createSensorContext();
     context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY, false);
-    context.settings().setProperty(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_KEY, true);
     setActiveRules(context, diagnosticName, ruleKey);
     sensor = new BSLCoreSensor(context, fileLinesContextFactory);
     sensor.execute(context);

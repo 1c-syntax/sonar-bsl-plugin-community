@@ -48,7 +48,6 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
@@ -83,17 +82,12 @@ public class BSLCoreSensor implements Sensor {
   private final IssuesLoader issuesLoader;
   private final BSLHighlighter highlighter;
 
-  private final boolean calculateCoverLoc;
-
   public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
     this.context = context;
     this.fileLinesContextFactory = fileLinesContextFactory;
 
     langServerEnabled = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
-
-    calculateCoverLoc = context.config().getBoolean(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_KEY)
-      .orElse(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_VALUE);
 
     sourcesList = context.config().get("sonar.sources")
       .map(sources ->
@@ -201,8 +195,6 @@ public class BSLCoreSensor implements Sensor {
     highlighter.saveHighlighting(inputFile, documentContext);
     saveMeasures(inputFile, documentContext);
 
-    saveCoverageLoc(inputFile, documentContext);
-
     documentContext.clearSecondaryData();
   }
 
@@ -276,21 +268,6 @@ public class BSLCoreSensor implements Sensor {
       fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
     }
     fileLinesContext.save();
-
-  }
-
-  private void saveCoverageLoc(InputFile inputFile, DocumentContext documentContext) {
-
-    if (!calculateCoverLoc) {
-      return;
-    }
-
-    NewCoverage coverage = context.newCoverage().onFile(inputFile);
-
-    Arrays.stream(documentContext.getMetrics().getCovlocData())
-      .forEach(loc -> coverage.lineHits(loc, 0));
-
-    coverage.save();
 
   }
 
