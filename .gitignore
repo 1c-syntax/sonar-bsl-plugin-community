@@ -28,9 +28,14 @@
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
 # auto-import.
+.idea/artifacts
+.idea/compiler.xml
+.idea/jarRepositories.xml
 .idea/modules.xml
 .idea/*.iml
 .idea/modules
+*.iml
+*.ipr
 
 # IntelliJ
 out/
@@ -58,14 +63,15 @@ build/
 intellij-bsl/src/test/resources/parser/.idea/
 
 gen/
-out/
 
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
+.idea/sonarlint-state.xml
+.idea/sonarlint.xml
+.idea/checkstyle-idea.xml
+*.bak
+*.orig
 
-\.idea/sonarlint-state\.xml
+# mkdocs
+temp/
+public/
 
-\.idea/sonarlint\.xml
+/.idea/misc.xml
