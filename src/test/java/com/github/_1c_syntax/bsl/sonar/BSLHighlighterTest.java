@@ -138,12 +138,11 @@ class BSLHighlighterTest {
     // given
     context = SensorContextTester.create(Path.of("."));
     highlighter = new BSLHighlighter(context);
-    String content = """
-      А = "ВЫБРАТЬ Справочник1.Ссылка КАК Ссылка
-      |ИЗ
-      |   Справочник.Справочник1 КАК Справочник1
-      |СГРУППИРОВАТЬ
-      |ПО Ссылка";""";
+    String content = "А = \"ВЫБРАТЬ Справочник1.Ссылка КАК Поле\r\n" +
+                     "|ИЗ\r\n" +
+                     "|   Справочник.Справочник1 КАК Справочник1\r\n" +
+                     "|СГРУППИРОВАТЬ\r\n" +
+                     "|ПО Поле\";";
     documentContext = new DocumentContext(URI.create("file:///fake.bsl"));
     documentContext.rebuild(content, 1);
 
@@ -155,35 +154,17 @@ class BSLHighlighterTest {
     // then
     String componentKey = "moduleKey:" + FILE_NAME;
 
-    checkTokenTypeAtPosition(componentKey, 1, 4, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 1, 5, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 1, 6, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 1, 12, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 1, 13, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 1, 25, TypeOfText.STRING);
-
-    checkTokenTypeAtPosition(componentKey, 2, 0, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 2, 1, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 2, 2, TypeOfText.KEYWORD);
-
-    checkTokenTypeAtPosition(componentKey, 3, 0, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 3, 1, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 3, 5, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 3, 9, TypeOfText.CONSTANT);
-
-    checkTokenTypeAtPosition(componentKey, 4, 1, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 4, 2, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 4, 6, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 4, 10, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 4, 13, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 4, 16, TypeOfText.KEYWORD_LIGHT);
+    checkTokenTypeAtPosition(componentKey, 4, 0, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 4, 1, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 4, 12, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 4, 13, TypeOfText.STRING);
 
     checkTokenTypeAtPosition(componentKey, 5, 0, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 5, 1, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 5, 18, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 5, 19, TypeOfText.KEYWORD_LIGHT);
-    checkTokenTypeAtPosition(componentKey, 5, 20, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 5, 21, TypeOfText.KEYWORD_LIGHT);
+    checkTokenTypeAtPosition(componentKey, 5, 1, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 5, 2, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 5, 3, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 5, 4, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 5, 5, TypeOfText.STRING);
 
   }
 

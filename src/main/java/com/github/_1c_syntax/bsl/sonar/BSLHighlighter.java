@@ -198,15 +198,24 @@ public class BSLHighlighter {
     int line = token.getLine();
     int charPositionInLine = token.getCharPositionInLine();
     String tokenText = token.getText();
+    // todo: remove with bsl-parser 0.20.0
+    var newLineIndex = tokenText.indexOf('\n');
 
-    Range range = Ranges.create(
+    int tokenLength;
+    if (newLineIndex >= 0) {
+      tokenLength = newLineIndex - 1;
+    } else {
+      tokenLength = tokenText.length();
+    }
+
+    var range = Ranges.create(
       line,
       charPositionInLine,
       line,
-      charPositionInLine + tokenText.length()
+      charPositionInLine + tokenLength
     );
 
-    HighlightingData data = new HighlightingData(
+    var data = new HighlightingData(
       range,
       typeOfText
     );
