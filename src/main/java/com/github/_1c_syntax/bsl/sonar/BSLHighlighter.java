@@ -203,7 +203,7 @@ public class BSLHighlighter {
 
     int tokenLength;
     if (newLineIndex >= 0) {
-      tokenLength = newLineIndex - 1;
+      tokenLength = newLineIndex;
     } else {
       tokenLength = tokenText.length();
     }

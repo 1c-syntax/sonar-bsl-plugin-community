@@ -157,7 +157,6 @@ class BSLHighlighterTest {
     checkTokenTypeAtPosition(componentKey, 4, 0, TypeOfText.STRING);
     checkTokenTypeAtPosition(componentKey, 4, 1, TypeOfText.KEYWORD);
     checkTokenTypeAtPosition(componentKey, 4, 12, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 4, 13, TypeOfText.STRING);
 
     checkTokenTypeAtPosition(componentKey, 5, 0, TypeOfText.STRING);
     checkTokenTypeAtPosition(componentKey, 5, 1, TypeOfText.STRING);
