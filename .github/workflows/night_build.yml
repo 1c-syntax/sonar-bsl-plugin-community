@@ -26,7 +26,7 @@ jobs:
         with:
           upload_url: https://uploads.github.com/repos/1c-syntax/sonar-bsl-plugin-community/releases/51033599/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
           release_id: 51033599 # same as above (id can just be taken out the upload_url, it's used to find old releases)
-          asset_path: ./sonar-communitybsl-plugin.zip # path to archive to upload
+          asset_path: ./build/libs/sonar-communitybsl-plugin*.jar # path to archive to upload
           asset_name: sonar-communitybsl-plugin-$$.jar # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
           asset_content_type: application/zip # required by GitHub API
           max_releases: 7 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
