@@ -1,7 +1,7 @@
 name: Night build
 on:
   schedule:
-    - cron: '0 3 * * *' # run at 3 AM UTC (00 MSK)
+    - cron: '15 * * * *' # run at 3 AM UTC (00 MSK)
 
 jobs:
   nightly:
