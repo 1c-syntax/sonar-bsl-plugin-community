@@ -6,35 +6,24 @@ on:
 jobs:
   nightly:
     name: Night build
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: ''
-      - run: |
-          git fetch --prune --unshallow
-      - name: Set up JDK 11
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Set up JDK
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: SonarCloud Scan
-        run: ./gradlew check sonarqube
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build with Gradle
+        run: ./gradlew build
       - name: Deploy build
-        if: matrix.os == 'ubuntu-latest'
         uses: WebFreak001/deploy-nightly@v1.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: https://uploads.github.com/repos/Pure-D/serve-d/releases/51033599/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          upload_url: https://uploads.github.com/repos/1c-syntax/sonar-bsl-plugin-community/releases/51033599/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
           release_id: 51033599 # same as above (id can just be taken out the upload_url, it's used to find old releases)
-          asset_path: ./myapp.zip # path to archive to upload
-          asset_name: myapp_windows-nightly-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_path: ./sonar-communitybsl-plugin.zip # path to archive to upload
+          asset_name: sonar-communitybsl-plugin-$$.jar # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
           asset_content_type: application/zip # required by GitHub API
           max_releases: 7 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
