@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
-         with:
+        with:
           ref: nigth_build
       - name: Set up JDK
         uses: actions/setup-java@v1
