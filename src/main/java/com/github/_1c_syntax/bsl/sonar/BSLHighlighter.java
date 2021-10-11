@@ -583,7 +583,10 @@ public class BSLHighlighter {
       SDBLLexer.UNION,
       SDBLLexer.UNION_ALL,
       SDBLLexer.WHEN,
-      SDBLLexer.WHERE
+      SDBLLexer.WHERE,
+      SDBLLexer.EMPTYREF,
+      SDBLLexer.GROUPEDBY,
+      SDBLLexer.GROUPING_SET
     );
   }
 
