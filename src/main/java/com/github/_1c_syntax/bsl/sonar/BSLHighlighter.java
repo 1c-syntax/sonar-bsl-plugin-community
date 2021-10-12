@@ -162,9 +162,9 @@ public class BSLHighlighter {
     highlightingDataSDBL.values().forEach(highlightingData::addAll);
 
     if (highlightingData.stream()
-            .filter(HighlightingData::isActive)
-            .findAny()
-            .isEmpty()) {
+      .filter(HighlightingData::isActive)
+      .findAny()
+      .isEmpty()) {
       return;
     }
 
@@ -333,8 +333,7 @@ public class BSLHighlighter {
 
   private static Set<Integer> createBslComments() {
     return Set.of(
-      BSLLexer.LINE_COMMENT,
-      BSLLexer.PREPROC_LINE_COMMENT
+      BSLLexer.LINE_COMMENT
     );
   }
 
@@ -533,6 +532,7 @@ public class BSLHighlighter {
 
   private static Set<Integer> createSdblKeywords() {
     return Set.of(
+      SDBLLexer.ALL,
       SDBLLexer.ALLOWED,
       SDBLLexer.AND,
       SDBLLexer.AS,
@@ -549,44 +549,46 @@ public class BSLHighlighter {
       SDBLLexer.END,
       SDBLLexer.ESCAPE,
       SDBLLexer.FALSE,
-      SDBLLexer.FOR_UPDATE,
+      SDBLLexer.FOR,
       SDBLLexer.FROM,
-      SDBLLexer.FULL_JOIN,
-      SDBLLexer.GROUP_BY,
+      SDBLLexer.FULL,
+      SDBLLexer.GROUP,
       SDBLLexer.HAVING,
       SDBLLexer.HIERARCHY,
+      SDBLLexer.HIERARCHY_FOR_IN,
       SDBLLexer.IN,
-      SDBLLexer.INDEX_BY,
-      SDBLLexer.INNER_JOIN,
+      SDBLLexer.INDEX,
+      SDBLLexer.INNER,
       SDBLLexer.INTO,
-      SDBLLexer.IN_HIERARCHY,
       SDBLLexer.IS,
       SDBLLexer.ISNULL,
       SDBLLexer.JOIN,
-      SDBLLexer.LEFT_JOIN,
+      SDBLLexer.LEFT,
       SDBLLexer.LIKE,
       SDBLLexer.NOT,
       SDBLLexer.OF,
       SDBLLexer.ONLY,
       SDBLLexer.ON_EN,
       SDBLLexer.OR,
-      SDBLLexer.ORDER_BY,
+      SDBLLexer.ORDER,
       SDBLLexer.OVERALL,
+      SDBLLexer.OUTER,
       SDBLLexer.PERIODS,
       SDBLLexer.PO_RU,
       SDBLLexer.REFS,
-      SDBLLexer.RIGHT_JOIN,
+      SDBLLexer.RIGHT,
       SDBLLexer.SELECT,
+      SDBLLexer.SET,
       SDBLLexer.THEN,
       SDBLLexer.TOP,
       SDBLLexer.TOTALS,
       SDBLLexer.UNION,
-      SDBLLexer.UNION_ALL,
+      SDBLLexer.UPDATE,
       SDBLLexer.WHEN,
       SDBLLexer.WHERE,
       SDBLLexer.EMPTYREF,
       SDBLLexer.GROUPEDBY,
-      SDBLLexer.GROUPING_SET
+      SDBLLexer.GROUPING
     );
   }
 
