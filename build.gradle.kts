@@ -27,7 +27,7 @@ val commonmarkVersion = "0.17.0"
 val junitVersion = "5.8.0"
 
 dependencies {
-    implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
+    implementation("org.sonarsource.sonarqube:sonar-plugin-api:9.1.0.47736")
 
     implementation("io.github.1c-syntax", "bsl-language-server", "0.20.0-ra.1")
 
