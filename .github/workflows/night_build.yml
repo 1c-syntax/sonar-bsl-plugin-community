@@ -1,7 +1,7 @@
 name: Night build
 on:
   schedule:
-    - cron: '0 3 * * *' # run at 3 AM UTC (00 MSK)
+    - cron: '0 6 * * *' # run at 6 AM UTC
   push:
     branches:
       - nigth_build
