@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - nigth_build
+  workflow_dispatch:
 
 jobs:
   nightly:
