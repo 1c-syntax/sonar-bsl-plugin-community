@@ -21,6 +21,9 @@ repositories {
     maven {
         url = URI("https://jitpack.io")
     }
+    maven {
+        url = URI("https://s01.oss.sonatype.org/content/repositories/snapshots")   
+    }
 }
 
 val commonmarkVersion = "0.17.0"
