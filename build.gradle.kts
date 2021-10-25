@@ -17,6 +17,7 @@ group = "com.github.1c-syntax"
 version = gitVersionCalculator.calculateVersion("v")
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         url = URI("https://s01.oss.sonatype.org/content/repositories/snapshots")   
