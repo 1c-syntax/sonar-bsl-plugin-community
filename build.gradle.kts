@@ -31,7 +31,7 @@ val commonmarkVersion = "0.17.0"
 val junitVersion = "5.8.0"
 
 dependencies {
-    implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
+    implementation("org.sonarsource.sonarqube:sonar-plugin-api:8.9.3.48735")
 
     implementation("io.github.1c-syntax", "bsl-language-server", "0.20.0-ra.1")
 
@@ -56,6 +56,8 @@ dependencies {
 
     testImplementation("org.assertj:assertj-core:3.21.0")
     testImplementation("org.mockito:mockito-core:4.0.0")
+
+    testImplementation("org.sonarsource.sonarqube:sonar-plugin-api-impl:8.9.2.46101")
 }
 
 java {
@@ -76,7 +78,7 @@ tasks.test {
     }
 
     reports {
-        html.isEnabled = true
+        html.required.set(true)
     }
 }
 
@@ -86,8 +88,8 @@ tasks.check {
 
 tasks.jacocoTestReport {
     reports {
-        xml.isEnabled = true
-        xml.destination = File("$buildDir/reports/jacoco/test/jacoco.xml")
+        xml.required.set(true)
+        xml.outputLocation.set(File("$buildDir/reports/jacoco/test/jacoco.xml"))
     }
 }
 
@@ -131,7 +133,7 @@ tasks.jar {
         attributes["Plugin-Developers"] = "Alexey Sosnoviy, Nikita Gryzlov"
 
         attributes["SonarLint-Supported"] = true
-        attributes["Sonar-Version"] = "7.9"
+        attributes["Sonar-Version"] = "8.9"
 
         attributes["Plugin-Organization"] = "1c-syntax"
         attributes["Plugin-OrganizationUrl"] = "https://github.com/1c-syntax"
