@@ -29,9 +29,10 @@ repositories {
 
 val commonmarkVersion = "0.17.0"
 val junitVersion = "5.8.0"
+val sonarQubeVersion = "8.9.0.43852"
 
 dependencies {
-    implementation("org.sonarsource.sonarqube:sonar-plugin-api:8.9.3.48735")
+    implementation("org.sonarsource.sonarqube", "sonar-plugin-api", sonarQubeVersion)
 
     implementation("io.github.1c-syntax", "bsl-language-server", "0.20.0-ra.1")
 
@@ -57,7 +58,9 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.21.0")
     testImplementation("org.mockito:mockito-core:4.0.0")
 
-    testImplementation("org.sonarsource.sonarqube:sonar-plugin-api-impl:8.9.2.46101")
+    testImplementation("org.sonarsource.sonarqube", "sonar-plugin-api", sonarQubeVersion)
+    testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
+    testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)
 }
 
 java {
@@ -96,7 +99,7 @@ tasks.jacocoTestReport {
 license {
     header = rootProject.file("license/HEADER.txt")
     ext["year"] = Calendar.getInstance().get(Calendar.YEAR)
-    ext["name"] = "Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>"
+    ext["name"] = "Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>"
     ext["project"] = "SonarQube 1C (BSL) Community Plugin"
     strictCheck = true
     mapping("java", "SLASHSTAR_STYLE")
@@ -130,10 +133,10 @@ tasks.jar {
         attributes["Plugin-Homepage"] = "https://1c-syntax.github.io/sonar-bsl-plugin-community"
         attributes["Plugin-IssueTrackerUrl"] = "https://github.com/1c-syntax/sonar-bsl-plugin-community/issues"
         attributes["Plugin-SourcesUrl"] = "https://github.com/1c-syntax/sonar-bsl-plugin-community"
-        attributes["Plugin-Developers"] = "Alexey Sosnoviy, Nikita Gryzlov"
+        attributes["Plugin-Developers"] = "Alexey Sosnoviy, Nikita Fedkin"
 
         attributes["SonarLint-Supported"] = true
-        attributes["Sonar-Version"] = "8.9"
+        attributes["Sonar-Version"] = sonarQubeVersion
 
         attributes["Plugin-Organization"] = "1c-syntax"
         attributes["Plugin-OrganizationUrl"] = "https://github.com/1c-syntax"

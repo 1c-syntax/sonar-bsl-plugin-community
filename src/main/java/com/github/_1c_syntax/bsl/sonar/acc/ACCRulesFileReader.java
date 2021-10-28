@@ -2,7 +2,7 @@
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
  * Copyright © 2018-2021
- * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -22,7 +22,7 @@
 package com.github._1c_syntax.bsl.sonar.acc;
 
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.log.Logger;
@@ -64,8 +64,8 @@ public class ACCRulesFileReader {
 
     try {
       json = IOUtils.toString(
-          Objects.requireNonNull(ACCRuleDefinition.class.getClassLoader().getResourceAsStream("acc.json")),
-          StandardCharsets.UTF_8.name()
+        Objects.requireNonNull(ACCRuleDefinition.class.getClassLoader().getResourceAsStream("acc.json")),
+        StandardCharsets.UTF_8.name()
       );
     } catch (IOException e) {
       LOGGER.error("Can't read json file acc rules", e);
@@ -76,8 +76,9 @@ public class ACCRulesFileReader {
   }
 
   private static Optional<ACCRulesFile> getAccRulesFile(String json) {
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+    var objectMapper = JsonMapper.builder()
+      .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+      .build();
     try {
       return Optional.of(objectMapper.readValue(json, ACCRulesFile.class));
     } catch (IOException e) {
