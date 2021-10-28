@@ -58,7 +58,6 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.21.0")
     testImplementation("org.mockito:mockito-core:4.0.0")
 
-    testImplementation("org.sonarsource.sonarqube", "sonar-plugin-api", sonarQubeVersion)
     testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
     testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)
 }
