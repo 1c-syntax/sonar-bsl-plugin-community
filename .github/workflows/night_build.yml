@@ -25,6 +25,8 @@ jobs:
         run: ./gradlew build
       - name: Save file name
         run: echo "PLUGIN_FILE_NAME=$(ls -t ./build/libs | head -1)" >> $GITHUB_ENV
+      - name: Save current date
+        run: echo "PLUGIN_CURRENT_DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
       - name: Deploy build
         uses: WebFreak001/deploy-nightly@v1.1.0
         env:
@@ -33,6 +35,6 @@ jobs:
           upload_url: https://uploads.github.com/repos/1c-syntax/sonar-bsl-plugin-community/releases/51033599/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
           release_id: 51033599 # same as above (id can just be taken out the upload_url, it's used to find old releases)
           asset_path: ./build/libs/${{ env.PLUGIN_FILE_NAME }} # path to archive to upload
-          asset_name: sonar-communitybsl-plugin-$$.jar # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_name: sonar-communitybsl-plugin-nightly-${{ env.PLUGIN_CURRENT_DATE }}.jar # name, format is "-nightly-20210101"
           asset_content_type: application/java-archive # required by GitHub API
           max_releases: 7 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
