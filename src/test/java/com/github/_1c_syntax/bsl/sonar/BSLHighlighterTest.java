@@ -85,13 +85,13 @@ class BSLHighlighterTest {
     // given
     context = SensorContextTester.create(Path.of("."));
     highlighter = new BSLHighlighter(context);
-    String content = "А = \"ВЫБРАТЬ РАЗРЕШЕННЫЕ Поле.Один \n" +
+    String content = "А = \"\" \"ВЫБРАТЬ РАЗРЕШЕННЫЕ Поле.Один \n" +
       "|КАК \n" +
       "|  Один, 2 \n" +
       " |  КАК Два ИЗ Справочник.Поле\n" +
       "|АВТОУПОРЯДОЧИВАНИЕ;\";";
     documentContext = new DocumentContext(URI.create("file:///fake.bsl"));
-    documentContext.rebuild(content, 1);
+    documentContext.rebuild(content, 0);
 
     inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR, content);
 
@@ -101,12 +101,65 @@ class BSLHighlighterTest {
     // then
     String componentKey = "moduleKey:" + FILE_NAME;
 
-    checkTokenTypeAtPosition(componentKey, 1, 4, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 1, 5, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 1, 6, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 1, 12, TypeOfText.STRING);
-    checkTokenTypeAtPosition(componentKey, 1, 13, TypeOfText.KEYWORD);
-    checkTokenTypeAtPosition(componentKey, 1, 25, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 1, 7, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 1, 8, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 1, 9, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 1, 15, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 1, 16, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 1, 28, TypeOfText.STRING);
+
+    checkTokenTypeAtPosition(componentKey, 2, 0, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 2, 1, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 2, 2, TypeOfText.KEYWORD);
+
+    checkTokenTypeAtPosition(componentKey, 3, 0, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 3, 1, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 3, 5, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 3, 9, TypeOfText.CONSTANT);
+
+    checkTokenTypeAtPosition(componentKey, 4, 1, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 4, 2, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 4, 6, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 4, 10, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 4, 13, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 4, 16, TypeOfText.KEYWORD_LIGHT);
+
+    checkTokenTypeAtPosition(componentKey, 5, 0, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 5, 1, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 5, 18, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 5, 19, TypeOfText.KEYWORD_LIGHT);
+    checkTokenTypeAtPosition(componentKey, 5, 20, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 5, 21, TypeOfText.KEYWORD_LIGHT);
+
+  }
+
+  @Test
+  void testCrazyStrings() {
+    // given
+    context = SensorContextTester.create(Path.of("."));
+    highlighter = new BSLHighlighter(context);
+    String content = "ТекстПредупреждения = " +
+            "\"выбрать пункт меню \"" +
+    "\" и следовать подсказкам мастера обновления\';uk=\'Увага, використовується застаріла версія FREDO Звіт!\"" +
+    "\" і слідувати підказкам майстра оновлення\'";
+
+    documentContext = new DocumentContext(URI.create("file:///fake.bsl"));
+    documentContext.rebuild(content, 0);
+
+    inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR, content);
+
+    // when
+    highlighter.saveHighlighting(inputFile, documentContext);
+
+    // then
+    String componentKey = "moduleKey:" + FILE_NAME;
+
+    checkTokenTypeAtPosition(componentKey, 1, 7, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 1, 8, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 1, 9, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 1, 15, TypeOfText.STRING);
+    checkTokenTypeAtPosition(componentKey, 1, 16, TypeOfText.KEYWORD);
+    checkTokenTypeAtPosition(componentKey, 1, 28, TypeOfText.STRING);
 
     checkTokenTypeAtPosition(componentKey, 2, 0, TypeOfText.STRING);
     checkTokenTypeAtPosition(componentKey, 2, 1, TypeOfText.KEYWORD);
