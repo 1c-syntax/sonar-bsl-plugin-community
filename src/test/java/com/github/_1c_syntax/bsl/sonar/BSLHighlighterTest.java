@@ -21,6 +21,7 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+import com.github._1c_syntax.bsl.languageserver.BSLLSBinding;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.parser.SDBLLexer;
@@ -90,8 +91,7 @@ class BSLHighlighterTest {
       "|  Один, 2 \n" +
       " |  КАК Два ИЗ Справочник.Поле\n" +
       "|АВТОУПОРЯДОЧИВАНИЕ;\";";
-    documentContext = new DocumentContext(URI.create("file:///fake.bsl"));
-    documentContext.rebuild(content, 1);
+    documentContext = BSLLSBinding.getServerContext().addDocument(URI.create("file:///fake.bsl"), content, 1);
 
     inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR, content);
 
