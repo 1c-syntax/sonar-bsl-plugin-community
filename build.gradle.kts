@@ -56,7 +56,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
 
     testImplementation("org.assertj:assertj-core:3.22.0")
-    testImplementation("org.mockito:mockito-core:4.2.0")
+    testImplementation("org.mockito:mockito-core:4.3.0")
 
     testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
     testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)
