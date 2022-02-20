@@ -6,14 +6,14 @@ plugins {
     java
     `maven-publish`
     id("org.sonarqube") version "3.3"
-    id("com.github.hierynomus.license") version "0.16.1"
+    id("org.cadixdev.licenser") version "0.6.1"
     id("com.github.johnrengelman.shadow") version("7.0.0")
     id("com.github.ben-manes.versions") version "0.42.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
     id("io.freefair.lombok") version "6.4.1"
 }
 
-group = "com.github.1c-syntax"
+group = "io.github.1c-syntax"
 version = gitVersionCalculator.calculateVersion("v")
 
 repositories {
@@ -28,13 +28,12 @@ repositories {
 }
 
 val commonmarkVersion = "0.17.0"
-val junitVersion = "5.8.0"
 val sonarQubeVersion = "8.9.0.43852"
 
 dependencies {
     implementation("org.sonarsource.sonarqube", "sonar-plugin-api", sonarQubeVersion)
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.20.0-ra.2")
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.20.0-rc.1")
 
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
@@ -52,8 +51,8 @@ dependencies {
 
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
-    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.8.0")
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.8.0")
 
     testImplementation("org.assertj:assertj-core:3.22.0")
     testImplementation("org.mockito:mockito-core:4.3.1")
@@ -96,12 +95,11 @@ tasks.jacocoTestReport {
 }
 
 license {
-    header = rootProject.file("license/HEADER.txt")
+    header(rootProject.file("license/HEADER.txt"))
+    newLine(false)
     ext["year"] = Calendar.getInstance().get(Calendar.YEAR)
     ext["name"] = "Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>"
     ext["project"] = "SonarQube 1C (BSL) Community Plugin"
-    strictCheck = true
-    mapping("java", "SLASHSTAR_STYLE")
     exclude("**/*.properties")
     exclude("**/*.bsl")
     exclude("**/*.json")

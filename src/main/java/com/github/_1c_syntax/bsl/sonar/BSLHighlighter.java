@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright © 2018-2022
+ * Copyright (c) 2018-2022
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -327,7 +327,8 @@ public class BSLHighlighter {
       BSLLexer.PREPROC_LINUX,
       BSLLexer.PREPROC_WINDOWS,
       BSLLexer.PREPROC_MACOS,
-      BSLLexer.PREPROC_ANY
+      BSLLexer.PREPROC_ANY,
+      BSLLexer.PREPROC_MOBILE_STANDALONE_SERVER
     );
   }
 
