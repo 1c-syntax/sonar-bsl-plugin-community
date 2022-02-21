@@ -34,7 +34,7 @@ public class ACCReporter implements Reporter {
   private static final String SUBCATEGORY = "ACC";
   private static final String ENABLED_KEY = "sonar.bsl.acc.enabled";
   private static final boolean ENABLE_DEFAULT_VALUE = false;
-  private static final String CREATE_EXTERNAL_ISSUES_KEY = "sonar.bsl.acc.createExternalIssuesKey";
+  private static final String CREATE_EXTERNAL_ISSUES_KEY = "sonar.bsl.acc.createExternalIssues";
   private static final boolean CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE = true;
   private static final String RULES_PATHS_KEY = "sonar.bsl.acc.accRulesPaths";
   private static final String RULES_DEFAULT_PATH = "acc.json";

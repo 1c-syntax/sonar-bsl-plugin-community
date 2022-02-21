@@ -34,7 +34,7 @@ public class EDTReporter implements Reporter {
   private static final String SUBCATEGORY = "EDT";
   private static final String ENABLED_KEY = "sonar.bsl.edt.enabled";
   private static final boolean ENABLE_DEFAULT_VALUE = false;
-  private static final String CREATE_EXTERNAL_ISSUES_KEY = "sonar.bsl.edt.createExternalIssuesKey";
+  private static final String CREATE_EXTERNAL_ISSUES_KEY = "sonar.bsl.edt.createExternalIssues";
   private static final boolean CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE = true;
   private static final String RULES_PATHS_KEY = "sonar.bsl.edt.rulesPaths";
   private static final String RULES_DEFAULT_PATH = "edt.json";
