@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.acc;
+package com.github._1c_syntax.bsl.sonar.extissues;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -34,20 +34,62 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
 
-public class ACCRulesFileReader {
+/**
+ * Читатель файлов с описаниями диагностик
+ */
+public class RulesFileReader {
 
-  private static final Logger LOGGER = Loggers.get(ACCRulesFileReader.class);
+  private static final Logger LOGGER = Loggers.get(RulesFileReader.class);
 
   private final String[] filePaths;
   private int current;
 
-  public ACCRulesFileReader(String[] filePaths) {
+  public RulesFileReader(String[] filePaths) {
     this.filePaths = filePaths.clone();
   }
 
-  public Optional<ACCRulesFile> getNext() {
+  /**
+   * Выполняет чтение встроенных описаний диагностики по имени ресурса
+   *
+   * @param resourceName Имя ресурса-файла
+   * @return Контейнер, содержащий объект прочитанного файла диагностик либо пустоту
+   */
+  public static Optional<RulesFile> getRulesFromResource(String resourceName) {
+    String json;
+
+    try {
+      json = IOUtils.toString(
+        Objects.requireNonNull(RulesFileReader.class.getClassLoader().getResourceAsStream(resourceName)),
+        StandardCharsets.UTF_8.name()
+      );
+    } catch (IOException e) {
+      LOGGER.error("Can't read json file rules", e);
+      return Optional.empty();
+    }
+
+    return getRulesFile(json);
+  }
+
+  private static Optional<RulesFile> getRulesFile(String json) {
+    var objectMapper = JsonMapper.builder()
+      .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+      .build();
+    try {
+      return Optional.of(objectMapper.readValue(json, RulesFile.class));
+    } catch (IOException e) {
+      LOGGER.error("Can't serialize json rules to object", e);
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Итератор для перехода к следующему прочитанному файлу описаний
+   *
+   * @return Контейнер, содержащий объект прочитанного файла диагностик либо пустоту
+   */
+  public Optional<RulesFile> getNext() {
     if (hasMore()) {
-      Optional<ACCRulesFile> rules = getRulesFromFile();
+      Optional<RulesFile> rules = getRulesFromFile();
       current++;
       return rules;
     }
@@ -55,50 +97,27 @@ public class ACCRulesFileReader {
     return Optional.empty();
   }
 
+  /**
+   * Возвращает признак наличия еще не обработанных файлов описаний
+   *
+   * @return Наличие необработанных файлов
+   */
   public boolean hasMore() {
     return current < filePaths.length;
   }
 
-  public static Optional<ACCRulesFile> getRulesFromResource() {
-    String json;
-
-    try {
-      json = IOUtils.toString(
-        Objects.requireNonNull(ACCRuleDefinition.class.getClassLoader().getResourceAsStream("acc.json")),
-        StandardCharsets.UTF_8.name()
-      );
-    } catch (IOException e) {
-      LOGGER.error("Can't read json file acc rules", e);
-      return Optional.empty();
-    }
-
-    return getAccRulesFile(json);
-  }
-
-  private static Optional<ACCRulesFile> getAccRulesFile(String json) {
-    var objectMapper = JsonMapper.builder()
-      .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-      .build();
-    try {
-      return Optional.of(objectMapper.readValue(json, ACCRulesFile.class));
-    } catch (IOException e) {
-      LOGGER.error("Can't serialize json acc rules to object", e);
-      return Optional.empty();
-    }
-  }
-
-  private Optional<ACCRulesFile> getRulesFromFile() {
+  private Optional<RulesFile> getRulesFromFile() {
     File file = new File(filePaths[current]);
     String json;
 
     try {
       json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
     } catch (IOException e) {
-      LOGGER.error("Can't read json file acc rules", file.toURI().toString(), e);
+      LOGGER.error("Can't read json file rules", file.toURI().toString(), e);
       return Optional.empty();
     }
 
-    return getAccRulesFile(json);
+    return getRulesFile(json);
   }
 
 }

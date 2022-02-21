@@ -22,10 +22,11 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
-import com.github._1c_syntax.bsl.sonar.acc.ACCProperties;
-import com.github._1c_syntax.bsl.sonar.acc.ACCRuleDefinition;
+import com.github._1c_syntax.bsl.sonar.extissues.ACCReporter;
+import com.github._1c_syntax.bsl.sonar.extissues.EDTReporter;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
+import lombok.Value;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -51,18 +52,23 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class IssuesLoader {
 
   private static final Logger LOGGER = Loggers.get(IssuesLoader.class);
+  private static final String BSLLS_ENGINE_ID = "bsl-language-server";
 
   private final SensorContext context;
   private final Map<DiagnosticSeverity, Severity> severityMap;
   private final Map<DiagnosticSeverity, RuleType> ruleTypeMap;
   private final FileSystem fileSystem;
   private final FilePredicates predicates;
-  private final boolean createExternalIssuesWithACCSources;
+
+  private final Map<String, LoaderSettings> loaderSettings;
 
   public IssuesLoader(SensorContext context) {
     this.context = context;
@@ -70,26 +76,38 @@ public class IssuesLoader {
     this.predicates = fileSystem.predicates();
     this.severityMap = createDiagnosticSeverityMap();
     this.ruleTypeMap = createRuleTypeMap();
-    this.createExternalIssuesWithACCSources = context.config().getBoolean(ACCProperties.CREATE_EXTERNAL_ISSUES)
-      .orElse(ACCProperties.CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE);
+
+    this.loaderSettings = Stream.of(ACCReporter.create(), EDTReporter.create())
+      .map(properties -> new LoaderSettings(
+        properties.source(),
+        context.config().getBoolean(properties.createExternalIssuesKey())
+          .orElse(properties.createExternalIssuesDefaultValue())
+        , properties.repositoryKey()))
+      .collect(Collectors.toMap(LoaderSettings::getRepositoryKey, Function.identity()));
+
+    this.loaderSettings.put(BSLLS_ENGINE_ID,
+      new LoaderSettings(BSLLS_ENGINE_ID, true, BSLLanguageServerRuleDefinition.REPOSITORY_KEY));
   }
 
   public void createIssue(InputFile inputFile, Diagnostic diagnostic) {
 
-    var needCreateExternalIssue = true;
     var ruleId = DiagnosticCode.getStringValue(diagnostic.getCode());
-    String keyRepository = BSLLanguageServerRuleDefinition.REPOSITORY_KEY;
 
-    if (isACCDiagnostic(diagnostic)) {
-      needCreateExternalIssue = this.createExternalIssuesWithACCSources;
-      keyRepository = ACCRuleDefinition.REPOSITORY_KEY;
+    var settings = loaderSettings.get(diagnostic.getSource());
+    if (settings == null) {
+      LOGGER.error(
+        "Can't create issue because diagnostic with code {} has unknown engine id {}.",
+        ruleId,
+        diagnostic.getSource()
+      );
+      return;
     }
 
-    var ruleKey = RuleKey.of(keyRepository, ruleId);
+    var ruleKey = RuleKey.of(settings.repositoryKey, ruleId);
     var activeRule = context.activeRules().find(ruleKey);
 
-    if (needCreateExternalIssue && activeRule == null) {
-      createExternalIssue(inputFile, diagnostic);
+    if (settings.needCreateExternalIssues && activeRule == null) {
+      createExternalIssue(settings, inputFile, diagnostic);
       return;
     }
 
@@ -158,20 +176,10 @@ public class IssuesLoader {
     }
   }
 
-  private static boolean isACCDiagnostic(Diagnostic diagnostic) {
-    return ACCRuleDefinition.SOURCE.equals(diagnostic.getSource());
-  }
-
-  private void createExternalIssue(InputFile inputFile, Diagnostic diagnostic) {
+  private void createExternalIssue(LoaderSettings settings, InputFile inputFile, Diagnostic diagnostic) {
     var issue = context.newExternalIssue();
 
-    String engineId;
-    if (isACCDiagnostic(diagnostic)) {
-      engineId = ACCRuleDefinition.SOURCE;
-    } else {
-      engineId = "bsl-language-server";
-    }
-    issue.engineId(engineId);
+    issue.engineId(settings.engineId);
 
     var ruleId = DiagnosticCode.getStringValue(diagnostic.getCode());
     issue.ruleId(ruleId);
@@ -279,5 +287,12 @@ public class IssuesLoader {
     map.put(DiagnosticSeverity.Error, RuleType.BUG);
 
     return map;
+  }
+
+  @Value
+  private static class LoaderSettings {
+    String engineId;
+    boolean needCreateExternalIssues;
+    String repositoryKey;
   }
 }

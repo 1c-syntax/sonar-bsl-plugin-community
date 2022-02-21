@@ -19,5 +19,9 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
+
+/**
+ * Реализация импортеров замечаний от внешних анализаторов
+ */
 @javax.annotation.ParametersAreNonnullByDefault
-package com.github._1c_syntax.bsl.sonar.acc;
+package com.github._1c_syntax.bsl.sonar.extissues;

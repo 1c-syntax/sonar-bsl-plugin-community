@@ -19,28 +19,65 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.acc;
+package com.github._1c_syntax.bsl.sonar.extissues;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import java.util.List;
 
+/**
+ * DTO для чтения списка описаний диагностик из файла json
+ */
 @Value
 @AllArgsConstructor
-public class ACCRulesFile {
+public class RulesFile {
 
-  List<ACCRule> rules;
+  List<Rule> rules;
 
+  /**
+   * DTO для описания самих описаний диагностик в файле
+   */
   @Value
-  public static class ACCRule {
+  public static class Rule {
+    /**
+     * Код диагностики (обязательный)
+     */
     String code;
+
+    /**
+     * Имя диагностики (обязательный)
+     */
     String name;
+
+    /**
+     * Описание диагностики
+     */
     String description;
+
+    /**
+     * Тип диагностики
+     */
     String type;
+
+    /**
+     * Важность диагностики
+     */
     String severity;
+
+    /**
+     * Признак активизации по умолчанию
+     */
     boolean active;
+
+    /**
+     * Признак вхождения диагностики в профиль обязательных для сертификации
+     */
     boolean needForCertificate;
+
+    /**
+     * Время на исправление (в минутах)
+     */
     int effortMinutes;
   }
 }

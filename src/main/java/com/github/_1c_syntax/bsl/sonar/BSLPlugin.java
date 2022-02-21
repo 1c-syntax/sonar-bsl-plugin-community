@@ -21,15 +21,21 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.sonar.acc.ACCProperties;
-import com.github._1c_syntax.bsl.sonar.acc.ACCQualityProfile;
-import com.github._1c_syntax.bsl.sonar.acc.ACCRuleDefinition;
+import com.github._1c_syntax.bsl.sonar.extissues.ACCReporter;
+import com.github._1c_syntax.bsl.sonar.extissues.EDTReporter;
+import com.github._1c_syntax.bsl.sonar.extissues.QualityProfilesContainer;
+import com.github._1c_syntax.bsl.sonar.extissues.Reporter;
+import com.github._1c_syntax.bsl.sonar.extissues.RuleDefinitionsContainer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import org.sonar.api.Plugin;
 
+import java.util.List;
+
 public class BSLPlugin implements Plugin {
+
+  public static final List<Reporter> EI_PROPERTIES = List.of(ACCReporter.create(), EDTReporter.create());
 
   @Override
   public void define(Context context) {
@@ -37,10 +43,10 @@ public class BSLPlugin implements Plugin {
     context.addExtension(BSLQualityProfile.class);
 
     context.addExtensions(BSLCommunityProperties.getProperties());
-    context.addExtensions(ACCProperties.getProperties());
+    EI_PROPERTIES.forEach(properties -> context.addExtension(properties.getProperties()));
     context.addExtension(BSLLanguageServerRuleDefinition.class);
-    context.addExtension(ACCQualityProfile.class);
-    context.addExtension(ACCRuleDefinition.class);
+    context.addExtension(QualityProfilesContainer.class);
+    context.addExtension(RuleDefinitionsContainer.class);
 
     context.addExtension(BSLCoreSensor.class);
     context.addExtension(LanguageServerDiagnosticsLoaderSensor.class);
