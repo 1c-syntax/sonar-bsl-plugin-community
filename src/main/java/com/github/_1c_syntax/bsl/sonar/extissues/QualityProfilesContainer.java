@@ -73,37 +73,37 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
   /**
    * Создает профили качества для внешнего репортера
    */
-  private static class QualityProfile implements BuiltInQualityProfilesDefinition {
+  private static class QualityProfile {
 
     private final List<RulesFile> externalFiles = new ArrayList<>();
     @Getter
     private final boolean notEnabled;
-    private final Reporter properties;
+    private final Reporter reporter;
     private RulesFile rulesFile;
 
-    protected QualityProfile(Configuration config, Reporter properties) {
-      this.properties = properties;
+    protected QualityProfile(Configuration config, Reporter reporter) {
+      this.reporter = reporter;
 
-      RulesFileReader.getRulesFromResource(properties.rulesDefaultPath())
+      RulesFileReader.getRulesFromResource(reporter.rulesDefaultPath())
         .ifPresent((RulesFile file) -> this.rulesFile = file);
 
-      notEnabled = !config.getBoolean(properties.enabledKey()).orElse(properties.enableDefaultValue())
+      notEnabled = !config.getBoolean(reporter.enabledKey()).orElse(reporter.enableDefaultValue())
         || rulesFile == null;
-      RulesFileReader loader = new RulesFileReader(config.getStringArray(properties.rulesPathsKey()));
+      RulesFileReader loader = new RulesFileReader(config.getStringArray(reporter.rulesPathsKey()));
 
       while (loader.hasMore()) {
         loader.getNext().ifPresent(externalFiles::add);
       }
     }
 
-    public void activateDefaultRules(NewBuiltInQualityProfile profile) {
+    protected void activateDefaultRules(NewBuiltInQualityProfile profile) {
       ArrayList<String> activatedRules = new ArrayList<>();
       rulesFile.getRules()
         .stream()
         .filter(RulesFile.Rule::isActive)
         .map(RulesFile.Rule::getCode)
         .forEach((String key) -> {
-          profile.activateRule(properties.repositoryKey(), key);
+          profile.activateRule(reporter.repositoryKey(), key);
           activatedRules.add(key);
         });
       externalFiles.stream()
@@ -112,11 +112,10 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
         .filter(RulesFile.Rule::isActive)
         .map(RulesFile.Rule::getCode)
         .filter(key -> !activatedRules.contains(key))
-        .forEach(key -> profile.activateRule(properties.repositoryKey(), key));
+        .forEach(key -> profile.activateRule(reporter.repositoryKey(), key));
     }
 
-    @Override
-    public void define(Context context) {
+    protected void define(Context context) {
       if (notEnabled) {
         return;
       }
@@ -127,7 +126,7 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
 
     private void addFullCheckProfile(Context context) {
       NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
-        String.format("%s - full check", properties.source()),
+        String.format("%s - full check", reporter.subcategory()),
         BSLLanguage.KEY
       );
       activateDefaultRules(profile);
@@ -136,7 +135,7 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
 
     private void add1CCertifiedProfile(Context context) {
       NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
-        String.format("%s - 1C:Compatible", properties.source()),
+        String.format("%s - 1C:Compatible", reporter.subcategory()),
         BSLLanguage.KEY
       );
       ArrayList<String> activatedRules = new ArrayList<>();
@@ -145,7 +144,7 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
         .filter(RulesFile.Rule::isNeedForCertificate)
         .map(RulesFile.Rule::getCode)
         .forEach((String key) -> {
-          profile.activateRule(properties.repositoryKey(), key);
+          profile.activateRule(reporter.repositoryKey(), key);
           activatedRules.add(key);
         });
       externalFiles.stream()
@@ -154,7 +153,7 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
         .filter(RulesFile.Rule::isNeedForCertificate)
         .map(RulesFile.Rule::getCode)
         .filter(key -> !activatedRules.contains(key))
-        .forEach(key -> profile.activateRule(properties.repositoryKey(), key));
+        .forEach(key -> profile.activateRule(reporter.repositoryKey(), key));
       profile.done();
     }
 

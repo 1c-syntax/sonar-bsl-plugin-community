@@ -35,9 +35,11 @@ public class RuleDefinitionsContainer implements RulesDefinition {
 
   private final List<RuleDefinition> ruleDefinitions;
 
-  protected RuleDefinitionsContainer(Configuration config) {
-    ruleDefinitions = List.of(new RuleDefinition(config, ACCReporter.create()),
-      new RuleDefinition(config, EDTReporter.create()));
+  public RuleDefinitionsContainer(Configuration config) {
+    ruleDefinitions = List.of(
+      new RuleDefinition(config, ACCReporter.create()),
+      new RuleDefinition(config, EDTReporter.create())
+    );
   }
 
   @Override
@@ -45,7 +47,7 @@ public class RuleDefinitionsContainer implements RulesDefinition {
     ruleDefinitions.forEach(ruleDefinition -> ruleDefinition.define(context));
   }
 
-  private static class RuleDefinition implements RulesDefinition {
+  private static class RuleDefinition {
 
     private final String[] rulesFilePaths;
     private final boolean notEnabled;
@@ -64,22 +66,18 @@ public class RuleDefinitionsContainer implements RulesDefinition {
       ruleTag = properties.ruleTag();
     }
 
-    @Override
-    public void define(Context context) {
+    protected void define(Context context) {
       if (notEnabled) {
         return;
       }
 
-      repository = context
-        .createRepository(repositoryKey, BSLLanguage.KEY)
-        .setName(repositoryName);
+      repository = context.createRepository(repositoryKey, BSLLanguage.KEY).setName(repositoryName);
       loadRules();
       repository.done();
     }
 
     private void loadRules() {
-      RulesFileReader
-        .getRulesFromResource(rulesDefaultPath)
+      RulesFileReader.getRulesFromResource(rulesDefaultPath)
         .ifPresent((RulesFile file) -> file.getRules().forEach(this::createRule));
 
       var loader = new RulesFileReader(rulesFilePaths);
@@ -93,8 +91,7 @@ public class RuleDefinitionsContainer implements RulesDefinition {
       var foundRule = repository.rule(rule.getCode());
 
       if (foundRule == null) {
-        foundRule = repository.createRule(rule.getCode())
-          .addTags(ruleTag);
+        foundRule = repository.createRule(rule.getCode()).addTags(ruleTag);
       }
 
       foundRule.setName(rule.getName())
@@ -102,9 +99,7 @@ public class RuleDefinitionsContainer implements RulesDefinition {
         .setType(RuleType.valueOf(rule.getType()))
         .setSeverity(rule.getSeverity());
       foundRule.setDebtRemediationFunction(
-        foundRule.debtRemediationFunctions().linear(
-          rule.getEffortMinutes() + "min"
-        )
+        foundRule.debtRemediationFunctions().linear(rule.getEffortMinutes() + "min")
       );
     }
   }

@@ -63,4 +63,16 @@ class QualityProfileTest {
     assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(3);
   }
 
+  @Test
+  void testQualityProfileEnabledWithoutFiles() {
+    var properties = ACCReporter.create();
+    var config = new MapSettings()
+      .setProperty(properties.enabledKey(), true)
+      .asConfig();
+    var profile = new QualityProfilesContainer(config);
+    var context = new BuiltInQualityProfilesDefinition.Context();
+    profile.define(context);
+    assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(3);
+  }
+
 }

@@ -21,6 +21,9 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+import com.github._1c_syntax.bsl.sonar.extissues.ACCReporter;
+import com.github._1c_syntax.bsl.sonar.extissues.EDTReporter;
+import com.github._1c_syntax.bsl.sonar.extissues.QualityProfilesContainer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import org.junit.jupiter.api.Test;
@@ -28,6 +31,8 @@ import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.internal.PluginContextImpl;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.utils.Version;
@@ -46,7 +51,7 @@ class BSLPluginTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_7_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     Plugin.Context context = new Plugin.Context(runtime);
     bslPlugin.define(context);
-    assertThat((List<?>) context.getExtensions()).hasSize(17);
+    assertThat((List<?>) context.getExtensions()).hasSize(20);
   }
 
   @Test
@@ -55,6 +60,26 @@ class BSLPluginTest {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     profile.define(context);
     assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(1);
+  }
+
+  @Test
+  void testQualityProfileAll() {
+    var runtime = SonarRuntimeImpl.forSonarQube(VERSION_7_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    var config = new MapSettings()
+      .setProperty(ACCReporter.create().enabledKey(), true)
+      .setProperty(EDTReporter.create().enabledKey(), true)
+      .asConfig();
+    var context = new PluginContextImpl.Builder()
+      .setSonarRuntime(runtime)
+      .setBootConfiguration(config)
+      .build();
+
+    bslPlugin.define(context);
+
+    var profile = new QualityProfilesContainer(config);
+    var contextProfile = new BuiltInQualityProfilesDefinition.Context();
+    profile.define(contextProfile);
+    assertThat(contextProfile.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(5);
   }
 
 }

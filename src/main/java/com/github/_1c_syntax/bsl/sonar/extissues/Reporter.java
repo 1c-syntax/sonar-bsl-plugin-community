@@ -22,12 +22,12 @@
 package com.github._1c_syntax.bsl.sonar.extissues;
 
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
+import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static com.github._1c_syntax.bsl.sonar.BSLCommunityProperties.BSL_CATEGORY;
 
@@ -102,11 +102,11 @@ public interface Reporter {
   int startIndex();
 
   /**
-   * Возвращает список параметров импортера для отображения в UI SQ
+   * Добавляет в контекст плагина параметры репортера для отображения в UI SQ
    */
-  default List<PropertyDefinition> getProperties() {
+  default void addExtension(Plugin.Context context) {
     var index = startIndex();
-    return Arrays.asList(
+    Arrays.asList(
       PropertyDefinition.builder(enabledKey())
         .name(String.format("Enable %s rules", name()))
         .description(
@@ -121,7 +121,7 @@ public interface Reporter {
         .index(++index)
         .build(),
       PropertyDefinition.builder(createExternalIssuesKey())
-        .name(String.format("Create external issues with %s sources", source()))
+        .name("Create external issues")
         .description(
           String.format("Create external issue if no active %s rule was found", source())
         )
@@ -146,6 +146,6 @@ public interface Reporter {
         .multiValues(true)
         .index(++index)
         .build()
-    );
+    ).forEach(context::addExtension);
   }
 }

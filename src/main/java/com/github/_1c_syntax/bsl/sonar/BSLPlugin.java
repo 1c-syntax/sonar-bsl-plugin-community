@@ -35,7 +35,7 @@ import java.util.List;
 
 public class BSLPlugin implements Plugin {
 
-  private static final List<Reporter> EI_PROPERTIES = List.of(ACCReporter.create(), EDTReporter.create());
+  private static final List<Reporter> REPORTERS = List.of(ACCReporter.create(), EDTReporter.create());
 
   @Override
   public void define(Context context) {
@@ -43,7 +43,7 @@ public class BSLPlugin implements Plugin {
     context.addExtension(BSLQualityProfile.class);
 
     context.addExtensions(BSLCommunityProperties.getProperties());
-    EI_PROPERTIES.forEach(properties -> context.addExtension(properties.getProperties()));
+    REPORTERS.forEach(reporter -> reporter.addExtension(context));
     context.addExtension(BSLLanguageServerRuleDefinition.class);
     context.addExtension(QualityProfilesContainer.class);
     context.addExtension(RuleDefinitionsContainer.class);
