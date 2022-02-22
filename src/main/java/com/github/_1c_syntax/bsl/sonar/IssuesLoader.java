@@ -95,12 +95,8 @@ public class IssuesLoader {
 
     var settings = loaderSettings.get(diagnostic.getSource());
     if (settings == null) {
-      LOGGER.error(
-        "Can't create issue because diagnostic with code {} has unknown engine id {}.",
-        ruleId,
-        diagnostic.getSource()
-      );
-      return;
+      // считаем, что это внешняя диагностика для бсллс
+      settings = loaderSettings.get(BSLLS_ENGINE_ID);
     }
 
     var ruleKey = RuleKey.of(settings.repositoryKey, ruleId);

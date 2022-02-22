@@ -35,7 +35,7 @@ import java.util.List;
 
 public class BSLPlugin implements Plugin {
 
-  public static final List<Reporter> EI_PROPERTIES = List.of(ACCReporter.create(), EDTReporter.create());
+  private static final List<Reporter> EI_PROPERTIES = List.of(ACCReporter.create(), EDTReporter.create());
 
   @Override
   public void define(Context context) {
