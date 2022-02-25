@@ -61,7 +61,7 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
       BSLLanguage.KEY
     );
 
-    enabledQualityProfiles.forEach(qualityProfile -> {
+    enabledQualityProfiles.forEach((QualityProfile qualityProfile) -> {
       qualityProfile.define(context);
       qualityProfile.activateDefaultRules(fullBSLProfile);
     });
@@ -90,7 +90,7 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
 
       notEnabled = !config.getBoolean(reporter.enabledKey()).orElse(reporter.enableDefaultValue())
         || rulesFile == null;
-      RulesFileReader loader = new RulesFileReader(config.getStringArray(reporter.rulesPathsKey()));
+      var loader = new RulesFileReader(config.getStringArray(reporter.rulesPathsKey()));
 
       while (loader.hasMore()) {
         loader.getNext().ifPresent(externalFiles::add);
@@ -98,7 +98,7 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
     }
 
     protected void activateDefaultRules(NewBuiltInQualityProfile profile) {
-      ArrayList<String> activatedRules = new ArrayList<>();
+      var activatedRules = new ArrayList<>();
       rulesFile.getRules()
         .stream()
         .filter(RulesFile.Rule::isActive)
@@ -128,7 +128,7 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
     }
 
     private void addFullCheckProfile(Context context) {
-      NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
+      var profile = context.createBuiltInQualityProfile(
         String.format("%s - full check", reporter.subcategory()),
         BSLLanguage.KEY
       );
@@ -137,11 +137,11 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
     }
 
     private void add1CCertifiedProfile(Context context) {
-      NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
+      var profile = context.createBuiltInQualityProfile(
         String.format("%s - 1C:Compatible", reporter.subcategory()),
         BSLLanguage.KEY
       );
-      ArrayList<String> activatedRules = new ArrayList<>();
+      var activatedRules = new ArrayList<>();
       rulesFile.getRules()
         .stream()
         .filter(RulesFile.Rule::isNeedForCertificate)

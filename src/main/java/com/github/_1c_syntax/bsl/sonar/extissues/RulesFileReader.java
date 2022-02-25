@@ -107,7 +107,7 @@ public class RulesFileReader {
   }
 
   private Optional<RulesFile> getRulesFromFile() {
-    File file = new File(filePaths[current]);
+    var file = new File(filePaths[current]);
     String json;
 
     try {
