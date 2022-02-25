@@ -109,4 +109,9 @@ public class EDTReporter implements Reporter {
   public int startIndex() {
     return START_INDEX;
   }
+
+  @Override
+  public boolean include1CCertifiedProfile() {
+    return true;
+  }
 }

@@ -21,21 +21,15 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.sonar.extissues.ACCReporter;
-import com.github._1c_syntax.bsl.sonar.extissues.EDTReporter;
+import com.github._1c_syntax.bsl.sonar.extissues.AllReporters;
 import com.github._1c_syntax.bsl.sonar.extissues.QualityProfilesContainer;
-import com.github._1c_syntax.bsl.sonar.extissues.Reporter;
 import com.github._1c_syntax.bsl.sonar.extissues.RuleDefinitionsContainer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import org.sonar.api.Plugin;
 
-import java.util.List;
-
 public class BSLPlugin implements Plugin {
-
-  private static final List<Reporter> REPORTERS = List.of(ACCReporter.create(), EDTReporter.create());
 
   @Override
   public void define(Context context) {
@@ -43,7 +37,7 @@ public class BSLPlugin implements Plugin {
     context.addExtension(BSLQualityProfile.class);
 
     context.addExtensions(BSLCommunityProperties.getProperties());
-    REPORTERS.forEach(reporter -> reporter.addExtension(context));
+    AllReporters.getReporters().forEach(reporter -> reporter.addExtension(context));
     context.addExtension(BSLLanguageServerRuleDefinition.class);
     context.addExtension(QualityProfilesContainer.class);
     context.addExtension(RuleDefinitionsContainer.class);

@@ -102,6 +102,11 @@ public interface Reporter {
   int startIndex();
 
   /**
+   * Признак необходимости создания профиля с диагностиками для 1С:Совместимо
+   */
+  boolean include1CCertifiedProfile();
+
+  /**
    * Добавляет в контекст плагина параметры репортера для отображения в UI SQ
    */
   default void addExtension(Plugin.Context context) {

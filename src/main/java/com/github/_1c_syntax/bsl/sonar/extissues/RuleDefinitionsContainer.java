@@ -27,6 +27,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Контейнер диагностик внешних репортеров
@@ -36,10 +37,9 @@ public class RuleDefinitionsContainer implements RulesDefinition {
   private final List<RuleDefinition> ruleDefinitions;
 
   public RuleDefinitionsContainer(Configuration config) {
-    ruleDefinitions = List.of(
-      new RuleDefinition(config, ACCReporter.create()),
-      new RuleDefinition(config, EDTReporter.create())
-    );
+    ruleDefinitions = AllReporters.getReporters().stream()
+      .map(reporter -> new RuleDefinition(config, reporter))
+      .collect(Collectors.toList());
   }
 
   @Override

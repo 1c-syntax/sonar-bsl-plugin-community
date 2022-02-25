@@ -59,6 +59,7 @@ dependencies {
 
     testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
     testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)
+    testImplementation("org.reflections", "reflections", "0.9.12")
 }
 
 java {

@@ -40,8 +40,9 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
   private final List<QualityProfile> qualityProfiles;
 
   public QualityProfilesContainer(Configuration config) {
-    qualityProfiles = List.of(new QualityProfile(config, ACCReporter.create()),
-      new QualityProfile(config, EDTReporter.create()));
+    qualityProfiles = AllReporters.getReporters().stream()
+      .map(reporter -> new QualityProfile(config, reporter))
+      .collect(Collectors.toList());
   }
 
   @Override
@@ -121,7 +122,9 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
       }
 
       addFullCheckProfile(context);
-      add1CCertifiedProfile(context);
+      if (reporter.include1CCertifiedProfile()) {
+        add1CCertifiedProfile(context);
+      }
     }
 
     private void addFullCheckProfile(Context context) {

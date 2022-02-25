@@ -24,25 +24,26 @@ package com.github._1c_syntax.bsl.sonar.extissues;
 import lombok.Value;
 
 /**
- * Настройки внешнего анализатора 1С:АПК
+ * Настройки внешнего анализатора 1С:EDT
  */
 @Value(staticConstructor = "create")
-public class ACCReporter implements Reporter {
+public class UniversalReporter implements Reporter {
 
-  private static final String NAME = "1C:ACC (1С:АПК)";
+  private static final String NAME = "BSLLS Universal";
 
-  private static final String SUBCATEGORY = "ACC";
-  private static final String ENABLED_KEY = "sonar.bsl.acc.enabled";
+  private static final String SUBCATEGORY = "Universal";
+  private static final String ENABLED_KEY = "sonar.bsl.universal.enabled";
   private static final boolean ENABLE_DEFAULT_VALUE = false;
-  private static final String CREATE_EXTERNAL_ISSUES_KEY = "sonar.bsl.acc.createExternalIssues";
-  private static final boolean CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE = true;
-  private static final String RULES_PATHS_KEY = "sonar.bsl.acc.accRulesPaths";
-  private static final String RULES_DEFAULT_PATH = "acc.json";
-  private static final String REPOSITORY_KEY = "acc-rules";
-  private static final String SOURCE = "acc";
-  private static final String REPOSITORY_NAME = "ACC rules";
-  private static final String RULE_TAG = "acc";
-  private static final int START_INDEX = 30;
+  private static final String CREATE_EXTERNAL_ISSUES_KEY = "sonar.bsl.universal.createExternalIssues";
+  private static final boolean CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE = false;
+  private static final String RULES_PATHS_KEY = "sonar.bsl.universal.rulesPaths";
+  private static final String RULES_DEFAULT_PATH = "universal.json";
+  private static final String REPOSITORY_KEY = "universal-rules";
+  private static final String SOURCE = "universal";
+  private static final String REPOSITORY_NAME = "Universal rules";
+  private static final String RULE_TAG = "bslls-universal";
+
+  private static final int START_INDEX = 45;
 
   @Override
   public String name() {
@@ -111,6 +112,6 @@ public class ACCReporter implements Reporter {
 
   @Override
   public boolean include1CCertifiedProfile() {
-    return true;
+    return false;
   }
 }

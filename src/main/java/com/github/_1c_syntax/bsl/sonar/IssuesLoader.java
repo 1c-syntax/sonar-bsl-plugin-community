@@ -22,8 +22,7 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
-import com.github._1c_syntax.bsl.sonar.extissues.ACCReporter;
-import com.github._1c_syntax.bsl.sonar.extissues.EDTReporter;
+import com.github._1c_syntax.bsl.sonar.extissues.AllReporters;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import lombok.Value;
@@ -55,7 +54,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class IssuesLoader {
 
@@ -77,7 +75,7 @@ public class IssuesLoader {
     this.severityMap = createDiagnosticSeverityMap();
     this.ruleTypeMap = createRuleTypeMap();
 
-    this.loaderSettings = Stream.of(ACCReporter.create(), EDTReporter.create())
+    this.loaderSettings = AllReporters.getReporters().stream()
       .map(properties -> new LoaderSettings(
         properties.source(),
         context.config().getBoolean(properties.createExternalIssuesKey())
