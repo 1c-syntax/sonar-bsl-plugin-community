@@ -46,7 +46,7 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.repositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(1);
+    assertThat(repository.rules()).hasSize(40);
   }
 
   @Test
@@ -62,7 +62,7 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.repositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(1);
+    assertThat(repository.rules()).hasSize(40);
   }
 
   @Test
@@ -70,9 +70,12 @@ class RuleDefinitionTest {
     var baseDir = new File("src/test/resources").getAbsoluteFile();
     var fileRules = new File(baseDir, "acc-test.json");
     var fileRulesSecond = new File(baseDir, "acc-test-second.json");
+    var fileRulesThird = new File(baseDir, "edt-test.json");
     var config = new MapSettings()
       .setProperty(reporter.enabledKey(), true)
-      .setProperty(reporter.rulesPathsKey(), fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
+      .setProperty(reporter.rulesPathsKey(), fileRules.getAbsolutePath()
+        + "," + fileRulesSecond.getAbsolutePath()
+        + "," + fileRulesThird.getAbsolutePath())
       .asConfig();
     var ruleDefinition = new RuleDefinitionsContainer(config);
     var context = new RulesDefinition.Context();
@@ -81,7 +84,7 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.repositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(4);
+    assertThat(repository.rules()).hasSize(44);
   }
 
 }
