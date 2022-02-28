@@ -132,7 +132,7 @@ tasks.jar {
         attributes["Plugin-SourcesUrl"] = "https://github.com/1c-syntax/sonar-bsl-plugin-community"
         attributes["Plugin-Developers"] = "Alexey Sosnoviy, Nikita Fedkin"
 
-        attributes["SonarLint-Supported"] = true
+        attributes["SonarLint-Supported"] = false
         attributes["Sonar-Version"] = sonarQubeVersion
 
         attributes["Plugin-Organization"] = "1c-syntax"
