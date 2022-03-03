@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.extissues;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.sonar.api.config.Configuration;
@@ -37,7 +37,7 @@ public class RuleDefinitionsContainer implements RulesDefinition {
   private final List<RuleDefinition> ruleDefinitions;
 
   public RuleDefinitionsContainer(Configuration config) {
-    ruleDefinitions = AllReporters.getReporters().stream()
+    ruleDefinitions = ExternalReporters.REPORTERS.stream()
       .map(reporter -> new RuleDefinition(config, reporter))
       .collect(Collectors.toList());
   }
@@ -50,7 +50,7 @@ public class RuleDefinitionsContainer implements RulesDefinition {
   private static class RuleDefinition {
 
     private final String[] rulesFilePaths;
-    private final boolean notEnabled;
+    private final boolean enabled;
     private final String repositoryKey;
     private final String repositoryName;
     private final String rulesDefaultPath;
@@ -58,16 +58,17 @@ public class RuleDefinitionsContainer implements RulesDefinition {
     private NewRepository repository;
 
     protected RuleDefinition(Configuration config, Reporter properties) {
-      rulesFilePaths = config.getStringArray(properties.rulesPathsKey());
-      notEnabled = !config.getBoolean(properties.enabledKey()).orElse(properties.enableDefaultValue());
-      repositoryKey = properties.repositoryKey();
-      repositoryName = properties.repositoryName();
-      rulesDefaultPath = properties.rulesDefaultPath();
-      ruleTag = properties.ruleTag();
+      rulesFilePaths = config.getStringArray(properties.getRulesPathsKey());
+      enabled = config.getBoolean(properties.getEnabledKey())
+        .orElse(properties.isEnableDefaultValue());
+      repositoryKey = properties.getRepositoryKey();
+      repositoryName = properties.getRepositoryName();
+      rulesDefaultPath = properties.getRulesDefaultPath();
+      ruleTag = properties.getRuleTag();
     }
 
     protected void define(Context context) {
-      if (notEnabled) {
+      if (!enabled) {
         return;
       }
 

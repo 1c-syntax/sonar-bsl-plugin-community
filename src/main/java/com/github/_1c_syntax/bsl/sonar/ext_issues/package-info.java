@@ -23,4 +23,4 @@
  * Реализация импортеров замечаний от внешних анализаторов
  */
 @javax.annotation.ParametersAreNonnullByDefault
-package com.github._1c_syntax.bsl.sonar.extissues;
+package com.github._1c_syntax.bsl.sonar.ext_issues;

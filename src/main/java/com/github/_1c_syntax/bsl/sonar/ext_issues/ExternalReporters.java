@@ -19,22 +19,20 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.extissues;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
-import org.junit.jupiter.api.Test;
-import org.reflections.Reflections;
+import lombok.experimental.UtilityClass;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
 
-class AllReportersTest {
-
-  @Test
-  void getReporters() {
-    var reporters = new Reflections("com.github._1c_syntax.bsl.sonar.extissues")
-      .getSubTypesOf(Reporter.class);
-
-    assertThat(AllReporters.getReporters())
-      .hasSize(reporters.size())
-      .allMatch(reporter -> reporters.contains(reporter.getClass()));
-  }
+/**
+ * Все зарегистрированные репортеры
+ */
+@UtilityClass
+public class ExternalReporters {
+  public final List<Reporter> REPORTERS = List.of(
+    AccReporter.create(),
+    EdtReporter.create(),
+    UniversalReporter.create()
+  );
 }

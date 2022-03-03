@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.extissues;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ class QualityProfileTest {
     var fileRules = new File(baseDir, "acc-test.json");
     var fileRulesSecond = new File(baseDir, "acc-test-second.json");
     var config = new MapSettings()
-      .setProperty(ACCReporter.create().rulesPathsKey(),
+      .setProperty(AccReporter.create().getRulesPathsKey(),
         fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
       .asConfig();
     var profile = new QualityProfilesContainer(config);
@@ -52,10 +52,10 @@ class QualityProfileTest {
     var baseDir = new File("src/test/resources").getAbsoluteFile();
     var fileRules = new File(baseDir, "acc-test.json");
     var fileRulesSecond = new File(baseDir, "acc-test-second.json");
-    var properties = ACCReporter.create();
+    var properties = AccReporter.create();
     var config = new MapSettings()
-      .setProperty(properties.enabledKey(), true)
-      .setProperty(properties.rulesPathsKey(), fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
+      .setProperty(properties.getEnabledKey(), true)
+      .setProperty(properties.getRulesPathsKey(), fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
       .asConfig();
     var profile = new QualityProfilesContainer(config);
     var context = new BuiltInQualityProfilesDefinition.Context();
@@ -65,9 +65,9 @@ class QualityProfileTest {
 
   @Test
   void testQualityProfileEnabledWithoutFiles() {
-    var properties = ACCReporter.create();
+    var properties = AccReporter.create();
     var config = new MapSettings()
-      .setProperty(properties.enabledKey(), true)
+      .setProperty(properties.getEnabledKey(), true)
       .asConfig();
     var profile = new QualityProfilesContainer(config);
     var context = new BuiltInQualityProfilesDefinition.Context();

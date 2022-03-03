@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.extissues;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import org.sonar.api.Plugin;
@@ -39,114 +39,114 @@ public interface Reporter {
   /**
    * Пользовательское имя
    */
-  String name();
+  String getName();
 
   /**
    * Подкатегория настроек
    */
-  String subcategory();
+  String getSubcategory();
 
   /**
    * Ключ настроек для активизации импортера
    */
-  String enabledKey();
+  String getEnabledKey();
 
   /**
    * Значение ключа для активизации импортера по умолчанию
    */
-  boolean enableDefaultValue();
+  boolean isEnableDefaultValue();
 
   /**
    * Ключ настроек для создания "внешние замечаний"
    */
-  String createExternalIssuesKey();
+  String getCreateExternalIssuesKey();
 
   /**
    * Значение по умолчанию для создания "внешние замечаний"
    */
-  boolean createExternalIssuesDefaultValue();
+  boolean isCreateExternalIssuesDefaultValue();
 
   /**
    * Ключ настройки путей файлов с описанием диагностик
    */
-  String rulesPathsKey();
+  String getRulesPathsKey();
 
   /**
    * Путь к поставляемому файлу описания диагностик
    */
-  String rulesDefaultPath();
+  String getRulesDefaultPath();
 
   /**
    * Ключ репозитория диагностик
    */
-  String repositoryKey();
+  String getRepositoryKey();
 
   /**
    * Ключ-идентификатор репортера
    */
-  String source();
+  String getSource();
 
   /**
    * Пользовательское представление репозитория диагностик
    */
-  String repositoryName();
+  String getRepositoryName();
 
   /**
    * Имя тега, указываемого диагностикам при загрузке
    */
-  String ruleTag();
+  String getRuleTag();
 
   /**
    * Стартовый индекс расположения настроек в UI SQ
    */
-  int startIndex();
+  int getStartIndex();
 
   /**
    * Признак необходимости создания профиля с диагностиками для 1С:Совместимо
    */
-  boolean include1CCertifiedProfile();
+  boolean isInclude1CCertifiedProfile();
 
   /**
    * Добавляет в контекст плагина параметры репортера для отображения в UI SQ
    */
   default void addExtension(Plugin.Context context) {
-    var index = startIndex();
+    var index = getStartIndex();
     Arrays.asList(
-      PropertyDefinition.builder(enabledKey())
-        .name(String.format("Enable %s rules", name()))
+      PropertyDefinition.builder(getEnabledKey())
+        .name(String.format("Enable %s rules", getName()))
         .description(
-          String.format("Enable %s rules. Need restart server", name())
+          String.format("Enable %s rules. Need restart server", getName())
         )
-        .defaultValue(Boolean.toString(enableDefaultValue()))
+        .defaultValue(Boolean.toString(isEnableDefaultValue()))
         .type(PropertyType.BOOLEAN)
         .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
         .category(BSL_CATEGORY)
-        .subCategory(subcategory())
+        .subCategory(getSubcategory())
         .onQualifiers(Qualifiers.APP)
         .index(++index)
         .build(),
-      PropertyDefinition.builder(createExternalIssuesKey())
+      PropertyDefinition.builder(getCreateExternalIssuesKey())
         .name("Create external issues")
         .description(
-          String.format("Create external issue if no active %s rule was found", source())
+          String.format("Create external issue if no active %s rule was found", getSource())
         )
-        .defaultValue(Boolean.toString(createExternalIssuesDefaultValue()))
+        .defaultValue(Boolean.toString(isCreateExternalIssuesDefaultValue()))
         .type(PropertyType.BOOLEAN)
         .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
         .category(BSL_CATEGORY)
-        .subCategory(subcategory())
+        .subCategory(getSubcategory())
         .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
         .index(++index)
         .build(),
-      PropertyDefinition.builder(rulesPathsKey())
-        .name(String.format("%s rules path", name()))
+      PropertyDefinition.builder(getRulesPathsKey())
+        .name(String.format("%s rules path", getName()))
         .description(
-          String.format("Path (absolute or relative) to json file with %s rules", name())
+          String.format("Path (absolute or relative) to json file with %s rules", getName())
         )
         .defaultValue("")
         .type(PropertyType.STRING)
         .category(BSL_CATEGORY)
-        .subCategory(subcategory())
+        .subCategory(getSubcategory())
         .onQualifiers(Qualifiers.APP)
         .multiValues(true)
         .index(++index)

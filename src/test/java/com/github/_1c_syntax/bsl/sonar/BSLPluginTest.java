@@ -21,9 +21,9 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.sonar.extissues.ACCReporter;
-import com.github._1c_syntax.bsl.sonar.extissues.EDTReporter;
-import com.github._1c_syntax.bsl.sonar.extissues.QualityProfilesContainer;
+import com.github._1c_syntax.bsl.sonar.ext_issues.AccReporter;
+import com.github._1c_syntax.bsl.sonar.ext_issues.EdtReporter;
+import com.github._1c_syntax.bsl.sonar.ext_issues.QualityProfilesContainer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
 import org.junit.jupiter.api.Test;
@@ -66,8 +66,8 @@ class BSLPluginTest {
   void testQualityProfileAll() {
     var runtime = SonarRuntimeImpl.forSonarQube(VERSION_7_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     var config = new MapSettings()
-      .setProperty(ACCReporter.create().enabledKey(), true)
-      .setProperty(EDTReporter.create().enabledKey(), true)
+      .setProperty(AccReporter.create().getEnabledKey(), true)
+      .setProperty(EdtReporter.create().getEnabledKey(), true)
       .asConfig();
     var context = new PluginContextImpl.Builder()
       .setSonarRuntime(runtime)

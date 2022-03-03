@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.extissues;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -31,20 +31,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class RuleDefinitionTest {
 
-  private final Reporter reporter = EDTReporter.create();
+  private final Reporter reporter = EdtReporter.create();
 
   @Test
   void testDefine() {
 
     var config = new MapSettings()
-      .setProperty(reporter.enabledKey(), true)
+      .setProperty(reporter.getEnabledKey(), true)
       .asConfig();
     var ruleDefinition = new RuleDefinitionsContainer(config);
     var context = new RulesDefinition.Context();
     ruleDefinition.define(context);
 
     assertThat(context.repositories()).hasSize(1);
-    var repository = context.repository(reporter.repositoryKey());
+    var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
     assertThat(repository.rules()).hasSize(40);
   }
@@ -52,15 +52,15 @@ class RuleDefinitionTest {
   @Test
   void testEmptyExternalFilePath() {
     var config = new MapSettings()
-      .setProperty(reporter.enabledKey(), true)
-      .setProperty(reporter.rulesPathsKey(), "")
+      .setProperty(reporter.getEnabledKey(), true)
+      .setProperty(reporter.getRulesPathsKey(), "")
       .asConfig();
     var ruleDefinition = new RuleDefinitionsContainer(config);
     var context = new RulesDefinition.Context();
     ruleDefinition.define(context);
 
     assertThat(context.repositories()).hasSize(1);
-    var repository = context.repository(reporter.repositoryKey());
+    var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
     assertThat(repository.rules()).hasSize(40);
   }
@@ -72,8 +72,8 @@ class RuleDefinitionTest {
     var fileRulesSecond = new File(baseDir, "acc-test-second.json");
     var fileRulesThird = new File(baseDir, "edt-test.json");
     var config = new MapSettings()
-      .setProperty(reporter.enabledKey(), true)
-      .setProperty(reporter.rulesPathsKey(), fileRules.getAbsolutePath()
+      .setProperty(reporter.getEnabledKey(), true)
+      .setProperty(reporter.getRulesPathsKey(), fileRules.getAbsolutePath()
         + "," + fileRulesSecond.getAbsolutePath()
         + "," + fileRulesThird.getAbsolutePath())
       .asConfig();
@@ -82,7 +82,7 @@ class RuleDefinitionTest {
     ruleDefinition.define(context);
 
     assertThat(context.repositories()).hasSize(1);
-    var repository = context.repository(reporter.repositoryKey());
+    var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
     assertThat(repository.rules()).hasSize(44);
   }
