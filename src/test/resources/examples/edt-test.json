@@ -1,3 +1,22 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:6083b69ccf2c5fd8f90014c0be4c5e97f879bf22928dc781863ae1c116f45413
-size 584
+{
+  "Rules": [
+    {
+      "Code": "EDT-2",
+      "Name": "Возвращает тип, который имеет отличное окружение от контекста вызова",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 1
+    },
+    {
+      "Code": "EDT-99999",
+      "Name": "Test",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 1000
+    }
+  ]
+}
