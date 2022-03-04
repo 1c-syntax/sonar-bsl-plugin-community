@@ -19,11 +19,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.acc;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 
@@ -31,33 +30,46 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ACCQualityProfileTest {
+class QualityProfileTest {
+
+  private static final File BASE_DIR = new File("src/test/resources").getAbsoluteFile();
+  private static final String ACC_TEST_RULES_FILE
+    = new File(BASE_DIR, "examples/acc-test.json").getAbsolutePath();
+  private static final String ACC_TEST2_RULES_FILE
+    = new File(BASE_DIR, "examples/acc-test-second.json").getAbsolutePath();
 
   @Test
   void testQualityProfile() {
-    File baseDir = new File("src/test/resources").getAbsoluteFile();
-    File fileRules = new File(baseDir, "acc-test.json");
-    File fileRulesSecond = new File(baseDir, "acc-test-second.json");
-    Configuration config = new MapSettings()
-      .setProperty(ACCProperties.ACC_RULES_PATHS, fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
+    var config = new MapSettings()
+      .setProperty(AccReporter.create().getRulesPathsKey(), ACC_TEST_RULES_FILE + "," + ACC_TEST2_RULES_FILE)
       .asConfig();
-    ACCQualityProfile profile = new ACCQualityProfile(config);
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    var profile = new QualityProfilesContainer(config);
+    var context = new BuiltInQualityProfilesDefinition.Context();
     profile.define(context);
     assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).isNull();
   }
 
   @Test
   void testQualityProfileEnabled() {
-    File baseDir = new File("src/test/resources").getAbsoluteFile();
-    File fileRules = new File(baseDir, "acc-test.json");
-    File fileRulesSecond = new File(baseDir, "acc-test-second.json");
-    Configuration config = new MapSettings()
-      .setProperty(ACCProperties.ACC_ENABLED, true)
-      .setProperty(ACCProperties.ACC_RULES_PATHS, fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
+    var properties = AccReporter.create();
+    var config = new MapSettings()
+      .setProperty(properties.getEnabledKey(), true)
+      .setProperty(properties.getRulesPathsKey(), ACC_TEST_RULES_FILE + "," + ACC_TEST2_RULES_FILE)
       .asConfig();
-    ACCQualityProfile profile = new ACCQualityProfile(config);
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    var profile = new QualityProfilesContainer(config);
+    var context = new BuiltInQualityProfilesDefinition.Context();
+    profile.define(context);
+    assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(3);
+  }
+
+  @Test
+  void testQualityProfileEnabledWithoutFiles() {
+    var properties = AccReporter.create();
+    var config = new MapSettings()
+      .setProperty(properties.getEnabledKey(), true)
+      .asConfig();
+    var profile = new QualityProfilesContainer(config);
+    var context = new BuiltInQualityProfilesDefinition.Context();
     profile.define(context);
     assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(3);
   }

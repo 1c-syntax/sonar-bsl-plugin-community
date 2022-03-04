@@ -64,8 +64,8 @@ class BSLHighlighterTest {
   void testHighlightingBSL() {
 
     // given
-    Vocabulary vocabulary = BSLLexer.VOCABULARY;
-    Map<String, TypeOfText> highlightingMap = getHighlightingMapBSL(vocabulary);
+    var vocabulary = BSLLexer.VOCABULARY;
+    var highlightingMap = getHighlightingMapBSL(vocabulary);
 
     // then
     testHighlighting(vocabulary, highlightingMap);
@@ -74,8 +74,8 @@ class BSLHighlighterTest {
   @Test
   void testHighlightingSDBL() {
     // given
-    Vocabulary vocabulary = SDBLLexer.VOCABULARY;
-    Map<String, TypeOfText> highlightingMap = getHighlightingMapSDBL(vocabulary);
+    var vocabulary = SDBLLexer.VOCABULARY;
+    var highlightingMap = getHighlightingMapSDBL(vocabulary);
 
     // then
     testHighlighting(vocabulary, highlightingMap);
@@ -99,7 +99,7 @@ class BSLHighlighterTest {
     highlighter.saveHighlighting(inputFile, documentContext);
 
     // then
-    String componentKey = "moduleKey:" + FILE_NAME;
+    var componentKey = "moduleKey:" + FILE_NAME;
 
     checkTokenTypeAtPosition(componentKey, 1, 4, TypeOfText.STRING);
     checkTokenTypeAtPosition(componentKey, 1, 5, TypeOfText.KEYWORD);
@@ -145,7 +145,7 @@ class BSLHighlighterTest {
   }
 
   private void checkTokenTypeAtPosition(String componentKey, int line, int character, TypeOfText typeOfText) {
-    List<TypeOfText> typeOfTexts = context.highlightingTypeAt(componentKey, line, character);
+    var typeOfTexts = context.highlightingTypeAt(componentKey, line, character);
     assertThat(typeOfTexts)
       .as("Position %d:%d should have typeOfText %s", line, character, typeOfText)
       .contains(typeOfText);
@@ -165,12 +165,12 @@ class BSLHighlighterTest {
       tokens.add(token);
     }
 
-    String content = tokens.stream()
+    var content = tokens.stream()
       .map(Token::getText)
       .collect(Collectors.joining());
 
     if (vocabulary.equals(SDBLLexer.VOCABULARY)) {
-      SDBLTokenizer sdblTokenizer = mock(SDBLTokenizer.class);
+      var sdblTokenizer = mock(SDBLTokenizer.class);
       when(sdblTokenizer.getTokens()).thenReturn(tokens);
       when(documentContext.getQueries()).thenReturn(List.of(sdblTokenizer));
     } else {
@@ -179,9 +179,11 @@ class BSLHighlighterTest {
     inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR, content);
   }
 
-  private void checkHighlighting(Vocabulary vocabulary, SensorContextTester context, Map<String, TypeOfText> highlightingMap) {
-    int maxTokenType = vocabulary.getMaxTokenType();
-    String componentKey = "moduleKey:" + FILE_NAME;
+  private void checkHighlighting(Vocabulary vocabulary,
+                                 SensorContextTester context,
+                                 Map<String, TypeOfText> highlightingMap) {
+    var maxTokenType = vocabulary.getMaxTokenType();
+    var componentKey = "moduleKey:" + FILE_NAME;
 
     assertThat(IntStream.range(1, maxTokenType))
       .isNotEmpty()
@@ -191,12 +193,12 @@ class BSLHighlighterTest {
         if (symbolicTokenName == null) {
           return;
         }
-        TypeOfText typeOfText = highlightingMap.get(symbolicTokenName);
+        var typeOfText = highlightingMap.get(symbolicTokenName);
         if (typeOfText == null) {
           return;
         }
 
-        List<TypeOfText> typeOfTexts = context.highlightingTypeAt(componentKey, 1, tokenType - 1);
+        var typeOfTexts = context.highlightingTypeAt(componentKey, 1, tokenType - 1);
         assertThat(typeOfTexts)
           .as("Symbolic token name %s should maps to typeOfText %s", symbolicTokenName, typeOfText)
           .contains(typeOfText);
@@ -249,11 +251,11 @@ class BSLHighlighterTest {
       "BAR"
     );
 
-    int maxTokenType = vocabulary.getMaxTokenType();
+    var maxTokenType = vocabulary.getMaxTokenType();
 
     Map<String, TypeOfText> highlightingMap = new HashMap<>();
     for (int tokenType = 1; tokenType <= maxTokenType; tokenType++) {
-      String ruleName = vocabulary.getSymbolicName(tokenType);
+      var ruleName = vocabulary.getSymbolicName(tokenType);
       // no need to check lexer fragments or invisible names.
       if (ruleName == null) {
         continue;
@@ -461,7 +463,7 @@ class BSLHighlighterTest {
       "BAR" // TODO: Убрать из лексера
     );
 
-    int maxTokenType = vocabulary.getMaxTokenType();
+    var maxTokenType = vocabulary.getMaxTokenType();
 
     Map<String, TypeOfText> highlightingMap = new HashMap<>();
     for (int tokenType = 1; tokenType <= maxTokenType; tokenType++) {

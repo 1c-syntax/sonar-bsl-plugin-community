@@ -21,9 +21,9 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.sonar.acc.ACCProperties;
-import com.github._1c_syntax.bsl.sonar.acc.ACCQualityProfile;
-import com.github._1c_syntax.bsl.sonar.acc.ACCRuleDefinition;
+import com.github._1c_syntax.bsl.sonar.ext_issues.ExternalReporters;
+import com.github._1c_syntax.bsl.sonar.ext_issues.QualityProfilesContainer;
+import com.github._1c_syntax.bsl.sonar.ext_issues.RuleDefinitionsContainer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.bsl.sonar.language.BSLQualityProfile;
@@ -37,10 +37,10 @@ public class BSLPlugin implements Plugin {
     context.addExtension(BSLQualityProfile.class);
 
     context.addExtensions(BSLCommunityProperties.getProperties());
-    context.addExtensions(ACCProperties.getProperties());
+    ExternalReporters.REPORTERS.forEach(reporter -> reporter.addExtension(context));
     context.addExtension(BSLLanguageServerRuleDefinition.class);
-    context.addExtension(ACCQualityProfile.class);
-    context.addExtension(ACCRuleDefinition.class);
+    context.addExtension(QualityProfilesContainer.class);
+    context.addExtension(RuleDefinitionsContainer.class);
 
     context.addExtension(BSLCoreSensor.class);
     context.addExtension(LanguageServerDiagnosticsLoaderSensor.class);

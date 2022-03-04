@@ -19,28 +19,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.acc;
-
-import lombok.AllArgsConstructor;
-import lombok.Value;
-
-import java.util.List;
-
-@Value
-@AllArgsConstructor
-public class ACCRulesFile {
-
-  List<ACCRule> rules;
-
-  @Value
-  public static class ACCRule {
-    String code;
-    String name;
-    String description;
-    String type;
-    String severity;
-    boolean active;
-    boolean needForCertificate;
-    int effortMinutes;
-  }
-}
+/**
+ * Реализация импортеров замечаний от внешних анализаторов
+ */
+@javax.annotation.ParametersAreNonnullByDefault
+package com.github._1c_syntax.bsl.sonar.ext_issues;

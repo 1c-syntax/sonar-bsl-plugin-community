@@ -1,0 +1,364 @@
+{
+  "Rules": [
+    {
+      "Code": "EDT-2",
+      "Name": "Возвращает тип, который имеет отличное окружение от контекста вызова",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 1
+    },
+    {
+      "Code": "EDT-3",
+      "Name": "Возможно, выражение не является объектом коллекции",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 1
+    },
+    {
+      "Code": "EDT-4",
+      "Name": "Возможно, недостижимое выражение",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 5
+    },
+    {
+      "Code": "EDT-5",
+      "Name": "Неиспользуемая локальная переменная",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 5
+    },
+    {
+      "Code": "EDT-6",
+      "Name": "Возможно, строковый литерал содержит ошибку",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "INFO",
+      "Active": true,
+      "EffortMinutes": 1
+    },
+    {
+      "Code": "EDT-7",
+      "Name": "Менеджер записи не может быть использован для регистра с режимом записи",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "CRITICAL",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-8",
+      "Name": "Метод устарел",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-9",
+      "Name": "Неизвестное имя типа",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 5
+    },
+    {
+      "Code": "EDT-10",
+      "Name": "Неиспользуемый локальный метод",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 5
+    },
+    {
+      "Code": "EDT-11",
+      "Name": "Нельзя передавать объект типа между клиентом и сервером",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-12",
+      "Name": "Нельзя присваивать атрибуту формы значение типа",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "CRITICAL",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-13",
+      "Name": "Нет соответствия между ожидаемыми типами",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 1
+    },
+    {
+      "Code": "EDT-14",
+      "Name": "Объект данного тип не может быть создан через оператор",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-15",
+      "Name": "Пустой метод модуля",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "INFO",
+      "Active": true,
+      "EffortMinutes": 1
+    },
+    {
+      "Code": "EDT-16",
+      "Name": "Свойство объекта не обнаружено",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 5
+    },
+    {
+      "Code": "EDT-17",
+      "Name": "Свойство устарело",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-18",
+      "Name": "Тип устарел",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-19",
+      "Name": "Функция должна возвращать значение",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 5
+    },
+    {
+      "Code": "EDT-20",
+      "Name": "Элемент с таким именем уже есть в глобальном контексте",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "CRITICAL",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-21",
+      "Name": "Код никогда не будет скомпилирован",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "CRITICAL",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-22",
+      "Name": "Недостаточное число параметров",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "CRITICAL",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-23",
+      "Name": "Неизвестный оператор",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-24",
+      "Name": "Переменная не определена",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-25",
+      "Name": "Процедура или функция не определена",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-26",
+      "Name": "Свойство не предназначено для записи у типа",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-27",
+      "Name": "Синтаксическая ошибка. Неверный ввод - ожидается",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-28",
+      "Name": "Синтаксическая ошибка. Недопустимая лексема в данном контексте",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-29",
+      "Name": "Синтаксическая ошибка. Неизвестная лексема",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "CRITICAL",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-30",
+      "Name": "Синтаксическая ошибка. Пропущена лексема y",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-31",
+      "Name": "Слишком много параметров",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-32",
+      "Name": "Слишком много параметров для типа(ов)",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-33",
+      "Name": "Тип неопределен",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 5
+    },
+    {
+      "Code": "EDT-34",
+      "Name": "Функция не определена",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-35",
+      "Name": "Данный модуль не поддерживает данный тип директив компиляции",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 5
+    },
+    {
+      "Code": "EDT-36",
+      "Name": "Данный модуль может содержать только процедуры и функции",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-37",
+      "Name": "Недостаточное число параметров для типа(ов)",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "CRITICAL",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-38",
+      "Name": "Оператор может использоваться только внутри процедур и функций",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-39",
+      "Name": "Процедура вызывается как функция",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "CRITICAL",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-40",
+      "Name": "Синтаксическая ошибка. Неверная лексема - ожидается ",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-41",
+      "Name": "Синтаксическая ошибка. Пропущена лексема",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    }
+  ]
+}

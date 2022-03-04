@@ -22,15 +22,18 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
-import com.github._1c_syntax.bsl.sonar.acc.ACCProperties;
-import com.github._1c_syntax.bsl.sonar.acc.ACCRuleDefinition;
+import com.github._1c_syntax.bsl.sonar.ext_issues.ExternalReporters;
+import com.github._1c_syntax.bsl.sonar.ext_issues.Reporter;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
+import lombok.AllArgsConstructor;
+import lombok.Value;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -51,18 +54,22 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class IssuesLoader {
 
   private static final Logger LOGGER = Loggers.get(IssuesLoader.class);
+  private static final String BSLLS_ENGINE_ID = "bsl-language-server";
 
   private final SensorContext context;
   private final Map<DiagnosticSeverity, Severity> severityMap;
   private final Map<DiagnosticSeverity, RuleType> ruleTypeMap;
   private final FileSystem fileSystem;
   private final FilePredicates predicates;
-  private final boolean createExternalIssuesWithACCSources;
+
+  private final Map<String, LoaderSettings> loaderSettings;
 
   public IssuesLoader(SensorContext context) {
     this.context = context;
@@ -70,139 +77,8 @@ public class IssuesLoader {
     this.predicates = fileSystem.predicates();
     this.severityMap = createDiagnosticSeverityMap();
     this.ruleTypeMap = createRuleTypeMap();
-    this.createExternalIssuesWithACCSources = context.config().getBoolean(ACCProperties.CREATE_EXTERNAL_ISSUES)
-      .orElse(ACCProperties.CREATE_EXTERNAL_ISSUES_DEFAULT_VALUE);
-  }
 
-  public void createIssue(InputFile inputFile, Diagnostic diagnostic) {
-
-    var needCreateExternalIssue = true;
-    var ruleId = DiagnosticCode.getStringValue(diagnostic.getCode());
-    String keyRepository = BSLLanguageServerRuleDefinition.REPOSITORY_KEY;
-
-    if (isACCDiagnostic(diagnostic)) {
-      needCreateExternalIssue = this.createExternalIssuesWithACCSources;
-      keyRepository = ACCRuleDefinition.REPOSITORY_KEY;
-    }
-
-    var ruleKey = RuleKey.of(keyRepository, ruleId);
-    var activeRule = context.activeRules().find(ruleKey);
-
-    if (needCreateExternalIssue && activeRule == null) {
-      createExternalIssue(inputFile, diagnostic);
-      return;
-    }
-
-    var issue = context.newIssue();
-    issue.forRule(ruleKey);
-
-    Supplier<NewIssueLocation> newIssueLocationSupplier = issue::newLocation;
-    Consumer<NewIssueLocation> newIssueAddLocationConsumer = issue::addLocation;
-    Consumer<NewIssueLocation> newIssueAtConsumer = issue::at;
-
-    processDiagnostic(
-      inputFile,
-      diagnostic,
-      ruleId,
-      newIssueLocationSupplier,
-      newIssueAddLocationConsumer,
-      newIssueAtConsumer
-    );
-
-    issue.save();
-  }
-
-  private void processDiagnostic(
-    InputFile inputFile,
-    Diagnostic diagnostic,
-    String ruleId,
-    Supplier<NewIssueLocation> newIssueLocationSupplier,
-    Consumer<NewIssueLocation> newIssueAddLocationConsumer,
-    Consumer<NewIssueLocation> newIssueAtConsumer
-  ) {
-
-    var textRange = getTextRange(inputFile, diagnostic.getRange(), ruleId);
-
-    var location = newIssueLocationSupplier.get();
-    location.on(inputFile);
-    location.at(textRange);
-    location.message(diagnostic.getMessage());
-
-    newIssueAtConsumer.accept(location);
-
-    List<DiagnosticRelatedInformation> relatedInformation = diagnostic.getRelatedInformation();
-    if (relatedInformation != null) {
-      relatedInformation.forEach(
-        (DiagnosticRelatedInformation relatedInformationEntry) -> {
-          var path = Paths.get(URI.create(relatedInformationEntry.getLocation().getUri())).toAbsolutePath();
-          var relatedInputFile = getInputFile(path);
-          if (relatedInputFile == null) {
-            LOGGER.warn("Can't find inputFile for absolute path {}", path);
-            return;
-          }
-          var relatedIssueLocation = newIssueLocationSupplier.get();
-
-          var relatedTextRange = getTextRange(
-            relatedInputFile,
-            relatedInformationEntry.getLocation().getRange(),
-            ruleId
-          );
-
-          relatedIssueLocation.on(relatedInputFile);
-          relatedIssueLocation.at(relatedTextRange);
-          relatedIssueLocation.message(relatedInformationEntry.getMessage());
-
-          newIssueAddLocationConsumer.accept(relatedIssueLocation);
-        }
-      );
-    }
-  }
-
-  private static boolean isACCDiagnostic(Diagnostic diagnostic) {
-    return ACCRuleDefinition.SOURCE.equals(diagnostic.getSource());
-  }
-
-  private void createExternalIssue(InputFile inputFile, Diagnostic diagnostic) {
-    var issue = context.newExternalIssue();
-
-    String engineId;
-    if (isACCDiagnostic(diagnostic)) {
-      engineId = ACCRuleDefinition.SOURCE;
-    } else {
-      engineId = "bsl-language-server";
-    }
-    issue.engineId(engineId);
-
-    var ruleId = DiagnosticCode.getStringValue(diagnostic.getCode());
-    issue.ruleId(ruleId);
-
-    issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
-    issue.severity(severityMap.get(diagnostic.getSeverity()));
-
-    Supplier<NewIssueLocation> newIssueLocationSupplier = issue::newLocation;
-    Consumer<NewIssueLocation> newIssueAddLocationConsumer = issue::addLocation;
-    Consumer<NewIssueLocation> newIssueAtConsumer = issue::at;
-
-    processDiagnostic(
-      inputFile,
-      diagnostic,
-      ruleId,
-      newIssueLocationSupplier,
-      newIssueAddLocationConsumer,
-      newIssueAtConsumer
-    );
-
-    issue.save();
-  }
-
-  @CheckForNull
-  private InputFile getInputFile(Path path) {
-    return fileSystem.inputFile(
-      predicates.and(
-        predicates.hasLanguage(BSLLanguage.KEY),
-        predicates.hasAbsolutePath(path.toAbsolutePath().toString())
-      )
-    );
+    this.loaderSettings = computeLoaderSettings(context);
   }
 
   private static TextRange getTextRange(InputFile inputFile, Range range, String ruleKey) {
@@ -213,27 +89,10 @@ public class IssuesLoader {
     TextRange textRange;
 
     try {
-      textRange = inputFile.newRange(
-        startLine,
-        start.getCharacter(),
-        end.getLine() + 1,
-        end.getCharacter()
-      );
+      textRange = inputFile.newRange(startLine, start.getCharacter(), end.getLine() + 1, end.getCharacter());
     } catch (IllegalArgumentException e) {
-      var formattedRange = String.format(
-        "start(%d, %d), end(%d, %d)",
-        range.getStart().getLine(),
-        range.getStart().getCharacter(),
-        range.getEnd().getLine(),
-        range.getEnd().getCharacter()
-      );
-      LOGGER.error(
-        "Can't compute TextRange for given Range: {} of rule: {} in file: {}.",
-        formattedRange,
-        ruleKey,
-        inputFile.uri(),
-        e
-      );
+      var formattedRange = String.format("start(%d, %d), end(%d, %d)", range.getStart().getLine(), range.getStart().getCharacter(), range.getEnd().getLine(), range.getEnd().getCharacter());
+      LOGGER.error("Can't compute TextRange for given Range: {} of rule: {} in file: {}.", formattedRange, ruleKey, inputFile.uri(), e);
 
       textRange = selectThisOrPreviousLine(inputFile, startLine);
     }
@@ -279,5 +138,120 @@ public class IssuesLoader {
     map.put(DiagnosticSeverity.Error, RuleType.BUG);
 
     return map;
+  }
+
+  @NotNull
+  private Map<String, LoaderSettings> computeLoaderSettings(SensorContext context) {
+    var settings = ExternalReporters.REPORTERS.stream()
+      .map(properties -> new LoaderSettings(properties, context))
+      .collect(Collectors.toMap(LoaderSettings::getRepositoryKey, Function.identity()));
+    settings.put(BSLLS_ENGINE_ID, new LoaderSettings(BSLLS_ENGINE_ID,
+      true,
+      BSLLanguageServerRuleDefinition.REPOSITORY_KEY));
+    return settings;
+  }
+
+  public void createIssue(InputFile inputFile, Diagnostic diagnostic) {
+
+    var ruleId = DiagnosticCode.getStringValue(diagnostic.getCode());
+
+    var settings = loaderSettings.get(diagnostic.getSource());
+    if (settings == null) {
+      // считаем, что это внешняя диагностика для бсллс
+      settings = loaderSettings.get(BSLLS_ENGINE_ID);
+    }
+
+    var ruleKey = RuleKey.of(settings.repositoryKey, ruleId);
+    var activeRule = context.activeRules().find(ruleKey);
+
+    if (settings.needCreateExternalIssues && activeRule == null) {
+      createExternalIssue(settings, inputFile, diagnostic);
+      return;
+    }
+
+    var issue = context.newIssue();
+    issue.forRule(ruleKey);
+
+    Supplier<NewIssueLocation> newIssueLocationSupplier = issue::newLocation;
+    Consumer<NewIssueLocation> newIssueAddLocationConsumer = issue::addLocation;
+    Consumer<NewIssueLocation> newIssueAtConsumer = issue::at;
+
+    processDiagnostic(inputFile, diagnostic, ruleId, newIssueLocationSupplier, newIssueAddLocationConsumer, newIssueAtConsumer);
+
+    issue.save();
+  }
+
+  private void processDiagnostic(InputFile inputFile, Diagnostic diagnostic, String ruleId, Supplier<NewIssueLocation> newIssueLocationSupplier, Consumer<NewIssueLocation> newIssueAddLocationConsumer, Consumer<NewIssueLocation> newIssueAtConsumer) {
+
+    var textRange = getTextRange(inputFile, diagnostic.getRange(), ruleId);
+
+    var location = newIssueLocationSupplier.get();
+    location.on(inputFile);
+    location.at(textRange);
+    location.message(diagnostic.getMessage());
+
+    newIssueAtConsumer.accept(location);
+
+    List<DiagnosticRelatedInformation> relatedInformation = diagnostic.getRelatedInformation();
+    if (relatedInformation != null) {
+      relatedInformation.forEach((DiagnosticRelatedInformation relatedInformationEntry) -> {
+        var path = Paths.get(URI.create(relatedInformationEntry.getLocation().getUri())).toAbsolutePath();
+        var relatedInputFile = getInputFile(path);
+        if (relatedInputFile == null) {
+          LOGGER.warn("Can't find inputFile for absolute path {}", path);
+          return;
+        }
+        var relatedIssueLocation = newIssueLocationSupplier.get();
+
+        var relatedTextRange = getTextRange(relatedInputFile, relatedInformationEntry.getLocation().getRange(), ruleId);
+
+        relatedIssueLocation.on(relatedInputFile);
+        relatedIssueLocation.at(relatedTextRange);
+        relatedIssueLocation.message(relatedInformationEntry.getMessage());
+
+        newIssueAddLocationConsumer.accept(relatedIssueLocation);
+      });
+    }
+  }
+
+  private void createExternalIssue(LoaderSettings settings, InputFile inputFile, Diagnostic diagnostic) {
+    var issue = context.newExternalIssue();
+
+    issue.engineId(settings.engineId);
+
+    var ruleId = DiagnosticCode.getStringValue(diagnostic.getCode());
+    issue.ruleId(ruleId);
+
+    issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
+    issue.severity(severityMap.get(diagnostic.getSeverity()));
+
+    Supplier<NewIssueLocation> newIssueLocationSupplier = issue::newLocation;
+    Consumer<NewIssueLocation> newIssueAddLocationConsumer = issue::addLocation;
+    Consumer<NewIssueLocation> newIssueAtConsumer = issue::at;
+
+    processDiagnostic(inputFile, diagnostic, ruleId, newIssueLocationSupplier, newIssueAddLocationConsumer, newIssueAtConsumer);
+
+    issue.save();
+  }
+
+  @CheckForNull
+  private InputFile getInputFile(Path path) {
+    return fileSystem.inputFile(predicates.and(predicates.hasLanguage(BSLLanguage.KEY), predicates.hasAbsolutePath(path.toAbsolutePath().toString())));
+  }
+
+  @Value
+  @AllArgsConstructor
+  private static class LoaderSettings {
+    String engineId;
+    boolean needCreateExternalIssues;
+    String repositoryKey;
+
+    public LoaderSettings(Reporter properties, SensorContext context) {
+      engineId = properties.getSource();
+      needCreateExternalIssues = context.config()
+        .getBoolean(properties.getCreateExternalIssuesKey())
+        .orElse(properties.isCreateExternalIssuesDefaultValue());
+      repositoryKey = properties.getRepositoryKey();
+    }
   }
 }
