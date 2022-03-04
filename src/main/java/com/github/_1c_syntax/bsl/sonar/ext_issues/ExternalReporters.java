@@ -19,30 +19,20 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.language;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
-import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
-import org.junit.jupiter.api.Test;
-import org.sonar.api.config.internal.MapSettings;
+import lombok.experimental.UtilityClass;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
 
-class BSLLanguageTest {
-
-  @Test
-  void test_create() {
-
-    var settings = new MapSettings();
-    settings.setProperty(
-      BSLCommunityProperties.BSL_FILE_EXTENSIONS_KEY,
-      BSLCommunityProperties.BSL_FILE_EXTENSIONS_DEFAULT_VALUE);
-
-    var language = new BSLLanguage(settings.asConfig());
-
-    assertThat(language.getKey()).containsIgnoringCase("bsl");
-    assertThat(language.getName()).containsIgnoringCase("1C (BSL)");
-    assertThat(language.getFileSuffixes()).containsOnly(".bsl", ".os");
-
-  }
-
+/**
+ * Все зарегистрированные репортеры
+ */
+@UtilityClass
+public class ExternalReporters {
+  public final List<Reporter> REPORTERS = List.of(
+    AccReporter.create(),
+    EdtReporter.create(),
+    UniversalReporter.create()
+  );
 }

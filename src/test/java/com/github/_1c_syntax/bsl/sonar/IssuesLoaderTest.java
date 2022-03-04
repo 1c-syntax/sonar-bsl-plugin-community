@@ -29,7 +29,6 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -49,21 +48,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class IssuesLoaderTest {
 
-  private final String BASE_PATH = "src/test/resources/src";
+  private final String BASE_PATH = "src/test/resources/examples";
   private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
   private final String FILE_NAME = "test.bsl";
 
   @Test
   void test_createExtIssue() {
 
-    final String issueCode = "Test";
-    final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
+    var issueCode = "Test";
+    var issueSeverity = DiagnosticSeverity.Information;
 
-    SensorContextTester context = SensorContextTester.create(BASE_DIR);
-    InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
-    IssuesLoader issuesLoader = new IssuesLoader(context);
+    var context = SensorContextTester.create(BASE_DIR);
+    var inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+    var issuesLoader = new IssuesLoader(context);
 
-    Diagnostic diagnostic = new Diagnostic();
+    var diagnostic = new Diagnostic();
     diagnostic.setCode(issueCode);
     diagnostic.setSeverity(issueSeverity);
     diagnostic.setMessage("Check message");
@@ -73,7 +72,7 @@ class IssuesLoaderTest {
     issuesLoader.createIssue(inputFile, diagnostic);
 
     assertThat(context.allExternalIssues()).hasSize(1);
-    DefaultExternalIssue issue = (DefaultExternalIssue) context.allExternalIssues().toArray()[0];
+    var issue = (DefaultExternalIssue) context.allExternalIssues().toArray()[0];
     assertThat(issue.ruleId()).isEqualTo(issueCode);
 
   }
@@ -81,13 +80,13 @@ class IssuesLoaderTest {
   @Test
   void test_createIssue() {
 
-    final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
-    final String diagnosticName = "OneStatementPerLine";
-    final RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
+    var issueSeverity = DiagnosticSeverity.Information;
+    var diagnosticName = "OneStatementPerLine";
+    var ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
 
-    SensorContextTester context = SensorContextTester.create(BASE_DIR);
+    var context = SensorContextTester.create(BASE_DIR);
 
-    ActiveRules activeRules = new ActiveRulesBuilder()
+    var activeRules = new ActiveRulesBuilder()
       .addRule(new NewActiveRule.Builder()
         .setRuleKey(ruleKey)
         .setName(diagnosticName)
@@ -95,12 +94,12 @@ class IssuesLoaderTest {
       .build();
     context.setActiveRules(activeRules);
 
-    InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+    var inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
     context.fileSystem().add(inputFile);
 
-    IssuesLoader issuesLoader = new IssuesLoader(context);
+    var issuesLoader = new IssuesLoader(context);
 
-    Diagnostic diagnostic = new Diagnostic();
+    var diagnostic = new Diagnostic();
     diagnostic.setCode(diagnosticName);
     diagnostic.setSeverity(issueSeverity);
     diagnostic.setMessage("Check message OneStatementPerLine");
@@ -130,13 +129,13 @@ class IssuesLoaderTest {
         .hasSize(1)
         .element(0)
         .extracting(IssueLocation::textRange)
-        .isEqualTo(new DefaultTextRange(new DefaultTextPointer(12, 0), new DefaultTextPointer(12,8)))
+        .isEqualTo(new DefaultTextRange(new DefaultTextPointer(12, 0), new DefaultTextPointer(12, 8)))
       )
       .anySatisfy(flow -> assertThat(flow.locations())
         .hasSize(1)
         .element(0)
         .extracting(IssueLocation::textRange)
-        .isEqualTo(new DefaultTextRange(new DefaultTextPointer(13, 0), new DefaultTextPointer(13,5)))
+        .isEqualTo(new DefaultTextRange(new DefaultTextPointer(13, 0), new DefaultTextPointer(13, 5)))
       )
     ;
 
@@ -145,11 +144,11 @@ class IssuesLoaderTest {
   @Test
   void issueWithIncorrectRange() {
     // given
-    final DiagnosticSeverity issueSeverity = DiagnosticSeverity.Information;
-    final String diagnosticName = "OneStatementPerLine";
-    final RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
+    var issueSeverity = DiagnosticSeverity.Information;
+    var diagnosticName = "OneStatementPerLine";
+    var ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
 
-    SensorContextTester context = SensorContextTester.create(BASE_DIR);
+    var context = SensorContextTester.create(BASE_DIR);
 
     ActiveRules activeRules = new ActiveRulesBuilder()
       .addRule(new NewActiveRule.Builder()
@@ -159,12 +158,12 @@ class IssuesLoaderTest {
       .build();
     context.setActiveRules(activeRules);
 
-    InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+    var inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
     context.fileSystem().add(inputFile);
 
-    IssuesLoader issuesLoader = new IssuesLoader(context);
+    var issuesLoader = new IssuesLoader(context);
 
-    Diagnostic diagnostic = new Diagnostic();
+    var diagnostic = new Diagnostic();
     diagnostic.setCode(diagnosticName);
     diagnostic.setSeverity(issueSeverity);
     diagnostic.setMessage("Check message OneStatementPerLine");
@@ -180,7 +179,9 @@ class IssuesLoaderTest {
       .element(0)
       .extracting(Issue::primaryLocation)
       .extracting(IssueLocation::textRange)
-      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(4, 0), new DefaultTextPointer(4,0)))
-    ;
+      .isEqualTo(new DefaultTextRange(
+        new DefaultTextPointer(4, 0),
+        new DefaultTextPointer(4, 0))
+      );
   }
 }

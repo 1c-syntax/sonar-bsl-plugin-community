@@ -19,10 +19,9 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.acc;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.rule.RulesDefinition;
 
@@ -30,56 +29,62 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ACCRuleDefinitionTest {
+class RuleDefinitionTest {
+
+  private final Reporter reporter = EdtReporter.create();
 
   @Test
   void testDefine() {
-    Configuration config = new MapSettings()
-      .setProperty(ACCProperties.ACC_ENABLED, true)
+
+    var config = new MapSettings()
+      .setProperty(reporter.getEnabledKey(), true)
       .asConfig();
-    ACCRuleDefinition ruleDefinition = new ACCRuleDefinition(config);
-    RulesDefinition.Context context = new RulesDefinition.Context();
+    var ruleDefinition = new RuleDefinitionsContainer(config);
+    var context = new RulesDefinition.Context();
     ruleDefinition.define(context);
 
     assertThat(context.repositories()).hasSize(1);
-    RulesDefinition.Repository repository = context.repository(ACCRuleDefinition.REPOSITORY_KEY);
+    var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(467);
+    assertThat(repository.rules()).hasSize(40);
   }
 
   @Test
   void testEmptyExternalFilePath() {
-    Configuration config = new MapSettings()
-      .setProperty(ACCProperties.ACC_ENABLED, true)
-      .setProperty(ACCProperties.ACC_RULES_PATHS, "")
+    var config = new MapSettings()
+      .setProperty(reporter.getEnabledKey(), true)
+      .setProperty(reporter.getRulesPathsKey(), "")
       .asConfig();
-    ACCRuleDefinition ruleDefinition = new ACCRuleDefinition(config);
-    RulesDefinition.Context context = new RulesDefinition.Context();
+    var ruleDefinition = new RuleDefinitionsContainer(config);
+    var context = new RulesDefinition.Context();
     ruleDefinition.define(context);
 
     assertThat(context.repositories()).hasSize(1);
-    RulesDefinition.Repository repository = context.repository(ACCRuleDefinition.REPOSITORY_KEY);
+    var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(467);
+    assertThat(repository.rules()).hasSize(40);
   }
 
   @Test
   void testExternalFile() {
-    File baseDir = new File("src/test/resources").getAbsoluteFile();
-    File fileRules = new File(baseDir, "acc-test.json");
-    File fileRulesSecond = new File(baseDir, "acc-test-second.json");
-    Configuration config = new MapSettings()
-      .setProperty(ACCProperties.ACC_ENABLED, true)
-      .setProperty(ACCProperties.ACC_RULES_PATHS, fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
+    var baseDir = new File("src/test/resources").getAbsoluteFile();
+    var fileRules = new File(baseDir, "examples/acc-test.json");
+    var fileRulesSecond = new File(baseDir, "examples/acc-test-second.json");
+    var fileRulesThird = new File(baseDir, "examples/edt-test.json");
+    var config = new MapSettings()
+      .setProperty(reporter.getEnabledKey(), true)
+      .setProperty(reporter.getRulesPathsKey(), fileRules.getAbsolutePath()
+        + "," + fileRulesSecond.getAbsolutePath()
+        + "," + fileRulesThird.getAbsolutePath())
       .asConfig();
-    ACCRuleDefinition ruleDefinition = new ACCRuleDefinition(config);
-    RulesDefinition.Context context = new RulesDefinition.Context();
+    var ruleDefinition = new RuleDefinitionsContainer(config);
+    var context = new RulesDefinition.Context();
     ruleDefinition.define(context);
 
     assertThat(context.repositories()).hasSize(1);
-    RulesDefinition.Repository repository = context.repository(ACCRuleDefinition.REPOSITORY_KEY);
+    var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(469);
+    assertThat(repository.rules()).hasSize(44);
   }
 
 }

@@ -19,30 +19,27 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.language;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
-import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
-import org.junit.jupiter.api.Test;
-import org.sonar.api.config.internal.MapSettings;
+import lombok.Value;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class BSLLanguageTest {
-
-  @Test
-  void test_create() {
-
-    var settings = new MapSettings();
-    settings.setProperty(
-      BSLCommunityProperties.BSL_FILE_EXTENSIONS_KEY,
-      BSLCommunityProperties.BSL_FILE_EXTENSIONS_DEFAULT_VALUE);
-
-    var language = new BSLLanguage(settings.asConfig());
-
-    assertThat(language.getKey()).containsIgnoringCase("bsl");
-    assertThat(language.getName()).containsIgnoringCase("1C (BSL)");
-    assertThat(language.getFileSuffixes()).containsOnly(".bsl", ".os");
-
-  }
-
+/**
+ * Настройки внешнего анализатора 1С:АПК
+ */
+@Value(staticConstructor = "create")
+public class AccReporter implements Reporter {
+  String name = "1C:ACC (1С:АПК)";
+  String subcategory = "ACC";
+  String enabledKey = "sonar.bsl.acc.enabled";
+  boolean enableDefaultValue = false;
+  String createExternalIssuesKey = "sonar.bsl.acc.createExternalIssues";
+  boolean createExternalIssuesDefaultValue = true;
+  String rulesPathsKey = "sonar.bsl.acc.accRulesPaths";
+  String rulesDefaultPath = "acc.json";
+  String repositoryKey = "acc-rules";
+  String source = "acc";
+  String repositoryName = "ACC rules";
+  String ruleTag = "acc";
+  int startIndex = 30;
+  boolean include1CCertifiedProfile = true;
 }
