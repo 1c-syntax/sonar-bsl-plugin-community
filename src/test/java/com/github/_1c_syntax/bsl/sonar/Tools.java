@@ -45,7 +45,7 @@ public class Tools {
 
   public static InputFile inputFileBSL(String name, File baseDir) {
 
-    File file = new File(baseDir.getAbsoluteFile(), name);
+    var file = new File(baseDir.getAbsoluteFile(), name);
     String content;
     try {
       content = Files.readString(file.toPath(), StandardCharsets.UTF_8);

@@ -32,14 +32,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class QualityProfileTest {
 
+  private static final File BASE_DIR = new File("src/test/resources").getAbsoluteFile();
+  private static final String ACC_TEST_RULES_FILE
+    = new File(BASE_DIR, "examples/acc-test.json").getAbsolutePath();
+  private static final String ACC_TEST2_RULES_FILE
+    = new File(BASE_DIR, "examples/acc-test-second.json").getAbsolutePath();
+
   @Test
   void testQualityProfile() {
-    var baseDir = new File("src/test/resources").getAbsoluteFile();
-    var fileRules = new File(baseDir, "acc-test.json");
-    var fileRulesSecond = new File(baseDir, "acc-test-second.json");
     var config = new MapSettings()
-      .setProperty(AccReporter.create().getRulesPathsKey(),
-        fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
+      .setProperty(AccReporter.create().getRulesPathsKey(), ACC_TEST_RULES_FILE + "," + ACC_TEST2_RULES_FILE)
       .asConfig();
     var profile = new QualityProfilesContainer(config);
     var context = new BuiltInQualityProfilesDefinition.Context();
@@ -49,13 +51,10 @@ class QualityProfileTest {
 
   @Test
   void testQualityProfileEnabled() {
-    var baseDir = new File("src/test/resources").getAbsoluteFile();
-    var fileRules = new File(baseDir, "acc-test.json");
-    var fileRulesSecond = new File(baseDir, "acc-test-second.json");
     var properties = AccReporter.create();
     var config = new MapSettings()
       .setProperty(properties.getEnabledKey(), true)
-      .setProperty(properties.getRulesPathsKey(), fileRules.getAbsolutePath() + "," + fileRulesSecond.getAbsolutePath())
+      .setProperty(properties.getRulesPathsKey(), ACC_TEST_RULES_FILE + "," + ACC_TEST2_RULES_FILE)
       .asConfig();
     var profile = new QualityProfilesContainer(config);
     var context = new BuiltInQualityProfilesDefinition.Context();

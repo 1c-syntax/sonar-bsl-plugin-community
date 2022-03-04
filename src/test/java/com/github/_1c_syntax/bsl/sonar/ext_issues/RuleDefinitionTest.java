@@ -68,9 +68,9 @@ class RuleDefinitionTest {
   @Test
   void testExternalFile() {
     var baseDir = new File("src/test/resources").getAbsoluteFile();
-    var fileRules = new File(baseDir, "acc-test.json");
-    var fileRulesSecond = new File(baseDir, "acc-test-second.json");
-    var fileRulesThird = new File(baseDir, "edt-test.json");
+    var fileRules = new File(baseDir, "examples/acc-test.json");
+    var fileRulesSecond = new File(baseDir, "examples/acc-test-second.json");
+    var fileRulesThird = new File(baseDir, "examples/edt-test.json");
     var config = new MapSettings()
       .setProperty(reporter.getEnabledKey(), true)
       .setProperty(reporter.getRulesPathsKey(), fileRules.getAbsolutePath()

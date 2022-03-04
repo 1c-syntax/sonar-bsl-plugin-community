@@ -31,6 +31,8 @@ import org.sonar.api.utils.log.Loggers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -49,12 +51,24 @@ public class RulesFileReader {
   }
 
   /**
-   * Выполняет чтение встроенных описаний диагностики по имени ресурса
+   * Выполняет чтение описаний диагностик, включая встроенные и подгружаемые из файлов
    *
    * @param resourceName Имя ресурса-файла
-   * @return Контейнер, содержащий объект прочитанного файла диагностик либо пустоту
+   * @param filePaths    Массив путей к загружаемым файлам
+   * @return Список прочитанных файлов-описаний
    */
-  public static Optional<RulesFile> getRulesFromResource(String resourceName) {
+  public static List<RulesFile> getRulesFiles(String resourceName, String[] filePaths) {
+    List<RulesFile> rulesFile = new ArrayList<>();
+    getRulesFromResource(resourceName).ifPresent(rulesFile::add);
+    var loader = new RulesFileReader(filePaths);
+    while (loader.hasMore()) {
+      loader.getNext().ifPresent(rulesFile::add);
+    }
+
+    return rulesFile;
+  }
+
+  private static Optional<RulesFile> getRulesFromResource(String resourceName) {
     String json;
 
     try {
@@ -82,12 +96,7 @@ public class RulesFileReader {
     }
   }
 
-  /**
-   * Итератор для перехода к следующему прочитанному файлу описаний
-   *
-   * @return Контейнер, содержащий объект прочитанного файла диагностик либо пустоту
-   */
-  public Optional<RulesFile> getNext() {
+  private Optional<RulesFile> getNext() {
     if (hasMore()) {
       Optional<RulesFile> rules = getRulesFromFile();
       current++;
@@ -97,12 +106,7 @@ public class RulesFileReader {
     return Optional.empty();
   }
 
-  /**
-   * Возвращает признак наличия еще не обработанных файлов описаний
-   *
-   * @return Наличие необработанных файлов
-   */
-  public boolean hasMore() {
+  private boolean hasMore() {
     return current < filePaths.length;
   }
 

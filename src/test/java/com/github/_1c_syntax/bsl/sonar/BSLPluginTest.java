@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.PluginContextImpl;
 import org.sonar.api.internal.SonarRuntimeImpl;
@@ -43,28 +42,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class BSLPluginTest {
 
-  private static final Version VERSION_7_9 = Version.create(7, 9);
+  private static final Version VERSION_8_9 = Version.create(8, 9);
   private final BSLPlugin bslPlugin = new BSLPlugin();
 
   @Test
   void testGetExtensions() {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(VERSION_7_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    Plugin.Context context = new Plugin.Context(runtime);
+    var runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    var context = new Plugin.Context(runtime);
     bslPlugin.define(context);
     assertThat((List<?>) context.getExtensions()).hasSize(23);
   }
 
   @Test
   void testQualityProfile() {
-    BSLQualityProfile profile = new BSLQualityProfile();
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
+    var profile = new BSLQualityProfile();
+    var context = new BuiltInQualityProfilesDefinition.Context();
     profile.define(context);
     assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(1);
   }
 
   @Test
   void testQualityProfileAll() {
-    var runtime = SonarRuntimeImpl.forSonarQube(VERSION_7_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    var runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     var config = new MapSettings()
       .setProperty(AccReporter.create().getEnabledKey(), true)
       .setProperty(EdtReporter.create().getEnabledKey(), true)

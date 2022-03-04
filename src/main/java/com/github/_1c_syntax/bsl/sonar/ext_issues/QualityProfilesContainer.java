@@ -30,6 +30,7 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -37,8 +38,8 @@ import java.util.stream.Collectors;
  */
 public class QualityProfilesContainer implements BuiltInQualityProfilesDefinition {
 
-  private final List<QualityProfile> qualityProfiles;
   private static final String PROFILE_ALL_RULES = "BSL - all rules";
+  private final List<QualityProfile> qualityProfiles;
 
   public QualityProfilesContainer(Configuration config) {
     qualityProfiles = ExternalReporters.REPORTERS.stream()
@@ -77,44 +78,22 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
    */
   private static class QualityProfile {
 
-    private final List<RulesFile> externalFiles = new ArrayList<>();
     @Getter
     private final boolean isEnabled;
     private final Reporter reporter;
-    private RulesFile rulesFile;
+    private final List<RulesFile> rulesFiles = new ArrayList<>();
 
     protected QualityProfile(Configuration config, Reporter reporter) {
       this.reporter = reporter;
+      isEnabled = config.getBoolean(reporter.getEnabledKey()).orElse(reporter.isEnableDefaultValue());
 
-      RulesFileReader.getRulesFromResource(reporter.getRulesDefaultPath())
-        .ifPresent((RulesFile file) -> this.rulesFile = file);
-
-      isEnabled = config.getBoolean(reporter.getEnabledKey()).orElse(reporter.isEnableDefaultValue())
-        && rulesFile != null;
-      var loader = new RulesFileReader(config.getStringArray(reporter.getRulesPathsKey()));
-
-      while (loader.hasMore()) {
-        loader.getNext().ifPresent(externalFiles::add);
+      if (isEnabled) {
+        rulesFiles.addAll(RulesFileReader.getRulesFiles(
+            reporter.getRulesDefaultPath(),
+            config.getStringArray(reporter.getRulesPathsKey())
+          )
+        );
       }
-    }
-
-    protected void activateDefaultRules(NewBuiltInQualityProfile profile) {
-      var activatedRules = new ArrayList<>();
-      rulesFile.getRules()
-        .stream()
-        .filter(RulesFile.Rule::isActive)
-        .map(RulesFile.Rule::getCode)
-        .forEach((String key) -> {
-          profile.activateRule(reporter.getRepositoryKey(), key);
-          activatedRules.add(key);
-        });
-      externalFiles.stream()
-        .map(RulesFile::getRules)
-        .flatMap(Collection::stream)
-        .filter(RulesFile.Rule::isActive)
-        .map(RulesFile.Rule::getCode)
-        .filter(key -> !activatedRules.contains(key))
-        .forEach(key -> profile.activateRule(reporter.getRepositoryKey(), key));
     }
 
     protected void define(Context context) {
@@ -128,38 +107,37 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
       }
     }
 
+    protected void activateDefaultRules(NewBuiltInQualityProfile profile) {
+      activateRules(profile, RulesFile.Rule::isActive);
+    }
+
     private void addFullCheckProfile(Context context) {
-      var profile = context.createBuiltInQualityProfile(
-        String.format("%s - full check", reporter.getSubcategory()),
-        BSLLanguage.KEY
-      );
+      var profile = createQualityProfile(context, "%s - full check");
       activateDefaultRules(profile);
       profile.done();
     }
 
     private void add1CCertifiedProfile(Context context) {
-      var profile = context.createBuiltInQualityProfile(
-        String.format("%s - 1C:Compatible", reporter.getSubcategory()),
-        BSLLanguage.KEY
-      );
-      var activatedRules = new ArrayList<>();
-      rulesFile.getRules()
-        .stream()
-        .filter(RulesFile.Rule::isNeedForCertificate)
-        .map(RulesFile.Rule::getCode)
-        .forEach((String key) -> {
-          profile.activateRule(reporter.getRepositoryKey(), key);
-          activatedRules.add(key);
-        });
-      externalFiles.stream()
-        .map(RulesFile::getRules)
-        .flatMap(Collection::stream)
-        .filter(RulesFile.Rule::isNeedForCertificate)
-        .map(RulesFile.Rule::getCode)
-        .filter(key -> !activatedRules.contains(key))
-        .forEach(key -> profile.activateRule(reporter.getRepositoryKey(), key));
+      var profile = createQualityProfile(context, "%s - 1C:Compatible");
+      activateRules(profile, RulesFile.Rule::isNeedForCertificate);
       profile.done();
     }
 
+    private NewBuiltInQualityProfile createQualityProfile(Context context, String nameTemplate) {
+      return context.createBuiltInQualityProfile(
+        String.format(nameTemplate, reporter.getSubcategory()),
+        BSLLanguage.KEY
+      );
+    }
+
+    private void activateRules(NewBuiltInQualityProfile profile, Predicate<? super RulesFile.Rule> filter) {
+      rulesFiles.stream()
+        .map(RulesFile::getRules)
+        .flatMap(Collection::stream)
+        .filter(filter)
+        .map(RulesFile.Rule::getCode)
+        .distinct()
+        .forEach(key -> profile.activateRule(reporter.getRepositoryKey(), key));
+    }
   }
 }

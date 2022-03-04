@@ -78,14 +78,8 @@ public class RuleDefinitionsContainer implements RulesDefinition {
     }
 
     private void loadRules() {
-      RulesFileReader.getRulesFromResource(rulesDefaultPath)
-        .ifPresent((RulesFile file) -> file.getRules().forEach(this::createRule));
-
-      var loader = new RulesFileReader(rulesFilePaths);
-
-      while (loader.hasMore()) {
-        loader.getNext().ifPresent((RulesFile file) -> file.getRules().forEach(this::createRule));
-      }
+      RulesFileReader.getRulesFiles(rulesDefaultPath, rulesFilePaths)
+        .forEach(file -> file.getRules().forEach(this::createRule));
     }
 
     private void createRule(RulesFile.Rule rule) {
