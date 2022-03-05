@@ -6,36 +6,40 @@ plugins {
     java
     `maven-publish`
     id("org.sonarqube") version "3.3"
-    id("com.github.hierynomus.license") version "0.16.1"
+    id("org.cadixdev.licenser") version "0.6.1"
     id("com.github.johnrengelman.shadow") version("7.0.0")
-    id("com.github.ben-manes.versions") version "0.39.0"
+    id("com.github.ben-manes.versions") version "0.42.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.freefair.lombok") version "6.2.0"
+    id("io.freefair.lombok") version "6.4.1"
 }
 
-group = "com.github.1c-syntax"
+group = "io.github.1c-syntax"
 version = gitVersionCalculator.calculateVersion("v")
 
 repositories {
+    mavenLocal()
     mavenCentral()
+    maven {
+        url = URI("https://s01.oss.sonatype.org/content/repositories/snapshots")   
+    }
     maven {
         url = URI("https://jitpack.io")
     }
 }
 
 val commonmarkVersion = "0.17.0"
-val junitVersion = "5.8.0"
+val sonarQubeVersion = "8.9.0.43852"
 
 dependencies {
-    implementation("org.sonarsource.sonarqube:sonar-plugin-api:7.9")
+    implementation("org.sonarsource.sonarqube", "sonar-plugin-api", sonarQubeVersion)
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.19.0")
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.20.0-rc.2")
 
     implementation("org.apache.commons:commons-lang3:3.12.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.5")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
 
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
-    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.15.0.699")
+    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.24.0.965")
 
     // MD to HTML converter of BSL LS rule descriptions
     implementation("com.atlassian.commonmark", "commonmark", commonmarkVersion)
@@ -43,15 +47,19 @@ dependencies {
     implementation("com.atlassian.commonmark", "commonmark-ext-autolink", commonmarkVersion)
     implementation("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
-    implementation("me.tongfei:progressbar:0.9.2")
+    implementation("me.tongfei:progressbar:0.9.3")
 
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", junitVersion)
-    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", junitVersion)
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.8.0")
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.8.0")
 
-    testImplementation("org.assertj:assertj-core:3.20.2")
-    testImplementation("org.mockito:mockito-core:3.12.4")
+    testImplementation("org.assertj:assertj-core:3.22.0")
+    testImplementation("org.mockito:mockito-core:4.3.1")
+
+    testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
+    testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)
+    testImplementation("org.reflections", "reflections", "0.9.12")
 }
 
 java {
@@ -72,7 +80,7 @@ tasks.test {
     }
 
     reports {
-        html.isEnabled = true
+        html.required.set(true)
     }
 }
 
@@ -82,18 +90,17 @@ tasks.check {
 
 tasks.jacocoTestReport {
     reports {
-        xml.isEnabled = true
-        xml.destination = File("$buildDir/reports/jacoco/test/jacoco.xml")
+        xml.required.set(true)
+        xml.outputLocation.set(File("$buildDir/reports/jacoco/test/jacoco.xml"))
     }
 }
 
 license {
-    header = rootProject.file("license/HEADER.txt")
+    header(rootProject.file("license/HEADER.txt"))
+    newLine(false)
     ext["year"] = Calendar.getInstance().get(Calendar.YEAR)
-    ext["name"] = "Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>"
+    ext["name"] = "Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>"
     ext["project"] = "SonarQube 1C (BSL) Community Plugin"
-    strictCheck = true
-    mapping("java", "SLASHSTAR_STYLE")
     exclude("**/*.properties")
     exclude("**/*.bsl")
     exclude("**/*.json")
@@ -124,10 +131,10 @@ tasks.jar {
         attributes["Plugin-Homepage"] = "https://1c-syntax.github.io/sonar-bsl-plugin-community"
         attributes["Plugin-IssueTrackerUrl"] = "https://github.com/1c-syntax/sonar-bsl-plugin-community/issues"
         attributes["Plugin-SourcesUrl"] = "https://github.com/1c-syntax/sonar-bsl-plugin-community"
-        attributes["Plugin-Developers"] = "Alexey Sosnoviy, Nikita Gryzlov"
+        attributes["Plugin-Developers"] = "Alexey Sosnoviy, Nikita Fedkin"
 
-        attributes["SonarLint-Supported"] = true
-        attributes["Sonar-Version"] = "7.9"
+        attributes["SonarLint-Supported"] = false
+        attributes["Sonar-Version"] = sonarQubeVersion
 
         attributes["Plugin-Organization"] = "1c-syntax"
         attributes["Plugin-OrganizationUrl"] = "https://github.com/1c-syntax"

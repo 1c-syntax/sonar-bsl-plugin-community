@@ -1,8 +1,8 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright © 2018-2021
- * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Gryzlov <nixel2007@gmail.com>
+ * Copyright (c) 2018-2022
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -19,5 +19,20 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package com.github._1c_syntax.bsl.sonar.acc;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
+
+import lombok.experimental.UtilityClass;
+
+import java.util.List;
+
+/**
+ * Все зарегистрированные репортеры
+ */
+@UtilityClass
+public class ExternalReporters {
+  public final List<Reporter> REPORTERS = List.of(
+    AccReporter.create(),
+    EdtReporter.create(),
+    UniversalReporter.create()
+  );
+}

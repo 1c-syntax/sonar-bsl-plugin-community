@@ -19,28 +19,27 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.language;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import lombok.Value;
 
-import java.util.List;
-
-public final class BSLQualityProfile implements BuiltInQualityProfilesDefinition {
-
-  @Override
-  public void define(Context context) {
-    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
-      "BSL Language Server rules",
-      BSLLanguage.KEY
-    );
-    profile.setDefault(true);
-
-    List<String> ruleKeys = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
-    ruleKeys.forEach(ruleKey ->
-      profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, ruleKey)
-    );
-
-    profile.done();
-  }
-
+/**
+ * Настройки внешнего анализатора 1С:EDT
+ */
+@Value(staticConstructor = "create")
+public class UniversalReporter implements Reporter {
+  String name = "BSLLS Universal";
+  String subcategory = "Universal";
+  String enabledKey = "sonar.bsl.universal.enabled";
+  boolean enableDefaultValue = false;
+  String createExternalIssuesKey = "sonar.bsl.universal.createExternalIssues";
+  boolean createExternalIssuesDefaultValue = false;
+  String rulesPathsKey = "sonar.bsl.universal.rulesPaths";
+  String rulesDefaultPath = "universal.json";
+  String repositoryKey = "universal-rules";
+  String source = "universal";
+  String repositoryName = "Universal rules";
+  String ruleTag = "bslls-universal";
+  int startIndex = 45;
+  boolean include1CCertifiedProfile = false;
 }

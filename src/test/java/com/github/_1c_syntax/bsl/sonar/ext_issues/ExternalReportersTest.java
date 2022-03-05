@@ -19,28 +19,22 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.language;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.junit.jupiter.api.Test;
+import org.reflections.Reflections;
 
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public final class BSLQualityProfile implements BuiltInQualityProfilesDefinition {
+class ExternalReportersTest {
 
-  @Override
-  public void define(Context context) {
-    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
-      "BSL Language Server rules",
-      BSLLanguage.KEY
-    );
-    profile.setDefault(true);
+  @Test
+  void getReporters() {
+    var reporters = new Reflections(Reporter.class.getPackageName())
+      .getSubTypesOf(Reporter.class);
 
-    List<String> ruleKeys = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
-    ruleKeys.forEach(ruleKey ->
-      profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, ruleKey)
-    );
-
-    profile.done();
+    assertThat(ExternalReporters.REPORTERS)
+      .hasSize(reporters.size())
+      .allMatch(reporter -> reporters.contains(reporter.getClass()));
   }
-
 }

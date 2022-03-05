@@ -19,28 +19,27 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with SonarQube 1C (BSL) Community Plugin.
  */
-package com.github._1c_syntax.bsl.sonar.language;
+package com.github._1c_syntax.bsl.sonar.ext_issues;
 
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import lombok.Value;
 
-import java.util.List;
-
-public final class BSLQualityProfile implements BuiltInQualityProfilesDefinition {
-
-  @Override
-  public void define(Context context) {
-    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
-      "BSL Language Server rules",
-      BSLLanguage.KEY
-    );
-    profile.setDefault(true);
-
-    List<String> ruleKeys = BSLLanguageServerRuleDefinition.getActivatedRuleKeys();
-    ruleKeys.forEach(ruleKey ->
-      profile.activateRule(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, ruleKey)
-    );
-
-    profile.done();
-  }
-
+/**
+ * Настройки внешнего анализатора 1С:EDT
+ */
+@Value(staticConstructor = "create")
+public class EdtReporter implements Reporter {
+  String name = "1C:EDT";
+  String subcategory = "EDT";
+  String enabledKey = "sonar.bsl.edt.enabled";
+  boolean enableDefaultValue = false;
+  String createExternalIssuesKey = "sonar.bsl.edt.createExternalIssues";
+  boolean createExternalIssuesDefaultValue = true;
+  String rulesPathsKey = "sonar.bsl.edt.rulesPaths";
+  String rulesDefaultPath = "edt.json";
+  String repositoryKey = "edt-rules";
+  String source = "edt";
+  String repositoryName = "EDT rules";
+  String ruleTag = "edt";
+  int startIndex = 35;
+  boolean include1CCertifiedProfile = true;
 }

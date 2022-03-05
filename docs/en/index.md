@@ -26,17 +26,13 @@
 - Put the jar file according to Manual Installation [section of official documentation](https://docs.sonarqube.org/latest/setup/install-plugin/) (default - `$SONARQUBE_HOME/extensions/plugins`)
 - Restart server
 
-## Requirements
+## Version matrix
 
-SonarQube Version | Plugin Version
-------------------|------------------
-7.9+              | 0.7.0+
-7.4 - 7.8         | 0.1.0...0.6.0
-
-Plugin Version | JAVA Version
----------------|----------------
-1.0+           | 11
-0.1.0 - 0.6.0  | 8
+SonarQube Version | Plugin Version | JAVA version
+------------------|----------------|------------------
+8.9+              | 1.11.0+        | 11
+7.9+              | 0.7.0...1.10.0 | 11
+7.4 - 7.8         | 0.1.0...0.6.0  | 8
 
 ## Run analysis
 
