@@ -36,7 +36,7 @@ dependencies {
     implementation("io.github.1c-syntax", "bsl-language-server", "0.20.0-rc.2")
 
     implementation("org.apache.commons:commons-lang3:3.12.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2")
 
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
     implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.24.0.965")
