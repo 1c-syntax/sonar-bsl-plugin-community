@@ -54,7 +54,7 @@ class LanguageServerDiagnosticsLoaderSensorTest {
   @Test
   void test_execute() {
 
-    var FILE_NAME = "test.bsl";
+    var FILE_NAME = "src/test.bsl";
     var inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
 
     var sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(7, 9));
