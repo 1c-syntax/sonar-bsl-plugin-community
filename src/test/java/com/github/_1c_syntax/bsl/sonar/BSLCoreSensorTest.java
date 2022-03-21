@@ -51,9 +51,9 @@ class BSLCoreSensorTest {
 
   private final String BASE_PATH = "src/test/resources/examples";
   private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
-  private final String FILE_NAME = "test.bsl";
+  private final String FILE_NAME = "src/test.bsl";
   private final Version SONAR_VERSION = Version.create(7, 9);
-  private final SensorContextTester context = SensorContextTester.create(BASE_DIR);
+  private final SensorContextTester context = createSensorContext();
 
   @Test
   void testDescriptor() {
@@ -240,6 +240,8 @@ class BSLCoreSensorTest {
     var context = SensorContextTester.create(BASE_DIR);
     context.fileSystem().setEncoding(StandardCharsets.UTF_8);
     context.setRuntime(sonarRuntime);
+    context.settings().setProperty("sonar.sources", "src");
+    context.settings().setProperty("sonar.tests", "test");
 
     var inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
     context.fileSystem().add(inputFile);

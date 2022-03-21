@@ -66,6 +66,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -78,7 +79,7 @@ public class BSLCoreSensor implements Sensor {
   private final FileLinesContextFactory fileLinesContextFactory;
 
   private final boolean langServerEnabled;
-  private final List<String> sourcesList;
+  private final List<String> sourcesList = new ArrayList<>();
   private final IssuesLoader issuesLoader;
   private final BSLHighlighter highlighter;
 
@@ -89,12 +90,19 @@ public class BSLCoreSensor implements Sensor {
     langServerEnabled = context.config().getBoolean(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_ENABLED_DEFAULT_VALUE);
 
-    sourcesList = context.config().get("sonar.sources")
+    sourcesList.addAll(context.config().get("sonar.sources")
       .map(sources ->
         Arrays.stream(StringUtils.split(sources, ","))
           .map(String::strip)
           .collect(Collectors.toList()))
-      .orElse(Collections.singletonList("."));
+        .orElse(Collections.singletonList(".")));
+
+    sourcesList.addAll(context.config().get("sonar.tests")
+      .map(sources ->
+        Arrays.stream(StringUtils.split(sources, ","))
+          .map(String::strip)
+          .collect(Collectors.toList()))
+      .orElse(Collections.emptyList()));
 
     issuesLoader = new IssuesLoader(context);
     highlighter = new BSLHighlighter(context);
