@@ -10,7 +10,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version("7.0.0")
     id("com.github.ben-manes.versions") version "0.42.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.freefair.lombok") version "6.4.1"
+    id("io.freefair.lombok") version "6.4.2"
 }
 
 group = "io.github.1c-syntax"
@@ -36,7 +36,7 @@ dependencies {
     implementation("io.github.1c-syntax", "bsl-language-server", "0.20.0-rc.2")
 
     implementation("org.apache.commons:commons-lang3:3.12.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2.2")
 
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
     implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.24.0.965")
@@ -55,7 +55,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.8.0")
 
     testImplementation("org.assertj:assertj-core:3.22.0")
-    testImplementation("org.mockito:mockito-core:4.3.1")
+    testImplementation("org.mockito:mockito-core:4.4.0")
 
     testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
     testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)

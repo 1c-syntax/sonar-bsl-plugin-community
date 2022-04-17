@@ -50,7 +50,7 @@ class IssuesLoaderTest {
 
   private final String BASE_PATH = "src/test/resources/examples";
   private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
-  private final String FILE_NAME = "test.bsl";
+  private final String FILE_NAME = "src/test.bsl";
 
   @Test
   void test_createExtIssue() {
