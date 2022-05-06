@@ -418,7 +418,7 @@ public class BSLHighlighter {
       BSLLexer.ADDHANDLER_KEYWORD,
       BSLLexer.REMOVEHANDLER_KEYWORD,
       BSLLexer.ASYNC_KEYWORD,
-      BSLLexer.WAIT_KEYWORD
+      BSLLexer.AWAIT_KEYWORD
     );
   }
 
