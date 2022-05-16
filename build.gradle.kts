@@ -39,7 +39,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2.2")
 
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
-    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.24.0.965")
+    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:1.25.0.1003")
 
     // MD to HTML converter of BSL LS rule descriptions
     implementation("com.atlassian.commonmark", "commonmark", commonmarkVersion)
