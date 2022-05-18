@@ -30,7 +30,7 @@ import com.github._1c_syntax.bsl.languageserver.context.MetricStorage;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
-import com.github._1c_syntax.bsl.parser.BSLParser;
+import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.utils.Absolute;
@@ -248,14 +248,14 @@ public class BSLCoreSensor implements Sensor {
 
   private void setSkipCpd(Token token) {
     int tokenType = token.getType();
-    if (tokenType == BSLParser.ANNOTATION_CHANGEANDVALIDATE_SYMBOL
-    || tokenType == BSLParser.PREPROC_ENDINSERT) {
+    if (tokenType == BSLLexer.ANNOTATION_CHANGEANDVALIDATE_SYMBOL
+    || tokenType == BSLLexer.PREPROC_ENDINSERT) {
       skipCpd = true;
     }
 
-    if (tokenType == BSLParser.ENDPROCEDURE_KEYWORD
-    || tokenType == BSLParser.ENDFUNCTION_KEYWORD
-    || tokenType == BSLParser.PREPROC_INSERT) {
+    if (tokenType == BSLLexer.ENDPROCEDURE_KEYWORD
+    || tokenType == BSLLexer.ENDFUNCTION_KEYWORD
+    || tokenType == BSLLexer.PREPROC_INSERT) {
       skipCpd = false;
     }
 
