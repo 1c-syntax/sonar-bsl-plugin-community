@@ -205,8 +205,36 @@ class BSLCoreSensorTest {
     // todo надо как-то нормально ключ компонента определить
     var componentKey = "moduleKey:" + FILE_NAME;
     assertThat(context.measures(componentKey)).isNotEmpty();
-    assertThat(context.measure(componentKey, CoreMetrics.COMPLEXITY).value()).isEqualTo(2);
+    assertThat(context.measure(componentKey, CoreMetrics.COMPLEXITY).value()).isEqualTo(3);
     assertThat(context.measure(componentKey, CoreMetrics.COGNITIVE_COMPLEXITY).value()).isEqualTo(1);
+
+  }
+
+  @Test
+  void testCPD() {
+    var diagnosticName = "OneStatementPerLine";
+    var ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
+
+    // Mock visitor for metrics.
+    var fileLinesContext = mock(FileLinesContext.class);
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+
+    var context = createSensorContext();
+
+    var sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+    sensor.execute(context);
+
+    var componentKey = "moduleKey:" + FILE_NAME;
+    assertThat(context.cpdTokens(componentKey))
+            .isNotNull()
+            .hasSize(13);
+    assertThat(context.cpdTokens(componentKey))
+            .filteredOn( tok -> tok.getValue().startsWith("ОставшийсяТокен"))
+            .hasSize(1);
+    assertThat(context.cpdTokens(componentKey))
+            .filteredOn( tok -> tok.getValue().startsWith("ПропущенныйТокен"))
+            .isEmpty();
 
   }
 
