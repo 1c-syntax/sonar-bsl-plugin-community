@@ -49,7 +49,6 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -83,7 +82,6 @@ public class BSLCoreSensor implements Sensor {
   private final List<String> sourcesList = new ArrayList<>();
   private final IssuesLoader issuesLoader;
   private final BSLHighlighter highlighter;
-  private boolean skipCpd;
 
   public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
     this.context = context;
@@ -211,52 +209,35 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveCpd(InputFile inputFile, DocumentContext documentContext) {
 
-    NewCpdTokens cpdTokens = context.newCpdTokens();
+    var cpdTokens = context.newCpdTokens();
     cpdTokens.onFile(inputFile);
 
-    documentContext.getTokens()
-      .forEach((Token token) -> {
+    var skipCpd = false;
+    for (Token token : documentContext.getTokens()) {
+      if (token.getChannel() != Token.DEFAULT_CHANNEL) {
+        skipCpd = checkSkipCpd(token, skipCpd);
+        continue;
+      }
 
-        if (token.getChannel() != Token.DEFAULT_CHANNEL) {
-          setSkipCpd(token);
-          return;
-        }
+      if (!skipCpd) {
+        int line = token.getLine();
+        int charPositionInLine = token.getCharPositionInLine();
+        String tokenText = token.getText();
+        cpdTokens.addToken(
+                line,
+                charPositionInLine,
+                line,
+                charPositionInLine + tokenText.length(),
+                tokenText
+        );
+      }
 
-        if (!skipCpd) {
-          int line = token.getLine();
-          int charPositionInLine = token.getCharPositionInLine();
-          String tokenText = token.getText();
-          cpdTokens.addToken(
-            line,
-            charPositionInLine,
-            line,
-            charPositionInLine + tokenText.length(),
-            tokenText
-          );
-        }
+      skipCpd = checkSkipCpd(token, skipCpd);
 
-        setSkipCpd(token);
-
-        }
-      );
+    }
 
     synchronized (this) {
       cpdTokens.save();
-    }
-
-  }
-
-  private void setSkipCpd(Token token) {
-    int tokenType = token.getType();
-    if (tokenType == BSLLexer.ANNOTATION_CHANGEANDVALIDATE_SYMBOL
-    || tokenType == BSLLexer.PREPROC_ENDINSERT) {
-      skipCpd = true;
-    }
-
-    if (tokenType == BSLLexer.ENDPROCEDURE_KEYWORD
-    || tokenType == BSLLexer.ENDFUNCTION_KEYWORD
-    || tokenType == BSLLexer.PREPROC_INSERT) {
-      skipCpd = false;
     }
 
   }
@@ -404,6 +385,21 @@ public class BSLCoreSensor implements Sensor {
     }
 
     return value;
+  }
+
+  private static boolean checkSkipCpd(Token token, boolean skipCpd) {
+    int tokenType = token.getType();
+    if (tokenType == BSLLexer.ANNOTATION_CHANGEANDVALIDATE_SYMBOL
+            || tokenType == BSLLexer.PREPROC_ENDINSERT) {
+      skipCpd = true;
+    }
+
+    if (tokenType == BSLLexer.ENDPROCEDURE_KEYWORD
+            || tokenType == BSLLexer.ENDFUNCTION_KEYWORD
+            || tokenType == BSLLexer.PREPROC_INSERT) {
+      skipCpd = false;
+    }
+    return skipCpd;
   }
 
 }
