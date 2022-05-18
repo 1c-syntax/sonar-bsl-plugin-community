@@ -30,6 +30,7 @@ import com.github._1c_syntax.bsl.languageserver.context.MetricStorage;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
+import com.github._1c_syntax.bsl.parser.BSLParser;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.utils.Absolute;
@@ -82,6 +83,7 @@ public class BSLCoreSensor implements Sensor {
   private final List<String> sourcesList = new ArrayList<>();
   private final IssuesLoader issuesLoader;
   private final BSLHighlighter highlighter;
+  private boolean skipCpd;
 
   public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
     this.context = context;
@@ -212,8 +214,15 @@ public class BSLCoreSensor implements Sensor {
     NewCpdTokens cpdTokens = context.newCpdTokens();
     cpdTokens.onFile(inputFile);
 
-    documentContext.getTokensFromDefaultChannel()
+    documentContext.getTokens()
       .forEach((Token token) -> {
+
+        if (token.getChannel() != Token.DEFAULT_CHANNEL) {
+          setSkipCpd(token);
+          return;
+        }
+
+        if (!skipCpd) {
           int line = token.getLine();
           int charPositionInLine = token.getCharPositionInLine();
           String tokenText = token.getText();
@@ -225,10 +234,29 @@ public class BSLCoreSensor implements Sensor {
             tokenText
           );
         }
+
+        setSkipCpd(token);
+
+        }
       );
 
     synchronized (this) {
       cpdTokens.save();
+    }
+
+  }
+
+  private void setSkipCpd(Token token) {
+    int tokenType = token.getType();
+    if (tokenType == BSLParser.ANNOTATION_CHANGEANDVALIDATE_SYMBOL
+    || tokenType == BSLParser.PREPROC_ENDINSERT) {
+      skipCpd = true;
+    }
+
+    if (tokenType == BSLParser.ENDPROCEDURE_KEYWORD
+    || tokenType == BSLParser.ENDFUNCTION_KEYWORD
+    || tokenType == BSLParser.PREPROC_INSERT) {
+      skipCpd = false;
     }
 
   }
