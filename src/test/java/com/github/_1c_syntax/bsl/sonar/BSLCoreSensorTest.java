@@ -1,8 +1,8 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Copyright (c) 2018-2022
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -21,11 +21,10 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -33,12 +32,15 @@ import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,18 +49,18 @@ import static org.mockito.Mockito.when;
 
 class BSLCoreSensorTest {
 
-  private final String BASE_PATH = "src/test/resources/src";
+  private final String BASE_PATH = "src/test/resources/examples";
   private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
-  private final String FILE_NAME = "test.bsl";
-  final Version SONAR_VERSION = Version.create(7, 9);
-  private SensorContextTester context = SensorContextTester.create(BASE_DIR);
+  private final String FILE_NAME = "src/test.bsl";
+  private final Version SONAR_VERSION = Version.create(7, 9);
+  private final SensorContextTester context = createSensorContext();
 
   @Test
   void testDescriptor() {
-    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
 
-    BSLCoreSensor sensor = new BSLCoreSensor(context, fileLinesContextFactory);
-    DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
+    var sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+    var sensorDescriptor = new DefaultSensorDescriptor();
     sensor.describe(sensorDescriptor);
 
     assertThat(sensorDescriptor.name()).isEqualTo("BSL Core Sensor");
@@ -68,15 +70,15 @@ class BSLCoreSensorTest {
   @Test
   void testExecute() {
 
-    String diagnosticName = "OneStatementPerLine";
-    RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
+    var diagnosticName = "OneStatementPerLine";
+    var ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
 
     SensorContextTester context;
     BSLCoreSensor sensor;
 
     // Mock visitor for metrics.
-    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
-    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    var fileLinesContext = mock(FileLinesContext.class);
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
     context = createSensorContext();
@@ -96,27 +98,50 @@ class BSLCoreSensorTest {
 
     context = createSensorContext();
     setActiveRules(context, diagnosticName, ruleKey);
-    context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY, DiagnosticLanguage.EN.getLanguageCode());
+    context.settings().setProperty(
+      BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY, Language.EN.getLanguageCode());
     sensor = new BSLCoreSensor(context, fileLinesContextFactory);
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
-    
+
+    context = createSensorContext();
+    setActiveRules(context, diagnosticName, ruleKey);
+    context.settings().setProperty(
+      BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_KEY, Boolean.TRUE.toString());
+    context.settings().setProperty(
+      BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY,
+      Path.of(BASE_PATH, ".bsl-language-server.json").toString());
+    sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+    sensor.execute(context);
+
+    assertThat(context.isCancelled()).isFalse();
+
+    context = createSensorContext();
+    setActiveRules(context, diagnosticName, ruleKey);
+    context.settings().setProperty(
+      BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_KEY, Boolean.TRUE.toString());
+    context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY, "fake.file");
+    sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+    sensor.execute(context);
+
+    assertThat(context.isCancelled()).isFalse();
+
   }
 
   @Test
   void testExecuteCastDiagnosticParameterValue() {
 
-    String diagnosticEmptyCodeBlock = "EmptyCodeBlock";
-    String diagnosticCommentedCode = "CommentedCode";
-    String diagnosticLineLength = "LineLength";
-    String diagnosticUsingHardcodeNetworkAddress = "UsingHardcodeNetworkAddress";
+    var diagnosticEmptyCodeBlock = "EmptyCodeBlock";
+    var diagnosticCommentedCode = "CommentedCode";
+    var diagnosticLineLength = "LineLength";
+    var diagnosticUsingHardcodeNetworkAddress = "UsingHardcodeNetworkAddress";
 
-    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
-    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    var fileLinesContext = mock(FileLinesContext.class);
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
-    SensorContextTester context = createSensorContext();
+    var context = createSensorContext();
     ActiveRules activeRules = new ActiveRulesBuilder()
       .addRule(newActiveRule(diagnosticEmptyCodeBlock, "commentAsCode", "true"))
       .addRule(newActiveRule(diagnosticCommentedCode, "threshold", "0.9F"))
@@ -129,7 +154,7 @@ class BSLCoreSensorTest {
       .build();
     context.setActiveRules(activeRules);
 
-    BSLCoreSensor sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+    var sensor = new BSLCoreSensor(context, fileLinesContextFactory);
     sensor.execute(context);
 
     assertThat(context.isCancelled()).isFalse();
@@ -137,20 +162,19 @@ class BSLCoreSensorTest {
 
   @Test
   void testExecuteCoverage() {
-    final String diagnosticName = "OneStatementPerLine";
-    final RuleKey ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
+    var diagnosticName = "OneStatementPerLine";
+    var ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
 
     SensorContextTester context;
     BSLCoreSensor sensor;
 
     // Mock visitor for metrics.
-    FileLinesContext fileLinesContext = mock(FileLinesContext.class);
-    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    var fileLinesContext = mock(FileLinesContext.class);
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
     context = createSensorContext();
     context.settings().setProperty(BSLCommunityProperties.LANG_SERVER_ENABLED_KEY, false);
-    context.settings().setProperty(BSLCommunityProperties.BSL_CALCULATE_LINE_TO_COVER_KEY, true);
     setActiveRules(context, diagnosticName, ruleKey);
     sensor = new BSLCoreSensor(context, fileLinesContextFactory);
     sensor.execute(context);
@@ -158,8 +182,64 @@ class BSLCoreSensorTest {
     assertThat(context.isCancelled()).isFalse();
   }
 
+  @Test
+  void testComplexity() {
+    var diagnosticCyclomaticComplexity = "CyclomaticComplexity";
+    var diagnosticCognitiveComplexity = "CognitiveComplexity";
+
+    var context = createSensorContext();
+    var activeRules = new ActiveRulesBuilder()
+      .addRule(newActiveRule(diagnosticCyclomaticComplexity))
+      .addRule(newActiveRule(diagnosticCognitiveComplexity))
+      .build();
+    context.setActiveRules(activeRules);
+
+    var fileLinesContext = mock(FileLinesContext.class);
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+
+    BSLCoreSensor sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+
+    sensor.execute(context);
+
+    // todo надо как-то нормально ключ компонента определить
+    var componentKey = "moduleKey:" + FILE_NAME;
+    assertThat(context.measures(componentKey)).isNotEmpty();
+    assertThat(context.measure(componentKey, CoreMetrics.COMPLEXITY).value()).isEqualTo(3);
+    assertThat(context.measure(componentKey, CoreMetrics.COGNITIVE_COMPLEXITY).value()).isEqualTo(1);
+
+  }
+
+  @Test
+  void testCPD() {
+    var diagnosticName = "OneStatementPerLine";
+    var ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
+
+    // Mock visitor for metrics.
+    var fileLinesContext = mock(FileLinesContext.class);
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
+
+    var context = createSensorContext();
+
+    var sensor = new BSLCoreSensor(context, fileLinesContextFactory);
+    sensor.execute(context);
+
+    var componentKey = "moduleKey:" + FILE_NAME;
+    assertThat(context.cpdTokens(componentKey))
+            .isNotNull()
+            .hasSize(13);
+    assertThat(context.cpdTokens(componentKey))
+            .filteredOn( tok -> tok.getValue().startsWith("ОставшийсяТокен"))
+            .hasSize(1);
+    assertThat(context.cpdTokens(componentKey))
+            .filteredOn( tok -> tok.getValue().startsWith("ПропущенныйТокен"))
+            .isEmpty();
+
+  }
+
   private void setActiveRules(SensorContextTester context, String diagnosticName, RuleKey ruleKey) {
-    ActiveRules activeRules = new ActiveRulesBuilder()
+    var activeRules = new ActiveRulesBuilder()
       .addRule(new NewActiveRule.Builder()
         .setRuleKey(ruleKey)
         .setName(diagnosticName)
@@ -176,13 +256,22 @@ class BSLCoreSensorTest {
       .build();
   }
 
+  private NewActiveRule newActiveRule(String diagnosticName) {
+    return new NewActiveRule.Builder()
+      .setRuleKey(RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName))
+      .setName(diagnosticName)
+      .build();
+  }
 
   private SensorContextTester createSensorContext() {
-    SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(SONAR_VERSION);
-    SensorContextTester context = SensorContextTester.create(BASE_DIR);
+    var sonarRuntime = SonarRuntimeImpl.forSonarLint(SONAR_VERSION);
+    var context = SensorContextTester.create(BASE_DIR);
+    context.fileSystem().setEncoding(StandardCharsets.UTF_8);
     context.setRuntime(sonarRuntime);
+    context.settings().setProperty("sonar.sources", "src");
+    context.settings().setProperty("sonar.tests", "test");
 
-    InputFile inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+    var inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
     context.fileSystem().add(inputFile);
 
     return context;

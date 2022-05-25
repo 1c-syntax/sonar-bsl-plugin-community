@@ -1,8 +1,8 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Copyright (c) 2018-2022
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -21,10 +21,11 @@
  */
 package com.github._1c_syntax.bsl.sonar.language;
 
-import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.DiagnosticSupplier;
+import com.github._1c_syntax.bsl.languageserver.BSLLSBinding;
+import com.github._1c_syntax.bsl.languageserver.configuration.Language;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
@@ -52,6 +53,7 @@ import java.util.stream.Collectors;
 public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   public static final String REPOSITORY_KEY = "bsl-language-server";
+  public static final String PARAMETERS_TAG_NAME = "parameters";
   private static final String REPOSITORY_NAME = "BSL Language Server";
   private static final Logger LOGGER = Loggers.get(BSLLanguageServerRuleDefinition.class);
 
@@ -59,14 +61,15 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
 
   private final Configuration config;
-  private final DiagnosticLanguage language;
   private final Parser markdownParser;
   private final HtmlRenderer htmlRenderer;
   private DiagnosticInfo diagnosticInfo;
 
   public BSLLanguageServerRuleDefinition(Configuration config) {
     this.config = config;
-    this.language = createDiagnosticLanguage();
+
+    var configuration = BSLLSBinding.getLanguageServerConfiguration();
+    configuration.setLanguage(createDiagnosticLanguage());
 
     List<Extension> extensions = Arrays.asList(
       TablesExtension.create(),
@@ -85,29 +88,31 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   @Override
   public void define(Context context) {
-
     NewRepository repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
 
-    DiagnosticSupplier.getDiagnosticClasses()
-      .forEach((Class<? extends BSLDiagnostic> diagnostic) -> {
-        diagnosticInfo = new DiagnosticInfo(diagnostic, language);
-        NewRule newRule = repository.createRule(diagnosticInfo.getCode());
+    var diagnosticInfos = BSLLSBinding.getDiagnosticInfos();
+
+    diagnosticInfos.forEach((DiagnosticInfo currentDiagnosticInfo) -> {
+        diagnosticInfo = currentDiagnosticInfo;
+        NewRule newRule = repository.createRule(diagnosticInfo.getCode().getStringValue());
         setUpNewRule(newRule);
         setUpRuleParams(newRule);
       });
 
     repository.done();
+
+    BSLLSBinding.getApplicationContext().close();
   }
 
-  protected static List<String> getActivatedRuleKeys() {
-
-    return DiagnosticSupplier.getDiagnosticClasses()
+  public static List<String> getActivatedRuleKeys() {
+    return BSLLSBinding.getDiagnosticInfos()
       .stream()
-      .map(DiagnosticInfo::new)
       .filter(DiagnosticInfo::isActivatedByDefault)
-      .map(DiagnosticInfo::getCode).collect(Collectors.toList());
+      .map(DiagnosticInfo::getCode)
+      .map((DiagnosticCode diagnosticCode) -> diagnosticCode.getStringValue())
+      .collect(Collectors.toList());
   }
 
   private void setUpNewRule(NewRule newRule) {
@@ -126,6 +131,10 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .map(String::toLowerCase)
       .toArray(String[]::new);
 
+    if (!diagnosticInfo.getParameters().isEmpty()) {
+      newRule.addTags(PARAMETERS_TAG_NAME);
+    }
+
     if (tagsName.length > 0) {
       newRule.addTags(tagsName);
     }
@@ -143,7 +152,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   private void setUpRuleParams(NewRule newRule) {
     diagnosticInfo.getParameters()
-      .forEach(diagnosticParameter -> {
+      .forEach((DiagnosticParameterInfo diagnosticParameter) -> {
         RuleParamType ruleParamType = getRuleParamType(diagnosticParameter.getType());
         if (ruleParamType == null) {
           LOGGER.error(
@@ -163,15 +172,14 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       });
   }
 
-  private DiagnosticLanguage createDiagnosticLanguage() {
+  private Language createDiagnosticLanguage() {
 
     String diagnosticLanguageCode = config
       .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
 
-    return DiagnosticLanguage.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH));
+    return Language.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH));
   }
-
 
   @CheckForNull
   private static RuleParamType getRuleParamType(Class<?> type) {

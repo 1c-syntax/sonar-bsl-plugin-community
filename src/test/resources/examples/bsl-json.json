@@ -1,0 +1,85 @@
+{
+  "date": "2019-07-17 07:12:03",
+  "fileinfos": [
+    {
+      "path": "./src/test/resources/src/test.bsl",
+      "diagnostics": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 15
+            },
+            "end": {
+              "line": 3,
+              "character": 25
+            }
+          },
+          "severity": "Information",
+          "code": "OneStatementPerLine",
+          "source": "bsl-language-server",
+          "message": "Перенесите выражение на новую строку",
+          "relatedInformation": null
+        },
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 8
+            },
+            "end": {
+              "line": 6,
+              "character": 22
+            }
+          },
+          "severity": "Information",
+          "code": "DeprecatedMessage",
+          "source": "bsl-language-server",
+          "message": "Не следует использовать устаревший метод \"Сообщить\"",
+          "relatedInformation": null
+        },
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 21
+            },
+            "end": {
+              "line": 6,
+              "character": 22
+            }
+          },
+          "severity": "Information",
+          "code": "SemicolonPresence",
+          "source": "bsl-language-server",
+          "message": "Пропущена точка с запятой в конце выражения",
+          "relatedInformation": null
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 16
+            },
+            "end": {
+              "line": 5,
+              "character": 23
+            }
+          },
+          "severity": "Error",
+          "code": "UseLessForEach",
+          "source": "bsl-language-server",
+          "message": "Итератор не используется в теле цикла",
+          "relatedInformation": null
+        }
+      ],
+      "metrics": {
+        "procedures": 0,
+        "functions": 1,
+        "lines": 9,
+        "ncloc": 7,
+        "statements": 5
+      }
+    }
+  ]
+}

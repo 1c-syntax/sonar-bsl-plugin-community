@@ -1,0 +1,22 @@
+{
+  "Rules": [
+    {
+      "Code": "EDT-41",
+      "Name": "Синтаксическая ошибка. Пропущена лексема",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "EDT-99999",
+      "Name": "Синтаксическая ошибка",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Active": true,
+      "EffortMinutes": 10
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 # SonarQube 1C (BSL) Community Plugin
 
-[![Build Status](https://travis-ci.org/1c-syntax/sonar-bsl-plugin-community.svg?branch=master)](https://travis-ci.org/1c-syntax/sonar-bsl-plugin-community)
+[![Actions Status](https://github.com/1c-syntax/sonar-bsl-plugin-community/workflows/Java%20CI/badge.svg)](https://github.com/1c-syntax/sonar-bsl-plugin-community/actions)
+[![Download](https://img.shields.io/github/release/1c-syntax/sonar-bsl-plugin-community.svg?label=download&style=flat)](https://github.com/1c-syntax/sonar-bsl-plugin-community/releases/latest)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=1c-syntax_sonar-bsl-plugin-community&metric=alert_status)](https://sonarcloud.io/dashboard?id=1c-syntax_sonar-bsl-plugin-community)
 [![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=1c-syntax_sonar-bsl-plugin-community&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=1c-syntax_sonar-bsl-plugin-community)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=1c-syntax_sonar-bsl-plugin-community&metric=coverage)](https://sonarcloud.io/dashboard?id=1c-syntax_sonar-bsl-plugin-community)
@@ -25,17 +26,13 @@
 - Put the jar file according to Manual Installation [section of official documentation](https://docs.sonarqube.org/latest/setup/install-plugin/) (default - `$SONARQUBE_HOME/extensions/plugins`)
 - Restart server
 
-## Requirements
+## Version matrix
 
-SonarQube Version | Plugin Version
-------------------|------------------
-7.9+              | 0.7.0+
-7.4 - 7.8         | 0.1.0...0.6.0
-
-Plugin Version | JAVA Version
----------------|----------------
-1.0+           | 11
-0.1.0 - 0.6.0  | 8
+SonarQube Version | Plugin Version | JAVA version
+------------------|----------------|------------------
+8.9+              | 1.11.0+        | 11
+7.9+              | 0.7.0...1.10.0 | 11
+7.4 - 7.8         | 0.1.0...0.6.0  | 8
 
 ## Run analysis
 
@@ -84,8 +81,15 @@ sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH
 - `sonar.bsl.languageserver.diagnosticLanguage` - the language of the rule names and message text of the triggered rules from the BSL Language Server. Default - `ru` - Russian;
 - `sonar.bsl.languageserver.enabled` - use the built-in BSL Language Server Diagnostic provider analyzer when running analysis via `sonar-scanner`. Default - `true` - enabled;
 - `sonar.bsl.languageserver.reportPaths` - the path to the report files in the internal format to the BSL Language Server - `json`. By default - `""` - not filled.
-* `sonar.bsl.file.suffixes` - list of file suffixes that will be scanned. Default - `.bsl,.os`
-- `sonar.bsl.calculateLineCover` - calculate locations for coverage.
+- `sonar.bsl.languageserver.skipSupport` - skip computing diagnostics according to module's support mode. *Only if there is a parent configuration*. In sonar-project.properties the value is specified without quote.  
+Available values:  
+    * with support locked - modules for support with the prohibition of changes will be skipped ("locked");
+    * with support - modules on support will be skipped;
+    * never *default* - modules are not skipped
+- `sonar.bsl.languageserver.overrideConfiguration` - override Quality Profile settings with settings from BSL Language Server configuration file;
+- `sonar.bsl.languageserver.configurationPath` - path to BSL Language Server configuration file to override settings;
+- `sonar.bsl.file.suffixes` - list of file suffixes that will be scanned. Default - `.bsl,.os`
+
 ## Language switch for rule names/descriptions and issue messages
 
 Plugin contains support of two languages for rule names/descriptions and issue messages:
@@ -129,21 +133,5 @@ To import the result to sonar-scanner utility, pass the parameter `sonar.bsl.lan
 sonar-scanner -Dsonar.bsl.languageserver.reportPaths=./bsl-json.json
 ```
 
-### Calculate loc for cover 
-
-Calculate locations for coverage. Use for correct code coverage when using genericCoverage.xml which contains only covered lines. 
-
-```
-sonar.bsl.calculateLineCover=true
-sonar.coverageReportPaths=./genericCoverage.xml
-```
-
-```xml
-<coverage version="1">
-    <file path="...\Forms\Form\Ext\Form\Module.bsl">
-        <lineToCover lineNumber="25" covered="true"/>
-        <lineToCover lineNumber="27" covered="true"/>
-    </file>
-</coverage>
-```
-  
+### Calculate loc for cover (Deprecated) 
+Use Coverage41C as full coverage report generator. 

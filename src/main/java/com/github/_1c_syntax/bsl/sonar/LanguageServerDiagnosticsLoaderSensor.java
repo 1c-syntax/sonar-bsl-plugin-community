@@ -1,8 +1,8 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Copyright (c) 2018-2022
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -22,8 +22,9 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.FileInfo;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.reporter.AnalysisInfo;
+import com.github._1c_syntax.bsl.languageserver.reporters.data.AnalysisInfo;
+import com.github._1c_syntax.bsl.languageserver.reporters.data.FileInfo;
+import com.github._1c_syntax.bsl.languageserver.reporters.databind.AnalysisInfoObjectMapper;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lsp4j.Diagnostic;
@@ -101,7 +102,7 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     }
 
     List<Diagnostic> diagnostics = fileInfo.getDiagnostics();
-    diagnostics.forEach(diagnostic -> processDiagnostic(inputFile, diagnostic));
+    diagnostics.forEach((Diagnostic diagnostic) -> processDiagnostic(inputFile, diagnostic));
   }
 
   private void processDiagnostic(InputFile inputFile, Diagnostic diagnostic) {
@@ -129,7 +130,7 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
       return null;
     }
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new AnalysisInfoObjectMapper();
 
     try {
       return objectMapper.readValue(json, AnalysisInfo.class);

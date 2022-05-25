@@ -1,0 +1,104 @@
+{
+  "Rules": [
+    {
+      "Code": "uni-1",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Name": "Универсальная незначительная ошибка",
+      "Description": "<H1>Незначительная ошибка</H1><p>Универсальная диагностика</p>",
+      "Active": true,
+      "NeedForCertificate": false,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "uni-2",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Name": "Универсальная важная ошибка",
+      "Description": "<H1>Важная ошибка</H1><p>Универсальная диагностика</p>",
+      "Active": true,
+      "NeedForCertificate": false,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "uni-3",
+      "Type": "BUG",
+      "Severity": "CRITICAL",
+      "Name": "Универсальная критичная ошибка",
+      "Description": "<H1>Критичная ошибка</H1><p>Универсальная диагностика</p>",
+      "Active": true,
+      "NeedForCertificate": false,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "uni-4",
+      "Type": "BUG",
+      "Severity": "BLOCKER",
+      "Name": "Универсальная блокирующая ошибка",
+      "Description": "<H1>Блокирующая ошибка</H1><p>Универсальная диагностика</p>",
+      "Active": true,
+      "NeedForCertificate": false,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "uni-5",
+      "Type": "CODE_SMELL",
+      "Severity": "INFO",
+      "Name": "Универсальный информационный дефект кода",
+      "Description": "<H1>Информационный дефект кода</H1><p>Универсальная диагностика</p>",
+      "Active": true,
+      "NeedForCertificate": false,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "uni-6",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Name": "Универсальный незначительный дефект кода",
+      "Description": "<H1>Незначительный дефект кода</H1><p>Универсальная диагностика</p>",
+      "Active": true,
+      "NeedForCertificate": false,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "uni-7",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Name": "Универсальный важный дефект кода",
+      "Description": "<H1>Важный дефект кода</H1><p>Универсальная диагностика</p>",
+      "Active": true,
+      "NeedForCertificate": false,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "uni-8",
+      "Type": "SECURITY_HOTSPOT",
+      "Severity": "CRITICAL",
+      "Name": "Универсальная потенциальная уязвимость",
+      "Description": "<H1>Потенциальная уязвимость</H1><p>Универсальная диагностика</p>",
+      "Active": true,
+      "NeedForCertificate": false,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "uni-9",
+      "Type": "VULNERABILITY",
+      "Severity": "CRITICAL",
+      "Name": "Универсальная критичная уязвимость",
+      "Description": "<H1>Критичная уязвимость</H1><p>Универсальная диагностика</p>",
+      "Active": true,
+      "NeedForCertificate": false,
+      "EffortMinutes": 10
+    },
+    {
+      "Code": "uni-10",
+      "Type": "VULNERABILITY",
+      "Severity": "BLOCKER",
+      "Name": "Универсальная блокирующая уязвимость",
+      "Description": "<H1>Блокирующая уязвимость</H1><p>Универсальная диагностика</p>",
+      "Active": true,
+      "NeedForCertificate": false,
+      "EffortMinutes": 10
+    }
+  ]
+}

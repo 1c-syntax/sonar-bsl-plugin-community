@@ -1,8 +1,8 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright © 2018-2020
- * Nikita Gryzlov <nixel2007@gmail.com>
+ * Copyright (c) 2018-2022
+ * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  *
@@ -21,29 +21,40 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.languageserver.configuration.DiagnosticLanguage;
+import com.github._1c_syntax.bsl.languageserver.configuration.Language;
+import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 
 public final class BSLCommunityProperties {
 
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY = "sonar.bsl.languageserver.diagnosticLanguage";
+  public static final String LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY = "sonar.bsl.languageserver.skipSupport";
   public static final String LANG_SERVER_ENABLED_KEY = "sonar.bsl.languageserver.enabled";
+  public static final String LANG_SERVER_CONFIGURATION_PATH_KEY = "sonar.bsl.languageserver.configurationPath";
+  public static final String LANG_SERVER_OVERRIDE_CONFIGURATION_KEY = "sonar.bsl.languageserver.overrideConfiguration";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
   public static final String BSL_FILE_EXTENSIONS_KEY = "sonar.bsl.file.suffixes";
-  public static final String BSL_CALCULATE_LINE_TO_COVER_KEY = "sonar.bsl.calculateLineCover";
 
   public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
-  public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = DiagnosticLanguage.RU.getLanguageCode();
-  public static final String BSL_FILE_EXTENSIONS_DEFAULT_VALUE = ".bsl,.os";
-  public static final Boolean BSL_CALCULATE_LINE_TO_COVER_VALUE = Boolean.FALSE;
+  public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE = Language.RU.getLanguageCode();
+  public static final String LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE
+    = SkipSupport.NEVER.name().toLowerCase(Locale.ENGLISH);
 
+  public static final String LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE = ".bsl-language-server.json";
+  public static final Boolean LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE = Boolean.FALSE;
+  public static final String BSL_FILE_EXTENSIONS_DEFAULT_VALUE = ".bsl,.os";
+
+  public static final String BSL_CATEGORY = "1C (BSL)";
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
-  private static final String BSL_CATEGORY = "1C (BSL)";
   private static final String BSL_SUBCATEGORY = "1C (BSL) Community";
 
 
@@ -60,7 +71,7 @@ public final class BSLCommunityProperties {
         )
         .defaultValue(LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
         .type(PropertyType.SINGLE_SELECT_LIST)
-        .options(DiagnosticLanguage.RU.getLanguageCode(), DiagnosticLanguage.EN.getLanguageCode())
+        .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
         .category(BSL_CATEGORY)
         .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
         .index(0)
@@ -74,6 +85,38 @@ public final class BSLCommunityProperties {
         .onQualifiers(Qualifiers.PROJECT)
         .index(1)
         .build(),
+      PropertyDefinition.builder(LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY)
+        .name("BSL Language Server - Skip computing diagnostics on modules with parent configurations")
+        .description("Skip computing diagnostics according to module's support mode " +
+          "(if there is a parent configuration).")
+        .category(BSL_CATEGORY)
+        .defaultValue(LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE)
+        .type(PropertyType.SINGLE_SELECT_LIST)
+        .options(Stream.of(SkipSupport.values())
+          .map(value -> value.name().toLowerCase(Locale.ENGLISH).replace("_", " "))
+          .collect(Collectors.toList())
+        )
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(2)
+        .build(),
+      PropertyDefinition.builder(LANG_SERVER_OVERRIDE_CONFIGURATION_KEY)
+        .name("BSL Language Server - Use configuration file")
+        .description("Override SonarQube settings with BSL LS configuration file.")
+        .category(BSL_CATEGORY)
+        .defaultValue(LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE.toString())
+        .type(PropertyType.BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(3)
+        .build(),
+      PropertyDefinition.builder(LANG_SERVER_CONFIGURATION_PATH_KEY)
+        .name("BSL Language Server - Configuration file")
+        .description("Path to BSL LS configuration file.")
+        .category(BSL_CATEGORY)
+        .defaultValue(LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE)
+        .type(PropertyType.STRING)
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(4)
+        .build(),
       PropertyDefinition.builder(BSL_FILE_EXTENSIONS_KEY)
         .name("BSL File suffixes")
         .description("List of file suffixes that will be scanned.")
@@ -81,16 +124,7 @@ public final class BSLCommunityProperties {
         .defaultValue(BSL_FILE_EXTENSIONS_DEFAULT_VALUE)
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
-        .index(2)
-        .build(),
-      PropertyDefinition.builder(BSL_CALCULATE_LINE_TO_COVER_KEY)
-        .name("BSL calculate lines to cover")
-        .description("Calculate lines to cover on analise")
-        .defaultValue(BSL_CALCULATE_LINE_TO_COVER_VALUE.toString())
-        .type(PropertyType.BOOLEAN)
-        .category(BSL_CATEGORY)
-        .onQualifiers(Qualifiers.PROJECT)
-        .index(3)
+        .index(5)
         .build(),
       PropertyDefinition.builder(LANG_SERVER_REPORT_PATH_KEY)
         .name("BSL Language Server Report Files")
@@ -100,6 +134,7 @@ public final class BSLCommunityProperties {
         .subCategory(BSL_SUBCATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
+        .index(0)
         .build()
     );
   }

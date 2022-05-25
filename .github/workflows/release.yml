@@ -1,0 +1,27 @@
+name: Upload to release
+
+on:
+  release:
+    types: [published, edited]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    name: Upload to release
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3.3.0
+      with:
+        java-version: 11
+        distribution: 'adopt'
+    - name: Build with Gradle
+      run: ./gradlew build
+    - name: Upload jar to release
+      uses: AButler/upload-release-assets@v2.0
+      with:
+        files: './build/libs/*.jar'
+        repo-token: ${{ secrets.GITHUB_TOKEN }} 
