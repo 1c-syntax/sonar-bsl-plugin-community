@@ -10,7 +10,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version("7.0.0")
     id("com.github.ben-manes.versions") version "0.42.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.freefair.lombok") version "6.5.0.3"
+    id("io.freefair.lombok") version "6.5.1"
 }
 
 group = "io.github.1c-syntax"
