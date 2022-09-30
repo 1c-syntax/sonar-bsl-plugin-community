@@ -79,5 +79,10 @@ public class RulesFile {
      * Время на исправление (в минутах)
      */
     int effortMinutes;
+
+    /**
+     * Идентификатор правила внешней системы
+     */
+    String internalCode;
   }
 }

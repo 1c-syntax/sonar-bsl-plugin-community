@@ -46,7 +46,7 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(40);
+    assertThat(repository.rules()).hasSize(118);
   }
 
   @Test
@@ -62,7 +62,7 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(40);
+    assertThat(repository.rules()).hasSize(118);
   }
 
   @Test
@@ -84,7 +84,7 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(44);
+    assertThat(repository.rules()).hasSize(122);
   }
 
 }
