@@ -47,7 +47,7 @@ dependencies {
     implementation("com.atlassian.commonmark", "commonmark-ext-autolink", commonmarkVersion)
     implementation("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
-    implementation("me.tongfei:progressbar:0.9.4")
+    implementation("me.tongfei:progressbar:0.9.5")
 
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
