@@ -21,7 +21,6 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
 import com.github._1c_syntax.bsl.sonar.ext_issues.ExternalReporters;
 import com.github._1c_syntax.bsl.sonar.ext_issues.Reporter;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
@@ -33,6 +32,7 @@ import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
@@ -153,7 +153,7 @@ public class IssuesLoader {
 
   public void createIssue(InputFile inputFile, Diagnostic diagnostic) {
 
-    var ruleId = DiagnosticCode.getStringValue(diagnostic.getCode());
+    var ruleId = getStringValue(diagnostic.getCode());
 
     var settings = loaderSettings.get(diagnostic.getSource());
     if (settings == null) {
@@ -219,7 +219,7 @@ public class IssuesLoader {
 
     issue.engineId(settings.engineId);
 
-    var ruleId = DiagnosticCode.getStringValue(diagnostic.getCode());
+    var ruleId = getStringValue(diagnostic.getCode());
     issue.ruleId(ruleId);
 
     issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
@@ -237,6 +237,10 @@ public class IssuesLoader {
   @CheckForNull
   private InputFile getInputFile(Path path) {
     return fileSystem.inputFile(predicates.and(predicates.hasLanguage(BSLLanguage.KEY), predicates.hasAbsolutePath(path.toAbsolutePath().toString())));
+  }
+
+  public static String getStringValue(Either<String, Integer> diagnosticCode) {
+    return diagnosticCode.isLeft() ? diagnosticCode.getLeft() : Integer.toString(diagnosticCode.getRight());
   }
 
   @Value
