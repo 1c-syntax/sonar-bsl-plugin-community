@@ -28,7 +28,7 @@ jobs:
       - name: Save current date
         run: echo "PLUGIN_CURRENT_DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
       - name: Deploy build
-        uses: WebFreak001/deploy-nightly@v1.2.0
+        uses: WebFreak001/deploy-nightly@v2.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
