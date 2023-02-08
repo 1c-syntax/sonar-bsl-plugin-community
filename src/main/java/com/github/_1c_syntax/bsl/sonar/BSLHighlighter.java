@@ -22,6 +22,7 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
+// TODO: в api/helpers
 import com.github._1c_syntax.bsl.languageserver.utils.Ranges;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.parser.SDBLLexer;

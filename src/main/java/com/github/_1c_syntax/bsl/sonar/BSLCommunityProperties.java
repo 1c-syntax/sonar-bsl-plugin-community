@@ -21,7 +21,9 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+// TODO: в api или заменить на прямое указение language code
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
+// TODO: в api
 import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;

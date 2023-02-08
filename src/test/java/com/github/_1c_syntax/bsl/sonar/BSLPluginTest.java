@@ -47,6 +47,9 @@ class BSLPluginTest {
 
   @Test
   void testGetExtensions() {
+
+    LanguageClientBinding.INSTANCE.start();
+
     var runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     var context = new Plugin.Context(runtime);
     bslPlugin.define(context);

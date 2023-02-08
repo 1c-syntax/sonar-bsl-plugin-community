@@ -22,8 +22,11 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+// TODO: в модуль api
 import com.github._1c_syntax.bsl.languageserver.reporters.data.AnalysisInfo;
+// TODO: в модуль api
 import com.github._1c_syntax.bsl.languageserver.reporters.data.FileInfo;
+// TODO: в модуль api
 import com.github._1c_syntax.bsl.languageserver.reporters.databind.AnalysisInfoObjectMapper;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.apache.commons.io.FileUtils;
