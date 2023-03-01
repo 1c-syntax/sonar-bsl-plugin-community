@@ -27,7 +27,6 @@ repositories {
     }
 }
 
-val commonmarkVersion = "0.17.0"
 val sonarQubeVersion = "8.9.0.43852"
 
 dependencies {
@@ -42,10 +41,10 @@ dependencies {
     implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:2.1.0.1111")
 
     // MD to HTML converter of BSL LS rule descriptions
-    implementation("com.atlassian.commonmark", "commonmark", commonmarkVersion)
-    implementation("com.atlassian.commonmark", "commonmark-ext-gfm-tables", commonmarkVersion)
-    implementation("com.atlassian.commonmark", "commonmark-ext-autolink", commonmarkVersion)
-    implementation("com.atlassian.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
+    implementation("org.commonmark", "commonmark", "0.21.0")
+    implementation("org.commonmark", "commonmark-ext-gfm-tables", "0.21.0")
+    implementation("org.commonmark", "commonmark-ext-autolink", "0.21.0")
+    implementation("org.commonmark", "commonmark-ext-heading-anchor", "0.21.0")
 
     implementation("me.tongfei:progressbar:0.9.5")
 
