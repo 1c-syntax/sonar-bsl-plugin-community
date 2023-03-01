@@ -37,7 +37,7 @@ public class AccReporter implements Reporter {
   String rulesPathsKey = "sonar.bsl.acc.accRulesPaths";
   String rulesDefaultPath = "acc.json";
   String repositoryKey = "acc-rules";
-  String source = "acc-rules";
+  String source = "acc";
   String repositoryName = "ACC rules";
   String ruleTag = "acc";
   int startIndex = 30;
