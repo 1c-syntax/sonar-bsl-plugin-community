@@ -24,7 +24,7 @@ package com.github._1c_syntax.bsl.sonar.ext_issues;
 import lombok.Value;
 
 /**
- * Настройки внешнего анализатора 1С:EDT
+ * Настройки внешнего анализатора
  */
 @Value(staticConstructor = "create")
 public class UniversalReporter implements Reporter {
