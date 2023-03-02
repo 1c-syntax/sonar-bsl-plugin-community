@@ -184,15 +184,8 @@ public class BSLCoreSensor implements Sensor {
 
   private void processFile(InputFile inputFile, ServerContext bslServerContext) {
     URI uri = inputFile.uri();
-
-    String content;
-    try {
-      content = IOUtils.toString(inputFile.inputStream(), StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      LOGGER.warn("Can't read content of file " + uri, e);
-      content = "";
-    }
-    DocumentContext documentContext = bslServerContext.addDocument(uri, content, 1);
+    DocumentContext documentContext = bslServerContext.addDocument(uri);
+    bslServerContext.rebuildDocument(documentContext);
 
     if (langServerEnabled) {
       documentContext.getDiagnostics()
@@ -203,9 +196,9 @@ public class BSLCoreSensor implements Sensor {
     highlighter.saveHighlighting(inputFile, documentContext);
     saveMeasures(inputFile, documentContext);
 
-    documentContext.clearSecondaryData();
+    // clean up AST after diagnostic computing to free up RAM.
+    bslServerContext.tryClearDocument(documentContext);
   }
-
 
   private void saveCpd(InputFile inputFile, DocumentContext documentContext) {
 

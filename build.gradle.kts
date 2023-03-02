@@ -32,7 +32,10 @@ val sonarQubeVersion = "8.9.0.43852"
 dependencies {
     implementation("org.sonarsource.sonarqube", "sonar-plugin-api", sonarQubeVersion)
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.20.0")
+    implementation("io.github.1c-syntax", "bsl-language-server", "1c83f52") {
+        exclude("com.github.1c-syntax", "utils")
+    }
+    implementation("com.github.1c-syntax", "utils", "f1694d9c")
 
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")

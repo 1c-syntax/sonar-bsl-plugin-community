@@ -35,7 +35,6 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 import java.io.File;
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,20 +85,18 @@ class BSLHighlighterTest {
     // given
     context = SensorContextTester.create(Path.of("."));
     highlighter = new BSLHighlighter(context);
-    String content = "А = \"ВЫБРАТЬ РАЗРЕШЕННЫЕ Поле.Один \n" +
-      "|КАК \n" +
-      "|  Один, 2 \n" +
-      " |  КАК Два ИЗ Справочник.Поле\n" +
-      "|АВТОУПОРЯДОЧИВАНИЕ;\";";
-    documentContext = BSLLSBinding.getServerContext().addDocument(URI.create("file:///fake.bsl"), content, 1);
-
-    inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR, content);
+    var fileName = "highlight.bsl";
+    var baseDirName = "src/test/resources/examples";
+    var path = Path.of(baseDirName, fileName);
+    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
+    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
+    inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
 
     // when
     highlighter.saveHighlighting(inputFile, documentContext);
 
     // then
-    var componentKey = "moduleKey:" + FILE_NAME;
+    var componentKey = "moduleKey:" + fileName;
 
     checkTokenTypeAtPosition(componentKey, 1, 4, TypeOfText.STRING);
     checkTokenTypeAtPosition(componentKey, 1, 5, TypeOfText.KEYWORD);
