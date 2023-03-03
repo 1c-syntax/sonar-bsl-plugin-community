@@ -6,7 +6,7 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=1c-syntax_sonar-bsl-plugin-community&metric=coverage)](https://sonarcloud.io/dashboard?id=1c-syntax_sonar-bsl-plugin-community)
 
 [![Download](https://img.shields.io/github/release/1c-syntax/sonar-bsl-plugin-community.svg?label=download&style=flat)](https://github.com/1c-syntax/sonar-bsl-plugin-community/releases/latest)
-[![Download night build](https://img.shields.io/github/workflow/status/1c-syntax/sonar-bsl-plugin-community/Night%20build/nigth_build?label=night%20build)](https://github.com/1c-syntax/sonar-bsl-plugin-community/releases/v999.99.99)
+![Download night build](https://img.shields.io/github/downloads/1c-syntax/sonar-bsl-plugin-community/v999.99.99/total?label=night%20build)
 
 [![telegram](https://img.shields.io/badge/telegram-chat-green.svg)](https://t.me/bsl_language_server)
 
