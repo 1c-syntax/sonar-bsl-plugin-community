@@ -29,7 +29,6 @@ import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticP
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
-import org.commonmark.Extension;
 import org.commonmark.ext.autolink.AutolinkExtension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.ext.heading.anchor.HeadingAnchorExtension;
@@ -71,7 +70,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     var configuration = BSLLSBinding.getLanguageServerConfiguration();
     configuration.setLanguage(createDiagnosticLanguage());
 
-    List<Extension> extensions = Arrays.asList(
+    var extensions = Arrays.asList(
       TablesExtension.create(),
       AutolinkExtension.create(),
       HeadingAnchorExtension.create()
@@ -88,18 +87,18 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   @Override
   public void define(Context context) {
-    NewRepository repository = context
+    var repository = context
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
 
     var diagnosticInfos = BSLLSBinding.getDiagnosticInfos();
 
     diagnosticInfos.forEach((DiagnosticInfo currentDiagnosticInfo) -> {
-        diagnosticInfo = currentDiagnosticInfo;
-        NewRule newRule = repository.createRule(diagnosticInfo.getCode().getStringValue());
-        setUpNewRule(newRule);
-        setUpRuleParams(newRule);
-      });
+      diagnosticInfo = currentDiagnosticInfo;
+      var newRule = repository.createRule(diagnosticInfo.getCode().getStringValue());
+      setUpNewRule(newRule);
+      setUpRuleParams(newRule);
+    });
 
     repository.done();
 
@@ -125,7 +124,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .setActivatedByDefault(diagnosticInfo.isActivatedByDefault())
     ;
 
-    String[] tagsName = diagnosticInfo.getTags()
+    var tagsName = diagnosticInfo.getTags()
       .stream()
       .map(Enum::name)
       .map(String::toLowerCase)
@@ -153,7 +152,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private void setUpRuleParams(NewRule newRule) {
     diagnosticInfo.getParameters()
       .forEach((DiagnosticParameterInfo diagnosticParameter) -> {
-        RuleParamType ruleParamType = getRuleParamType(diagnosticParameter.getType());
+        var ruleParamType = getRuleParamType(diagnosticParameter.getType());
         if (ruleParamType == null) {
           LOGGER.error(
             String.format(
@@ -165,7 +164,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
           return;
         }
 
-        NewParam newParam = newRule.createParam(diagnosticParameter.getName());
+        var newParam = newRule.createParam(diagnosticParameter.getName());
         newParam.setType(ruleParamType);
         newParam.setDescription(diagnosticParameter.getDescription());
         newParam.setDefaultValue(diagnosticParameter.getDefaultValue().toString());
@@ -174,7 +173,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   private Language createDiagnosticLanguage() {
 
-    String diagnosticLanguageCode = config
+    var diagnosticLanguageCode = config
       .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
 
@@ -221,6 +220,4 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
     return map;
   }
-
 }
-

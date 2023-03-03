@@ -98,5 +98,4 @@ public class RuleDefinitionsContainer implements RulesDefinition {
       );
     }
   }
-
 }

@@ -227,14 +227,14 @@ class BSLCoreSensorTest {
 
     var componentKey = "moduleKey:" + FILE_NAME;
     assertThat(context.cpdTokens(componentKey))
-            .isNotNull()
-            .hasSize(13);
+      .isNotNull()
+      .hasSize(13);
     assertThat(context.cpdTokens(componentKey))
-            .filteredOn( tok -> tok.getValue().startsWith("ОставшийсяТокен"))
-            .hasSize(1);
+      .filteredOn(tok -> tok.getValue().startsWith("ОставшийсяТокен"))
+      .hasSize(1);
     assertThat(context.cpdTokens(componentKey))
-            .filteredOn( tok -> tok.getValue().startsWith("ПропущенныйТокен"))
-            .isEmpty();
+      .filteredOn(tok -> tok.getValue().startsWith("ПропущенныйТокен"))
+      .isEmpty();
 
   }
 

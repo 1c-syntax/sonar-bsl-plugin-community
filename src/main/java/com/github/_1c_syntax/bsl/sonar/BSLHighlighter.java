@@ -30,11 +30,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.Token;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 
 import javax.annotation.Nullable;
@@ -42,7 +40,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -80,7 +77,7 @@ public class BSLHighlighter {
     );
 
     // compute and populate sdbl highlight data
-    Map<Integer, List<Token>> queryTokens = documentContext.getQueries().stream()
+    var queryTokens = documentContext.getQueries().stream()
       .map(Tokenizer::getTokens)
       .flatMap(Collection::stream)
       .collect(Collectors.groupingBy(Token::getLine));
@@ -95,7 +92,7 @@ public class BSLHighlighter {
       );
 
     // find bsl strings to check overlap with sdbl tokens
-    Set<HighlightingData> strings = highlightingData.stream()
+    var strings = highlightingData.stream()
       .filter(data -> data.getType() == TypeOfText.STRING)
       .collect(Collectors.toSet());
 
@@ -103,12 +100,12 @@ public class BSLHighlighter {
       Range stringRange = string.getRange();
 
       // find overlapping tokens
-      Set<HighlightingData> dataOfCurrentLine = highlightingDataSDBL.get(stringRange.getStart().getLine());
+      var dataOfCurrentLine = highlightingDataSDBL.get(stringRange.getStart().getLine());
       if (Objects.isNull(dataOfCurrentLine)) {
         return;
       }
 
-      List<HighlightingData> currentTokens = dataOfCurrentLine.stream()
+      var currentTokens = dataOfCurrentLine.stream()
         .filter(sdblData -> Ranges.containsRange(stringRange, sdblData.getRange()))
         .sorted(Comparator.comparing(data -> data.getRange().getStart().getCharacter()))
         .collect(Collectors.toList());
@@ -121,14 +118,14 @@ public class BSLHighlighter {
       string.setActive(false);
 
       // split current bsl token to parts excluding sdbl tokens
-      Position start = stringRange.getStart();
-      int line = start.getLine();
+      var start = stringRange.getStart();
+      var line = start.getLine();
       int startChar;
-      int endChar = start.getCharacter();
-      for (HighlightingData currentToken : currentTokens) {
+      var endChar = start.getCharacter();
+      for (var currentToken : currentTokens) {
         startChar = endChar;
         endChar = currentToken.getRange().getStart().getCharacter();
-        TypeOfText typeOfText = string.getType();
+        var typeOfText = string.getType();
 
         if (startChar < endChar) {
           // add string part
@@ -146,7 +143,7 @@ public class BSLHighlighter {
       // add final string part
       startChar = endChar;
       endChar = string.getRange().getEnd().getCharacter();
-      TypeOfText typeOfText = string.getType();
+      var typeOfText = string.getType();
 
       if (startChar < endChar) {
         highlightingData.add(new HighlightingData(
@@ -169,7 +166,7 @@ public class BSLHighlighter {
     }
 
     // save only active tokens
-    NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
+    var highlighting = context.newHighlighting().onFile(inputFile);
 
     highlightingData.stream()
       .filter(HighlightingData::isActive)
@@ -195,18 +192,18 @@ public class BSLHighlighter {
       return;
     }
 
-    int line = token.getLine();
-    int charPositionInLine = token.getCharPositionInLine();
+    var line = token.getLine();
+    var charPositionInLine = token.getCharPositionInLine();
     String tokenText = token.getText();
 
-    Range range = Ranges.create(
+    var range = Ranges.create(
       line,
       charPositionInLine,
       line,
       charPositionInLine + tokenText.length()
     );
 
-    HighlightingData data = new HighlightingData(
+    var data = new HighlightingData(
       range,
       typeOfText
     );

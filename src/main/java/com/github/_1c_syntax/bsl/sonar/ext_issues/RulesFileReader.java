@@ -74,7 +74,7 @@ public class RulesFileReader {
     try {
       json = IOUtils.toString(
         Objects.requireNonNull(RulesFileReader.class.getClassLoader().getResourceAsStream(resourceName)),
-        StandardCharsets.UTF_8.name()
+        StandardCharsets.UTF_8
       );
     } catch (IOException e) {
       LOGGER.error("Can't read json file rules", e);
