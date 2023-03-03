@@ -32,7 +32,8 @@ val sonarQubeVersion = "8.9.0.43852"
 dependencies {
     implementation("org.sonarsource.sonarqube", "sonar-plugin-api", sonarQubeVersion)
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "1c83f52") {
+    // в jitpack лежат в группе com.github.1c-syntax, в централе - io.github.1c-syntax
+    implementation("com.github.1c-syntax", "bsl-language-server", "v0.21.0-ra.5") {
         exclude("com.github.1c-syntax", "utils")
     }
     implementation("com.github.1c-syntax", "utils", "f1694d9c")
