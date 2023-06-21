@@ -33,10 +33,10 @@ dependencies {
     implementation("org.sonarsource.sonarqube", "sonar-plugin-api", sonarQubeVersion)
 
     // в jitpack лежат в группе com.github.1c-syntax, в централе - io.github.1c-syntax
-    implementation("com.github.1c-syntax", "bsl-language-server", "v0.21.0-ra.5") {
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.21.0") {
         exclude("com.github.1c-syntax", "utils")
     }
-    implementation("com.github.1c-syntax", "utils", "f1694d9c")
+    implementation("com.github.1c-syntax", "utils", "0.5.1")
 
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
