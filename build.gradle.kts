@@ -63,6 +63,19 @@ dependencies {
     testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
     testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)
     testImplementation("org.reflections", "reflections", "0.9.12")
+
+    // CONSTRAINTS
+
+    implementation("org.slf4j:slf4j-api") {
+        version {
+            strictly("1.7.30")
+        }
+    }
+    implementation("com.google.guava:guava") {
+        version {
+            strictly("30.1-jre")
+        }
+    }
 }
 
 java {
