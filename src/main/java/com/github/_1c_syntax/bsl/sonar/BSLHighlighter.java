@@ -325,7 +325,8 @@ public class BSLHighlighter {
       BSLLexer.PREPROC_WINDOWS,
       BSLLexer.PREPROC_MACOS,
       BSLLexer.PREPROC_ANY,
-      BSLLexer.PREPROC_MOBILE_STANDALONE_SERVER
+      BSLLexer.PREPROC_MOBILE_STANDALONE_SERVER,
+      BSLLexer.PREPROC_NATIVE
     );
   }
 
