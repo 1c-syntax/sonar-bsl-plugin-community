@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2022
+ * Copyright (c) 2018-2023
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -31,7 +31,6 @@ import lombok.Value;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -51,7 +50,6 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -82,17 +80,21 @@ public class IssuesLoader {
   }
 
   private static TextRange getTextRange(InputFile inputFile, Range range, String ruleKey) {
-    Position start = range.getStart();
-    Position end = range.getEnd();
-    int startLine = start.getLine() + 1;
+    var start = range.getStart();
+    var end = range.getEnd();
+    var startLine = start.getLine() + 1;
 
     TextRange textRange;
 
     try {
       textRange = inputFile.newRange(startLine, start.getCharacter(), end.getLine() + 1, end.getCharacter());
     } catch (IllegalArgumentException e) {
-      var formattedRange = String.format("start(%d, %d), end(%d, %d)", range.getStart().getLine(), range.getStart().getCharacter(), range.getEnd().getLine(), range.getEnd().getCharacter());
-      LOGGER.error("Can't compute TextRange for given Range: {} of rule: {} in file: {}.", formattedRange, ruleKey, inputFile.uri(), e);
+      var formattedRange = String.format("start(%d, %d), end(%d, %d)",
+        range.getStart().getLine(), range.getStart().getCharacter(),
+        range.getEnd().getLine(), range.getEnd().getCharacter()
+      );
+      LOGGER.error("Can't compute TextRange for given Range: {} of rule: {} in file: {}.",
+        formattedRange, ruleKey, inputFile.uri(), e);
 
       textRange = selectThisOrPreviousLine(inputFile, startLine);
     }
@@ -102,7 +104,7 @@ public class IssuesLoader {
   }
 
   private static TextRange selectThisOrPreviousLine(InputFile inputFile, int line) {
-    int lines = inputFile.lines();
+    var lines = inputFile.lines();
 
     if (line == 0) {
       return inputFile.newRange(1, 0, lines, 0);
@@ -113,11 +115,10 @@ public class IssuesLoader {
         return inputFile.selectLine(line);
       } catch (IllegalArgumentException e) {
         LOGGER.error("Can't compute TextRange for given line {}", line, e);
-        return selectThisOrPreviousLine(inputFile, line - 1);
+        lines = line - 1;
       }
-    } else {
-      return selectThisOrPreviousLine(inputFile, lines);
     }
+    return selectThisOrPreviousLine(inputFile, lines);
   }
 
   private static Map<DiagnosticSeverity, Severity> createDiagnosticSeverityMap() {
@@ -172,16 +173,22 @@ public class IssuesLoader {
     var issue = context.newIssue();
     issue.forRule(ruleKey);
 
-    Supplier<NewIssueLocation> newIssueLocationSupplier = issue::newLocation;
-    Consumer<NewIssueLocation> newIssueAddLocationConsumer = issue::addLocation;
-    Consumer<NewIssueLocation> newIssueAtConsumer = issue::at;
-
-    processDiagnostic(inputFile, diagnostic, ruleId, newIssueLocationSupplier, newIssueAddLocationConsumer, newIssueAtConsumer);
+    processDiagnostic(inputFile,
+      diagnostic,
+      ruleId,
+      issue::newLocation,
+      issue::addLocation,
+      issue::at);
 
     issue.save();
   }
 
-  private void processDiagnostic(InputFile inputFile, Diagnostic diagnostic, String ruleId, Supplier<NewIssueLocation> newIssueLocationSupplier, Consumer<NewIssueLocation> newIssueAddLocationConsumer, Consumer<NewIssueLocation> newIssueAtConsumer) {
+  private void processDiagnostic(InputFile inputFile,
+                                 Diagnostic diagnostic,
+                                 String ruleId,
+                                 Supplier<NewIssueLocation> newIssueLocationSupplier,
+                                 Consumer<NewIssueLocation> newIssueAddLocationConsumer,
+                                 Consumer<NewIssueLocation> newIssueAtConsumer) {
 
     var textRange = getTextRange(inputFile, diagnostic.getRange(), ruleId);
 
@@ -192,7 +199,7 @@ public class IssuesLoader {
 
     newIssueAtConsumer.accept(location);
 
-    List<DiagnosticRelatedInformation> relatedInformation = diagnostic.getRelatedInformation();
+    var relatedInformation = diagnostic.getRelatedInformation();
     if (relatedInformation != null) {
       relatedInformation.forEach((DiagnosticRelatedInformation relatedInformationEntry) -> {
         var path = Paths.get(URI.create(relatedInformationEntry.getLocation().getUri())).toAbsolutePath();
@@ -225,18 +232,22 @@ public class IssuesLoader {
     issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
     issue.severity(severityMap.get(diagnostic.getSeverity()));
 
-    Supplier<NewIssueLocation> newIssueLocationSupplier = issue::newLocation;
-    Consumer<NewIssueLocation> newIssueAddLocationConsumer = issue::addLocation;
-    Consumer<NewIssueLocation> newIssueAtConsumer = issue::at;
-
-    processDiagnostic(inputFile, diagnostic, ruleId, newIssueLocationSupplier, newIssueAddLocationConsumer, newIssueAtConsumer);
+    processDiagnostic(inputFile,
+      diagnostic,
+      ruleId,
+      issue::newLocation,
+      issue::addLocation,
+      issue::at);
 
     issue.save();
   }
 
   @CheckForNull
   private InputFile getInputFile(Path path) {
-    return fileSystem.inputFile(predicates.and(predicates.hasLanguage(BSLLanguage.KEY), predicates.hasAbsolutePath(path.toAbsolutePath().toString())));
+    return fileSystem.inputFile(
+      predicates.and(predicates.hasLanguage(BSLLanguage.KEY),
+        predicates.hasAbsolutePath(path.toAbsolutePath().toString()))
+    );
   }
 
   @Value

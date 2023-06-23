@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2022
+ * Copyright (c) 2018-2023
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -24,7 +24,7 @@ package com.github._1c_syntax.bsl.sonar.ext_issues;
 import lombok.Value;
 
 /**
- * Настройки внешнего анализатора 1С:EDT
+ * Настройки внешнего анализатора
  */
 @Value(staticConstructor = "create")
 public class UniversalReporter implements Reporter {

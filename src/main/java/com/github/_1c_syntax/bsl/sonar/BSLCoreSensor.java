@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2022
+ * Copyright (c) 2018-2023
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -26,47 +26,34 @@ import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
-import com.github._1c_syntax.bsl.languageserver.context.MetricStorage;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.utils.Absolute;
-import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.sonar.api.batch.fs.FilePredicates;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.rule.ActiveRule;
-import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -95,7 +82,7 @@ public class BSLCoreSensor implements Sensor {
         Arrays.stream(StringUtils.split(sources, ","))
           .map(String::strip)
           .collect(Collectors.toList()))
-        .orElse(Collections.singletonList(".")));
+      .orElse(Collections.singletonList(".")));
 
     sourcesList.addAll(context.config().get("sonar.tests")
       .map(sources ->
@@ -118,12 +105,12 @@ public class BSLCoreSensor implements Sensor {
   public void execute(SensorContext context) {
     LOGGER.info("Parsing files...");
 
-    FileSystem fileSystem = context.fileSystem();
-    File baseDir = fileSystem.baseDir();
+    var fileSystem = context.fileSystem();
+    var baseDir = fileSystem.baseDir();
 
     var absoluteSourceDirs = sourcesList.stream()
       .map((String sourceDir) -> {
-        Path sourcePath = Path.of(sourceDir.trim());
+        var sourcePath = Path.of(sourceDir.trim());
         if (sourcePath.isAbsolute()) {
           return sourcePath;
         } else {
@@ -133,12 +120,12 @@ public class BSLCoreSensor implements Sensor {
       .map(Absolute::path)
       .collect(Collectors.toList());
 
-    FilePredicates predicates = fileSystem.predicates();
-    Iterable<InputFile> inputFiles = fileSystem.inputFiles(
+    var predicates = fileSystem.predicates();
+    var inputFiles = fileSystem.inputFiles(
       predicates.hasLanguage(BSLLanguage.KEY)
     );
 
-    Map<Path, List<InputFile>> inputFilesByPath = StreamSupport.stream(inputFiles.spliterator(), true)
+    var inputFilesByPath = StreamSupport.stream(inputFiles.spliterator(), true)
       .collect(Collectors.groupingBy((InputFile inputFile) -> {
         var filePath = Absolute.path(inputFile.uri());
         return absoluteSourceDirs.stream()
@@ -147,12 +134,12 @@ public class BSLCoreSensor implements Sensor {
           .orElse(baseDir.toPath());
       }));
 
-    LanguageServerConfiguration languageServerConfiguration = getLanguageServerConfiguration();
+    var languageServerConfiguration = getLanguageServerConfiguration();
 
     inputFilesByPath.forEach((Path sourceDir, List<InputFile> inputFilesList) -> {
       LOGGER.info("Source dir: {}", sourceDir);
 
-      Path configurationRoot = LanguageServerConfiguration.getCustomConfigurationRoot(
+      var configurationRoot = LanguageServerConfiguration.getCustomConfigurationRoot(
         languageServerConfiguration,
         sourceDir
       );
@@ -161,13 +148,13 @@ public class BSLCoreSensor implements Sensor {
       bslServerContext.setConfigurationRoot(configurationRoot);
       bslServerContext.populateContext();
 
-      try (ProgressBar pb = new ProgressBarBuilder()
+      try (var pb = new ProgressBarBuilder()
         .setTaskName("")
         .setInitialMax(inputFilesList.size())
         .setStyle(ProgressBarStyle.ASCII)
         .build()) {
         inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
-          URI uri = inputFile.uri();
+          var uri = inputFile.uri();
           LOGGER.debug(uri.toString());
           pb.step();
 
@@ -183,16 +170,9 @@ public class BSLCoreSensor implements Sensor {
 
 
   private void processFile(InputFile inputFile, ServerContext bslServerContext) {
-    URI uri = inputFile.uri();
-
-    String content;
-    try {
-      content = IOUtils.toString(inputFile.inputStream(), StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      LOGGER.warn("Can't read content of file " + uri, e);
-      content = "";
-    }
-    DocumentContext documentContext = bslServerContext.addDocument(uri, content, 1);
+    var uri = inputFile.uri();
+    var documentContext = bslServerContext.addDocument(uri);
+    bslServerContext.rebuildDocument(documentContext);
 
     if (langServerEnabled) {
       documentContext.getDiagnostics()
@@ -203,9 +183,9 @@ public class BSLCoreSensor implements Sensor {
     highlighter.saveHighlighting(inputFile, documentContext);
     saveMeasures(inputFile, documentContext);
 
-    documentContext.clearSecondaryData();
+    // clean up AST after diagnostic computing to free up RAM.
+    bslServerContext.tryClearDocument(documentContext);
   }
-
 
   private void saveCpd(InputFile inputFile, DocumentContext documentContext) {
 
@@ -222,13 +202,13 @@ public class BSLCoreSensor implements Sensor {
       if (!skipCpd) {
         int line = token.getLine();
         int charPositionInLine = token.getCharPositionInLine();
-        String tokenText = token.getText();
+        var tokenText = token.getText();
         cpdTokens.addToken(
-                line,
-                charPositionInLine,
-                line,
-                charPositionInLine + tokenText.length(),
-                tokenText
+          line,
+          charPositionInLine,
+          line,
+          charPositionInLine + tokenText.length(),
+          tokenText
         );
       }
 
@@ -244,7 +224,7 @@ public class BSLCoreSensor implements Sensor {
 
   private void saveMeasures(InputFile inputFile, DocumentContext documentContext) {
 
-    MetricStorage metrics = documentContext.getMetrics();
+    var metrics = documentContext.getMetrics();
 
     context.<Integer>newMeasure().on(inputFile)
       .forMetric(CoreMetrics.NCLOC)
@@ -280,8 +260,8 @@ public class BSLCoreSensor implements Sensor {
       .withValue(metrics.getComments())
       .save();
 
-    FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(inputFile);
-    for (int line : metrics.getNclocData()) {
+    var fileLinesContext = fileLinesContextFactory.createFor(inputFile);
+    for (var line : metrics.getNclocData()) {
       fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
     }
     fileLinesContext.save();
@@ -301,7 +281,7 @@ public class BSLCoreSensor implements Sensor {
         .get(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY)
         .orElse(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE);
 
-      File configurationFile = new File(configurationPath);
+      var configurationFile = new File(configurationPath);
       if (configurationFile.exists()) {
         LOGGER.info("BSL LS configuration file exists. Overriding SonarQube rules' settings...");
         configuration.update(configurationFile);
@@ -311,7 +291,7 @@ public class BSLCoreSensor implements Sensor {
       }
     }
 
-    String diagnosticLanguageCode = context.config()
+    var diagnosticLanguageCode = context.config()
       .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
 
@@ -319,7 +299,7 @@ public class BSLCoreSensor implements Sensor {
       Language.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
     );
 
-    SkipSupport skipSupport = context.config()
+    var skipSupport = context.config()
       .get(BSLCommunityProperties.LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY)
       .map(value -> value.toUpperCase(Locale.ENGLISH).replace(" ", "_"))
       .map(SkipSupport::valueOf)
@@ -329,14 +309,14 @@ public class BSLCoreSensor implements Sensor {
 
     configuration.getDiagnosticsOptions().setSkipSupport(skipSupport);
 
-    ActiveRules activeRules = context.activeRules();
+    var activeRules = context.activeRules();
 
     Map<String, Either<Boolean, Map<String, Object>>> diagnostics = new HashMap<>();
-    Collection<DiagnosticInfo> diagnosticInfos = BSLLSBinding.getDiagnosticInfos();
+    var diagnosticInfos = BSLLSBinding.getDiagnosticInfos();
 
     for (DiagnosticInfo diagnosticInfo : diagnosticInfos) {
-      String diagnosticCode = diagnosticInfo.getCode().getStringValue();
-      ActiveRule activeRule = activeRules.find(
+      var diagnosticCode = diagnosticInfo.getCode().getStringValue();
+      var activeRule = activeRules.find(
         RuleKey.of(
           BSLLanguageServerRuleDefinition.REPOSITORY_KEY,
           diagnosticCode
@@ -345,9 +325,9 @@ public class BSLCoreSensor implements Sensor {
       if (activeRule == null) {
         diagnostics.put(diagnosticCode, Either.forLeft(false));
       } else {
-        Map<String, String> params = activeRule.params();
+        var params = activeRule.params();
 
-        List<DiagnosticParameterInfo> diagnosticParameters = diagnosticInfo.getParameters();
+        var diagnosticParameters = diagnosticInfo.getParameters();
         Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
 
         params.forEach((String key, String value) ->
@@ -388,18 +368,17 @@ public class BSLCoreSensor implements Sensor {
   }
 
   private static boolean checkSkipCpd(Token token, boolean skipCpd) {
-    int tokenType = token.getType();
+    var tokenType = token.getType();
     if (tokenType == BSLLexer.ANNOTATION_CHANGEANDVALIDATE_SYMBOL
-            || tokenType == BSLLexer.PREPROC_ENDINSERT) {
+      || tokenType == BSLLexer.PREPROC_ENDINSERT) {
       skipCpd = true;
     }
 
     if (tokenType == BSLLexer.ENDPROCEDURE_KEYWORD
-            || tokenType == BSLLexer.ENDFUNCTION_KEYWORD
-            || tokenType == BSLLexer.PREPROC_INSERT) {
+      || tokenType == BSLLexer.ENDFUNCTION_KEYWORD
+      || tokenType == BSLLexer.PREPROC_INSERT) {
       skipCpd = false;
     }
     return skipCpd;
   }
-
 }

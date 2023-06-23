@@ -1,364 +1,1615 @@
 {
   "Rules": [
     {
+      "Code": "edt-001",
+      "Name": "Переменная %1 не определена",
+      "Description": "<HTML><HEAD>\n<META content=\"text/html; charset=utf-8\" http-equiv=Content-Type>\n<META name=GENERATOR content=\"MSHTML 9.00.8112.16457\"></HEAD>\n<BODY><FONT size=4>\n<P>Например, имеем следущий код в модулях конфигурации:</P>\n<DIV class=sampcont><SAMP>ШаблонТекста <SPAN class=sign>=</SPAN> НСтр<SPAN class=sign>(</SPAN><SPAN class=string>\"ru='Первый параметр %1, второй параметр %2'\"</SPAN><SPAN class=sign>)</SPAN><SPAN class=sign>;</SPAN><BR>Текст <SPAN class=sign>=</SPAN> СтроковыеФункцииКлиентСервер<SPAN class=sign>.</SPAN>ПодставитьПараметрыВСтроку<SPAN class=sign>(</SPAN>ШаблонТекста<SPAN class=sign>,</SPAN> <SPAN class=digit>1</SPAN><SPAN class=sign>,</SPAN> <SPAN class=digit>2</SPAN><SPAN class=sign>)</SPAN><SPAN class=sign>;</SPAN></SAMP></DIV>\n<P>Избавимся от прослойки вызовов и лишних методов с помощью метода СтрШаблон():</P>\n<DIV class=sampcont><SAMP>ШаблонТекста <SPAN class=sign>=</SPAN> НСтр<SPAN class=sign>(</SPAN><SPAN class=string>\"ru='Первый параметр %1, второй параметр %2'\"</SPAN><SPAN class=sign>)</SPAN><SPAN class=sign>;</SPAN><BR>Текст <SPAN class=sign>=</SPAN> СтрШаблон<SPAN class=sign>(</SPAN>ШаблонТекста<SPAN class=sign>,</SPAN> <SPAN class=digit>1</SPAN><SPAN class=sign>,</SPAN> <SPAN class=digit>2</SPAN><SPAN class=sign>)</SPAN><SPAN class=sign>;</SPAN></SAMP></DIV>\n<P>Конфигурация не всегда сразу полностью переводится на другой язык. И, если в системе будет работать пользователь, у которого будет установлен язык не RU, то первый код отработает корректно, а второй выдаст ошибку исполнения.</P>\n<P>Во втором случае локализованной строки нет, следовательно, параметров в строке нет,&nbsp;&nbsp;следовательно, возникает&nbsp;ошибка исполнения.</P>\n<P></FONT><FONT size=4>В связи с этим, в модулях конфигураций принято решение не использовать СтрШаблон() до исправления ошибки платформы.</FONT></P></BODY></HTML>",
+      "Type": "BUG",
+      "Severity": "CRITICAL",
+      "EffortMinutes": 1,
+      "Active": true
+    },
+    {
       "Code": "EDT-2",
-      "Name": "Возвращает тип, который имеет отличное окружение от контекста вызова",
-      "Description": "Отсутствует",
-      "Type": "CODE_SMELL",
-      "Severity": "MAJOR",
-      "Active": true,
-      "EffortMinutes": 1
-    },
-    {
-      "Code": "EDT-3",
-      "Name": "Возможно, выражение не является объектом коллекции",
-      "Description": "Отсутствует",
-      "Type": "CODE_SMELL",
-      "Severity": "MAJOR",
-      "Active": true,
-      "EffortMinutes": 1
-    },
-    {
-      "Code": "EDT-4",
-      "Name": "Возможно, недостижимое выражение",
-      "Description": "Отсутствует",
-      "Type": "CODE_SMELL",
-      "Severity": "MAJOR",
-      "Active": true,
-      "EffortMinutes": 5
-    },
-    {
-      "Code": "EDT-5",
-      "Name": "Неиспользуемая локальная переменная",
-      "Description": "Отсутствует",
-      "Type": "CODE_SMELL",
-      "Severity": "MAJOR",
-      "Active": true,
-      "EffortMinutes": 5
-    },
-    {
-      "Code": "EDT-6",
-      "Name": "Возможно, строковый литерал содержит ошибку",
+      "Name": "Программный вызов обработчика события формы",
       "Description": "Отсутствует",
       "Type": "CODE_SMELL",
       "Severity": "INFO",
       "Active": true,
-      "EffortMinutes": 1
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-3",
+      "Name": "не содержит кода в исключении",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-4",
+      "Name": "Возвращает тип, который имеет отличное окружение от контекста вызова",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-5",
+      "Name": "Возможно, выражение не является объектом коллекции",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-6",
+      "Name": "Возможно, недостижимое выражение",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
     },
     {
       "Code": "EDT-7",
-      "Name": "Менеджер записи не может быть использован для регистра с режимом записи",
+      "Name": "Возможно, переменная еще не была проинициализирована",
       "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "CRITICAL",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 10
+      "EffortMinutes": 3
     },
     {
       "Code": "EDT-8",
-      "Name": "Метод устарел",
+      "Name": "Возможно, строковый литерал содержит ошибку",
       "Description": "Отсутствует",
       "Type": "CODE_SMELL",
-      "Severity": "MAJOR",
+      "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 10
+      "EffortMinutes": 3
     },
     {
       "Code": "EDT-9",
-      "Name": "Неизвестное имя типа",
+      "Name": "Для изменения оформления следует использовать элементы стиля, а не задавать конкретные значения непосредственно в элементах управления",
       "Description": "Отсутствует",
       "Type": "CODE_SMELL",
-      "Severity": "MAJOR",
+      "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 5
+      "EffortMinutes": 3
     },
     {
       "Code": "EDT-10",
-      "Name": "Неиспользуемый локальный метод",
+      "Name": "Для объекта определен ручной порядок подсистем, но подсистема отсутствует в порядке подсистем",
       "Description": "Отсутствует",
       "Type": "CODE_SMELL",
-      "Severity": "MAJOR",
+      "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 5
+      "EffortMinutes": 3
     },
     {
       "Code": "EDT-11",
-      "Name": "Нельзя передавать объект типа между клиентом и сервером",
+      "Name": "Задано наименование предопределенного регламентного задания",
       "Description": "Отсутствует",
       "Type": "BUG",
-      "Severity": "MAJOR",
+      "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 10
+      "EffortMinutes": 3
     },
     {
       "Code": "EDT-12",
-      "Name": "Нельзя присваивать атрибуту формы значение типа",
+      "Name": "Используется не рекомендуемый метод",
       "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "CRITICAL",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 10
+      "EffortMinutes": 3
     },
     {
       "Code": "EDT-13",
+      "Name": "Используйте функцию вместо",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-14",
+      "Name": "Конструктор структуры содержит более чем 5 ключей",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-15",
+      "Name": "Менеджер записи не может быть использован для регистра с режимом записи",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-16",
+      "Name": "Метод Заблокировать() вне блока Попытка-Исключение",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-17",
+      "Name": "Метод доступен НаКлиенте",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-18",
+      "Name": "Метод устарел",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-19",
+      "Name": "НСтр метод должен принимать строку первым параметром",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-20",
+      "Name": "Не рекомендуется создавать подсистемы глубиной вложенности более трех",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-21",
+      "Name": "Не следует размещать экспортные процедуры и функции в модулях команд и форм. К этим модулям нет возможности обращаться из внешнего по отношению к ним кода, поэтому экспортные процедуры и функции в этих модулях не имеют смысла.",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-22",
+      "Name": "Неизвестное имя типа",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-23",
+      "Name": "Неиспользуемый метод",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-24",
+      "Name": "Некорректное значение свойства XDTO-пакета. Пространство имен пакета совпадает с пространством имен пакета",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-25",
+      "Name": "Нельзя передавать объект типа между клиентом и сервером",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-26",
+      "Name": "Нельзя присваивать атрибуту формы значение типа",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-27",
       "Name": "Нет соответствия между ожидаемыми типами",
       "Description": "Отсутствует",
       "Type": "CODE_SMELL",
       "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 1
+      "EffortMinutes": 3
     },
     {
-      "Code": "EDT-14",
+      "Code": "EDT-28",
       "Name": "Объект данного тип не может быть создан через оператор",
       "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 10
+      "EffortMinutes": 3
     },
     {
-      "Code": "EDT-15",
-      "Name": "Пустой метод модуля",
+      "Code": "EDT-29",
+      "Name": "Описание процедуры не должно содержать блок",
       "Description": "Отсутствует",
       "Type": "CODE_SMELL",
-      "Severity": "INFO",
+      "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 1
+      "EffortMinutes": 3
     },
     {
-      "Code": "EDT-16",
+      "Code": "EDT-30",
+      "Name": "Параметр должен устанавливаться в Ложь, но выражение может заменить текущее значение в Истина",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-31",
+      "Name": "Пропущено определение параметра для",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-32",
+      "Name": "Пустой метод",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-33",
       "Name": "Свойство объекта не обнаружено",
       "Description": "Отсутствует",
       "Type": "CODE_SMELL",
       "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 5
+      "EffortMinutes": 3
     },
     {
-      "Code": "EDT-17",
+      "Code": "EDT-34",
       "Name": "Свойство устарело",
       "Description": "Отсутствует",
       "Type": "CODE_SMELL",
-      "Severity": "MAJOR",
+      "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 10
+      "EffortMinutes": 3
     },
     {
-      "Code": "EDT-18",
+      "Code": "EDT-35",
+      "Name": "Ссылка на несуществующий объект",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-36",
+      "Name": "Строковый литерал содержит не CamelCase символы",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-37",
       "Name": "Тип устарел",
       "Description": "Отсутствует",
       "Type": "CODE_SMELL",
-      "Severity": "MAJOR",
+      "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 10
+      "EffortMinutes": 3
     },
     {
-      "Code": "EDT-19",
-      "Name": "Функция должна возвращать значение",
+      "Code": "EDT-38",
+      "Name": "У поля ввода формы с заполненным списком выбора отключено свойство",
       "Description": "Отсутствует",
       "Type": "BUG",
       "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 5
-    },
-    {
-      "Code": "EDT-20",
-      "Name": "Элемент с таким именем уже есть в глобальном контексте",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "CRITICAL",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-21",
-      "Name": "Код никогда не будет скомпилирован",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "CRITICAL",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-22",
-      "Name": "Недостаточное число параметров",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "CRITICAL",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-23",
-      "Name": "Неизвестный оператор",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-24",
-      "Name": "Переменная не определена",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-25",
-      "Name": "Процедура или функция не определена",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-26",
-      "Name": "Свойство не предназначено для записи у типа",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-27",
-      "Name": "Синтаксическая ошибка. Неверный ввод - ожидается",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "MAJOR",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-28",
-      "Name": "Синтаксическая ошибка. Недопустимая лексема в данном контексте",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "MAJOR",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-29",
-      "Name": "Синтаксическая ошибка. Неизвестная лексема",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "CRITICAL",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-30",
-      "Name": "Синтаксическая ошибка. Пропущена лексема y",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-31",
-      "Name": "Слишком много параметров",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-32",
-      "Name": "Слишком много параметров для типа(ов)",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-33",
-      "Name": "Тип неопределен",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "MAJOR",
-      "Active": true,
-      "EffortMinutes": 5
-    },
-    {
-      "Code": "EDT-34",
-      "Name": "Функция не определена",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-35",
-      "Name": "Данный модуль не поддерживает данный тип директив компиляции",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "MAJOR",
-      "Active": true,
-      "EffortMinutes": 5
-    },
-    {
-      "Code": "EDT-36",
-      "Name": "Данный модуль может содержать только процедуры и функции",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-37",
-      "Name": "Недостаточное число параметров для типа(ов)",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "CRITICAL",
-      "Active": true,
-      "EffortMinutes": 10
-    },
-    {
-      "Code": "EDT-38",
-      "Name": "Оператор может использоваться только внутри процедур и функций",
-      "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
-      "Active": true,
-      "EffortMinutes": 10
+      "EffortMinutes": 3
     },
     {
       "Code": "EDT-39",
-      "Name": "Процедура вызывается как функция",
+      "Name": "Функция должна возвращать значение",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-40",
+      "Name": "Элемент с таким именем уже есть в глобальном контексте",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-41",
+      "Name": "Имя именованного элемента формы пустое",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-42",
+      "Name": "Использована директива компиляции модуля формы",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-43",
+      "Name": "Новая временная таблица должна содержать индексы",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-44",
+      "Name": "Описание оповещения на серверную процедуру",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-45",
+      "Name": "Описание экспортируемой функции должно содержать блок",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-46",
+      "Name": "Отбор ABCXYZКлассификацияКлиентовСрезПоследних.ТипКлассификации для виртуальной таблицы ABCXYZКлассификацияКлиентовСрезПоследних должен быть в параметрах",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-47",
+      "Name": "Отсутствует обязательная проверка признака ОбменДанными.Загрузка в обработчике события",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-48",
+      "Name": "Периодичность выполнения регламентного задания меньше 60сек",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-49",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-50",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-51",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-52",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-53",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-54",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-55",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-56",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-57",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-58",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-59",
+      "Name": "Пропущена директива компиляции",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-60",
+      "Name": "Свойство имеет некорректное значение",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-61",
+      "Name": "Соединение в запросе с подзапросом не разрешено",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-62",
+      "Name": "Стандартная область структуры модуля является вложенной",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-63",
+      "Name": "Только символ дефис-минуса разрешено использовать в документирующем комментарии, но найдено",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-64",
+      "Name": "Глобальный общий модуль должен оканчиваться на суффикс",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "CRITICAL",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-65",
+      "Name": "Длина имени объекта метаданного должна быть меньше чем 80",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "CRITICAL",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-66",
+      "Name": "Цикл содержит вызов метода с запросом",
       "Description": "Отсутствует",
       "Type": "BUG",
       "Severity": "CRITICAL",
       "Active": true,
-      "EffortMinutes": 10
+      "EffortMinutes": 3
     },
     {
-      "Code": "EDT-40",
-      "Name": "Синтаксическая ошибка. Неверная лексема - ожидается ",
+      "Code": "EDT-67",
+      "Name": "Can be only one default item in root subgroup",
       "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
       "Active": true,
-      "EffortMinutes": 10
+      "EffortMinutes": 3
     },
     {
-      "Code": "EDT-41",
+      "Code": "EDT-68",
+      "Name": "Duplicate id",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-69",
+      "Name": "Для команды категория группы команд по умолчанию может быть только Панель навигации или Панель действий",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-70",
+      "Name": "Для команды формы назначен обработчик, но метод с таким именем отсутствует в модуле формы",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-71",
+      "Name": "Для события элемента формы назначен обработчик, но метод с таким именем отсутствует в модуле формы",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-72",
+      "Name": "Для события формы назначен обработчик, но метод с таким именем отсутствует в модуле формы",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-73",
+      "Name": "Код никогда не будет скомпилирован",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-74",
+      "Name": "Лексическое значение значения по умолчанию не соответствует типу \"{http",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-75",
+      "Name": "Не найден обработчик для Подписки на событие",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-76",
+      "Name": "Не найден обработчик для Регламентного задания",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-77",
+      "Name": "Недостаточное число параметров",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-78",
+      "Name": "Некорректное значение свойства характеристики. Значение свойства не определено",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-79",
+      "Name": "Некорректное значение свойства. Дублирование имени объекта метаданных",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-80",
+      "Name": "Некорректный тип параметра для стандартной команды. Допустимые типы, а получены",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-81",
+      "Name": "Неподдерживаемый оператор",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-82",
+      "Name": "Переменная не определена",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-83",
+      "Name": "Поле связи параметра выбора не указано или некорректно",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-84",
+      "Name": "Поле связи параметра выбора не является допустимым",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-85",
+      "Name": "Процедура или функция не определена",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-86",
+      "Name": "Процедура или функция с таким именем уже определена",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-87",
+      "Name": "Свойство не предназначено для записи у типа",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-88",
+      "Name": "Синтаксическая ошибка. Недопустимая лексема в данном контексте",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-89",
+      "Name": "Синтаксическая ошибка. Пропущена лексема у",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-90",
+      "Name": "Слишком много параметров",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-91",
+      "Name": "Слишком много параметров для типа(ов)",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-92",
+      "Name": "Тип не может иметь фасет",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-93",
+      "Name": "Тип неопределен",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-94",
+      "Name": "Функция не определена",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-95",
+      "Name": "Этот тип не может входить в состав составного типа",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MAJOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-96",
+      "Name": "Данный модуль не поддерживает данный тип директив компиляции",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-97",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-98",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-99",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-100",
+      "Name": "Клиент-серверный общий модуль должен оканчиваться на суффикс",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-101",
+      "Name": "Duplicate column name",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-102",
+      "Name": "Duplicate content",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-103",
+      "Name": "Illegal ShortCut",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-104",
+      "Name": "Данный модуль может содержать только процедуры и функции",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-105",
+      "Name": "Недостаточное число параметров для типа(ов)",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-106",
+      "Name": "Неизвестный оператор",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-107",
+      "Name": "Некорректное значение свойства. Указан нумератор. Свойства документа должны совпадать с соответствующими свойствами нумератора.",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-108",
+      "Name": "Некорректное значение свойства реквизита. Тип использования реквизита противоречит выбранному типу иерархии",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-109",
+      "Name": "Оператор может использоваться только внутри процедур и функций",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-110",
+      "Name": "Процедура вызывается как функция",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-111",
+      "Name": "Синтаксическая ошибка. Неверная лексема - ожидается",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-112",
+      "Name": "Синтаксическая ошибка. Неверный ввод - ожидается",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-113",
+      "Name": "Указанный обработчик события не существует",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-114",
+      "Name": "Встроенная функция может быть использована только в выражении.",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-115",
+      "Name": "Ошибочный порядок грамматических элементов",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-116",
+      "Name": "Синтаксическая ошибка. Неверный ввод",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-117",
+      "Name": "Тип не определен",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-118",
+      "Name": "Синтаксическая ошибка. Неизвестная лексема",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-119",
+      "Name": "Неизвестный тип",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-120",
+      "Name": "Некорректное значение свойства. Длина наименования превышает максимальную",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-121",
+      "Name": "Некорректное значение свойства. Неразделенный объект метаданных участвует в разделенном плане обмена. Oбъект метаданных входит в план обмена, разделяет план обмена но не разделяет объект метаданных",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-122",
+      "Name": "Указано одинаковое имя для ресурса и измерения",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-123",
+      "Name": "Функция имеет запись карты в индексе 1 с ключом, который сталкивается с ключом записи карты в индексе 0",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-124",
       "Name": "Синтаксическая ошибка. Пропущена лексема",
       "Description": "Отсутствует",
-      "Type": "BUG",
-      "Severity": "BLOCKER",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
       "Active": true,
-      "EffortMinutes": 10
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-125",
+      "Name": "Указано одинаковое имя для реквизита и табличной части",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-126",
+      "Name": "Некорректное значение свойства. Указано неверное поле для ввода по строке",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-127",
+      "Name": "Не заполнено ни представление объекта, ни представление списка",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-128",
+      "Name": "Общий модуль должен именоваться с постфиксом ВызовСервера",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-129",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-130",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-131",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-132",
+      "Name": "Общий модуль для типа имеет некорректне настройки",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-133",
+      "Name": "Процедура не может возвращать значение",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-134",
+      "Name": "Синтаксическая ошибка. Пропущена лексематн_ДокументВводОстатковВнеоборотныхАктивов2_4Модификация.ФормаРедактированияСтрокиОСПриСозданииНаСервере",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-135",
+      "Name": "Окружение для метода не установленно",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-136",
+      "Name": "Возможно Поле указано в описании",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-137",
+      "Name": "Возможно параметр метода указан в описании",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-138",
+      "Name": "Возвращаемый тип не известен",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-139",
+      "Name": "Имя поля является некорректным",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-140",
+      "Name": "Метод содержит более чем 3 параметров со значением по умолчанию",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-141",
+      "Name": "Не задан синоним у стандартного реквизита",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-142",
+      "Name": "Неизвестный тип указан в документирующем комментарии",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-143",
+      "Name": "Область пустая",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-144",
+      "Name": "Общий модуль должен именоваться с постфиксом ВызовСервераПовтИсп",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-145",
+      "Name": "Общий модуль должен именоваться с постфиксом КлиентПовтИсп",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-146",
+      "Name": "Общий модуль должен именоваться с постфиксом ПовтИсп",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-147",
+      "Name": "Поле не имеет определения типа",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-148",
+      "Name": "Поле использует объявление сложного типа вместо ссылки на тип",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-149",
+      "Name": "Тип коллекции должен содержать тип элемента коллекции",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-150",
+      "Name": "Неизвестная директива компиляции",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-151",
+      "Name": "Некорректное значение свойства. Имя события должно быть задано",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-152",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-153",
+      "Name": "Unsupported button type",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-154",
+      "Name": "В области следует размещать только обработчики событий",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-155",
+      "Name": "Длина синонима раздела превышает 35 символов для языка ru",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-156",
+      "Name": "Избыточное обращение внутри модуля через псевдоним",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-157",
+      "Name": "Избыточное обращение по собственному имени",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-158",
+      "Name": "Избыточное обращение по собственному имени",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-159",
+      "Name": "Код инициализации следует расположить в области Инициализация",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-160",
+      "Name": "Метод не следует размещать в области",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-161",
+      "Name": "Не допускается использование бинарных операций с константами в запросах (Строка 103",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-162",
+      "Name": "Не заполнен заголовок поля динамического списка",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-163",
+      "Name": "Не следует хранить пароли в информационной базе",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-164",
+      "Name": "Объявление переменной должно быть помещено в область ОписаниеПеременных",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-165",
+      "Name": "Отсутствует удаление временного файла после использования.",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-166",
+      "Name": "Реквизит динамического списка не выведен в таблицу на форме",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-167",
+      "Name": "Следует использовать псевдоним вместо устаревшего",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-168",
+      "Name": "У реквизита динамического списка выключен признак",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-169",
+      "Name": "Удалите избыточную секцию параметров",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-170",
+      "Name": "Для типизированных объектов метаданных, хранящихся в информационной базе, не следует использовать составные типы ЛюбаяСсылка, СправочникСсылка, ДокументСсылка и аналогичные.",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-171",
+      "Name": "Обработчик события уже назначен для",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-172",
+      "Name": "Отсутствует включение безопасного режима перед вызовом метода",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-173",
+      "Name": "Периодичность выполнения регламентного задания меньше 60сек",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-174",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-175",
+      "Name": "Реквизиты составного типа, используемые в условиях соединений, отборах, а также для упорядочивания, должны содержать только ссылочные типы. В состав их типов не рекомендуется включать никаких других нессылочных типов.",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-176",
+      "Name": "У поля таблицы динамического списка АлгоритмыСбораДанных не отключена пользовательская видимость",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-177",
+      "Name": "Дублирование имени объекта метаданных",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-178",
+      "Name": "Дублирование объекта метаданных",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-179",
+      "Name": "В поле content установлена потерянная ссылка unresolved",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
     }
   ]
 }

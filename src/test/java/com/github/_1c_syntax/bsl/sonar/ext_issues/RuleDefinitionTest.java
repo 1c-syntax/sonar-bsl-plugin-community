@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2022
+ * Copyright (c) 2018-2023
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -46,7 +46,7 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(40);
+    assertThat(repository.rules()).hasSize(179);
   }
 
   @Test
@@ -62,7 +62,7 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(40);
+    assertThat(repository.rules()).hasSize(179);
   }
 
   @Test
@@ -84,7 +84,7 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(44);
+    assertThat(repository.rules()).hasSize(183);
   }
 
 }

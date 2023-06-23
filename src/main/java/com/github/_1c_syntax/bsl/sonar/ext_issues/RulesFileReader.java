@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2022
+ * Copyright (c) 2018-2023
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -74,7 +74,7 @@ public class RulesFileReader {
     try {
       json = IOUtils.toString(
         Objects.requireNonNull(RulesFileReader.class.getClassLoader().getResourceAsStream(resourceName)),
-        StandardCharsets.UTF_8.name()
+        StandardCharsets.UTF_8
       );
     } catch (IOException e) {
       LOGGER.error("Can't read json file rules", e);

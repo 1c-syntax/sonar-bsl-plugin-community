@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2022
+ * Copyright (c) 2018-2023
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -21,7 +21,6 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github._1c_syntax.bsl.languageserver.reporters.data.AnalysisInfo;
 import com.github._1c_syntax.bsl.languageserver.reporters.data.FileInfo;
 import com.github._1c_syntax.bsl.languageserver.reporters.databind.AnalysisInfoObjectMapper;
@@ -44,23 +43,21 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.List;
 
 import static com.github._1c_syntax.bsl.sonar.BSLCommunityProperties.LANG_SERVER_REPORT_PATH_KEY;
 
 public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
+
+  private static final Logger LOGGER = Loggers.get(LanguageServerDiagnosticsLoaderSensor.class);
 
   private final SensorContext context;
   private final IssuesLoader issueLoader;
   private FileSystem fileSystem;
   private FilePredicates predicates;
 
-  private static final Logger LOGGER = Loggers.get(LanguageServerDiagnosticsLoaderSensor.class);
-
   public LanguageServerDiagnosticsLoaderSensor(final SensorContext context) {
     this.context = context;
     this.issueLoader = new IssuesLoader(context);
-
   }
 
   @Override
@@ -71,7 +68,7 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    List<File> reportFiles = ExternalReportProvider.getReportFiles(context, LANG_SERVER_REPORT_PATH_KEY);
+    var reportFiles = ExternalReportProvider.getReportFiles(context, LANG_SERVER_REPORT_PATH_KEY);
     reportFiles.forEach(this::parseAndSaveResults);
   }
 
@@ -79,29 +76,29 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     LOGGER.info("Parsing 'BSL Language Server' analysis results:");
     LOGGER.info(analysisResultsFile.getAbsolutePath());
 
-    AnalysisInfo analysisInfo = getAnalysisInfo(analysisResultsFile);
+    var analysisInfo = getAnalysisInfo(analysisResultsFile);
     if (analysisInfo == null) {
       return;
     }
 
-    List<FileInfo> fileinfos = analysisInfo.getFileinfos();
-    for (FileInfo fileInfo : fileinfos) {
+    var fileinfos = analysisInfo.getFileinfos();
+    for (var fileInfo : fileinfos) {
       processFileInfo(fileInfo);
     }
   }
 
   private void processFileInfo(FileInfo fileInfo) {
     fileSystem = context.fileSystem();
-    Path path = fileInfo.getPath();
+    var path = fileInfo.getPath();
     predicates = fileSystem.predicates();
 
-    InputFile inputFile = getInputFile(path);
+    var inputFile = getInputFile(path);
     if (inputFile == null) {
       LOGGER.warn("Can't find inputFile for absolute path {}", path);
       return;
     }
 
-    List<Diagnostic> diagnostics = fileInfo.getDiagnostics();
+    var diagnostics = fileInfo.getDiagnostics();
     diagnostics.forEach((Diagnostic diagnostic) -> processDiagnostic(inputFile, diagnostic));
   }
 
@@ -130,7 +127,7 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
       return null;
     }
 
-    ObjectMapper objectMapper = new AnalysisInfoObjectMapper();
+    var objectMapper = new AnalysisInfoObjectMapper();
 
     try {
       return objectMapper.readValue(json, AnalysisInfo.class);
@@ -139,6 +136,4 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
       return null;
     }
   }
-
-
 }

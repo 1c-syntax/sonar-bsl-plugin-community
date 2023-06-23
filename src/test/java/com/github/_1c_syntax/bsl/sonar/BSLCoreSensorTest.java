@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2022
+ * Copyright (c) 2018-2023
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -227,14 +227,14 @@ class BSLCoreSensorTest {
 
     var componentKey = "moduleKey:" + FILE_NAME;
     assertThat(context.cpdTokens(componentKey))
-            .isNotNull()
-            .hasSize(13);
+      .isNotNull()
+      .hasSize(13);
     assertThat(context.cpdTokens(componentKey))
-            .filteredOn( tok -> tok.getValue().startsWith("ОставшийсяТокен"))
-            .hasSize(1);
+      .filteredOn(tok -> tok.getValue().startsWith("ОставшийсяТокен"))
+      .hasSize(1);
     assertThat(context.cpdTokens(componentKey))
-            .filteredOn( tok -> tok.getValue().startsWith("ПропущенныйТокен"))
-            .isEmpty();
+      .filteredOn(tok -> tok.getValue().startsWith("ПропущенныйТокен"))
+      .isEmpty();
 
   }
 
