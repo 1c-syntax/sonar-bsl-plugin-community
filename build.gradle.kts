@@ -27,13 +27,13 @@ repositories {
     }
 }
 
-val sonarQubeVersion = "8.9.0.43852"
+val sonarQubeVersion = "9.9.0.65466"
 
 dependencies {
-    implementation("org.sonarsource.sonarqube", "sonar-plugin-api", sonarQubeVersion)
+    implementation("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
 
     // в jitpack лежат в группе com.github.1c-syntax, в централе - io.github.1c-syntax
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.21.0") {
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.22.0") {
         exclude("com.github.1c-syntax", "utils")
     }
     implementation("com.github.1c-syntax", "utils", "0.5.1")
@@ -66,21 +66,16 @@ dependencies {
 
     // CONSTRAINTS
 
-    implementation("org.slf4j:slf4j-api") {
-        version {
-            strictly("1.7.30")
-        }
-    }
     implementation("com.google.guava:guava") {
         version {
-            strictly("30.1-jre")
+            strictly("32.0.1-jre")
         }
     }
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType<JavaCompile> {
