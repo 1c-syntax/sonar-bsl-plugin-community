@@ -50,7 +50,7 @@ dependencies {
     implementation("org.commonmark", "commonmark-ext-autolink", "0.21.0")
     implementation("org.commonmark", "commonmark-ext-heading-anchor", "0.21.0")
 
-    implementation("me.tongfei:progressbar:0.9.5")
+    implementation("me.tongfei:progressbar:0.10.0")
 
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
