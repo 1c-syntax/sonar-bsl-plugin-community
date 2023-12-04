@@ -39,7 +39,7 @@ dependencies {
     implementation("com.github.1c-syntax", "utils", "0.5.1")
 
     implementation("org.apache.commons:commons-lang3:3.14.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.16.0")
 
     // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
     implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:2.5.0.1358")
