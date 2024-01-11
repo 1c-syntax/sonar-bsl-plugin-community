@@ -79,22 +79,22 @@ public class RuleDefinitionsContainer implements RulesDefinition {
 
     private void loadRules() {
       RulesFileReader.getRulesFiles(rulesDefaultPath, rulesFilePaths)
-        .forEach(file -> file.getRules().forEach(this::createRule));
+        .forEach(file -> file.rules().forEach(this::createRule));
     }
 
     private void createRule(RulesFile.Rule rule) {
-      var foundRule = repository.rule(rule.getCode());
+      var foundRule = repository.rule(rule.code());
 
       if (foundRule == null) {
-        foundRule = repository.createRule(rule.getCode()).addTags(ruleTag);
+        foundRule = repository.createRule(rule.code()).addTags(ruleTag);
       }
 
-      foundRule.setName(rule.getName())
-        .setHtmlDescription(rule.getDescription())
-        .setType(RuleType.valueOf(rule.getType()))
-        .setSeverity(rule.getSeverity());
+      foundRule.setName(rule.name())
+        .setHtmlDescription(rule.description())
+        .setType(RuleType.valueOf(rule.type()))
+        .setSeverity(rule.severity());
       foundRule.setDebtRemediationFunction(
-        foundRule.debtRemediationFunctions().linear(rule.getEffortMinutes() + "min")
+        foundRule.debtRemediationFunctions().linear(rule.effortMinutes() + "min")
       );
     }
   }
