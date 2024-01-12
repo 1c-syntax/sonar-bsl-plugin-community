@@ -37,7 +37,9 @@ import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -81,14 +83,14 @@ public class BSLCoreSensor implements Sensor {
       .map(sources ->
         Arrays.stream(StringUtils.split(sources, ","))
           .map(String::strip)
-          .collect(Collectors.toList()))
+          .toList())
       .orElse(Collections.singletonList(".")));
 
     sourcesList.addAll(context.config().get("sonar.tests")
       .map(sources ->
         Arrays.stream(StringUtils.split(sources, ","))
           .map(String::strip)
-          .collect(Collectors.toList()))
+          .toList())
       .orElse(Collections.emptyList()));
 
     issuesLoader = new IssuesLoader(context);
@@ -118,7 +120,7 @@ public class BSLCoreSensor implements Sensor {
         }
       })
       .map(Absolute::path)
-      .collect(Collectors.toList());
+      .toList();
 
     var predicates = fileSystem.predicates();
     var inputFiles = fileSystem.inputFiles(
@@ -325,19 +327,7 @@ public class BSLCoreSensor implements Sensor {
       if (activeRule == null) {
         diagnostics.put(diagnosticCode, Either.forLeft(false));
       } else {
-        var params = activeRule.params();
-
-        var diagnosticParameters = diagnosticInfo.getParameters();
-        Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
-
-        params.forEach((String key, String value) ->
-          diagnosticInfo.getParameter(key).ifPresent(diagnosticParameterInfo ->
-            diagnosticConfiguration.put(
-              key,
-              castDiagnosticParameterValue(value, diagnosticParameterInfo.getType())
-            )
-          )
-        );
+        var diagnosticConfiguration = getDiagnosticConfiguration(diagnosticInfo, activeRule);
         diagnostics.put(
           diagnosticCode,
           Either.forRight(diagnosticConfiguration)
@@ -380,5 +370,22 @@ public class BSLCoreSensor implements Sensor {
       skipCpd = false;
     }
     return skipCpd;
+  }
+
+  @NotNull
+  private static Map<String, Object> getDiagnosticConfiguration(DiagnosticInfo diagnosticInfo,
+                                                                ActiveRule activeRule) {
+    var params = activeRule.params();
+    var diagnosticParameters = diagnosticInfo.getParameters();
+    Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
+    params.forEach((String key, String value) ->
+      diagnosticInfo.getParameter(key).ifPresent(diagnosticParameterInfo ->
+        diagnosticConfiguration.put(
+          key,
+          castDiagnosticParameterValue(value, diagnosticParameterInfo.getType())
+        )
+      )
+    );
+    return diagnosticConfiguration;
   }
 }

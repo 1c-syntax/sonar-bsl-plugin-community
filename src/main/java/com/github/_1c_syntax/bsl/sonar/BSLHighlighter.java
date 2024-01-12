@@ -108,7 +108,7 @@ public class BSLHighlighter {
       var currentTokens = dataOfCurrentLine.stream()
         .filter(sdblData -> Ranges.containsRange(stringRange, sdblData.getRange()))
         .sorted(Comparator.comparing(data -> data.getRange().getStart().getCharacter()))
-        .collect(Collectors.toList());
+        .toList();
 
       if (currentTokens.isEmpty()) {
         return;

@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Контейнер профилей качества внешних репортеров
@@ -44,13 +43,13 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
   public QualityProfilesContainer(Configuration config) {
     qualityProfiles = ExternalReporters.REPORTERS.stream()
       .map(reporter -> new QualityProfile(config, reporter))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override
   public void define(Context context) {
     var enabledQualityProfiles = qualityProfiles.stream()
-      .filter(QualityProfile::isEnabled).collect(Collectors.toList());
+      .filter(QualityProfile::isEnabled).toList();
 
     if (enabledQualityProfiles.isEmpty()) {
       return;
@@ -108,7 +107,7 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
     }
 
     protected void activateDefaultRules(NewBuiltInQualityProfile profile) {
-      activateRules(profile, RulesFile.Rule::isActive);
+      activateRules(profile, RulesFile.Rule::active);
     }
 
     private void addFullCheckProfile(Context context) {
@@ -119,7 +118,7 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
 
     private void add1CCertifiedProfile(Context context) {
       var profile = createQualityProfile(context, "%s - 1C:Compatible");
-      activateRules(profile, RulesFile.Rule::isNeedForCertificate);
+      activateRules(profile, RulesFile.Rule::needForCertificate);
       profile.done();
     }
 
@@ -132,10 +131,10 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
 
     private void activateRules(NewBuiltInQualityProfile profile, Predicate<? super RulesFile.Rule> filter) {
       rulesFiles.stream()
-        .map(RulesFile::getRules)
+        .map(RulesFile::rules)
         .flatMap(Collection::stream)
         .filter(filter)
-        .map(RulesFile.Rule::getCode)
+        .map(RulesFile.Rule::code)
         .distinct()
         .forEach(key -> profile.activateRule(reporter.getRepositoryKey(), key));
     }
