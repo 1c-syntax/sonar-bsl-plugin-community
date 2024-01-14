@@ -154,7 +154,7 @@ class BSLHighlighterTest {
     documentContext = mock(DocumentContext.class);
     List<Token> tokens = new ArrayList<>();
 
-    int maxTokenType = vocabulary.getMaxTokenType();
+    var maxTokenType = vocabulary.getMaxTokenType();
     for (var tokenType = 1; tokenType <= maxTokenType; tokenType++) {
       var token = new CommonToken(tokenType, "a");
       token.setLine(1);
@@ -382,7 +382,30 @@ class BSLHighlighterTest {
       "VALUETYPE",
       "WEEK",
       "WEEKDAY",
-      "YEAR"
+      "YEAR",
+      "INT",
+      "ACOS",
+      "ASIN",
+      "ATAN",
+      "COS",
+      "SIN",
+      "TAN",
+      "LOG",
+      "LOG10",
+      "EXP",
+      "POW",
+      "SQRT",
+      "LOWER",
+      "STRINGLENGTH",
+      "TRIMALL",
+      "TRIML",
+      "TRIMR",
+      "UPPER",
+      "ROUND",
+      "STOREDDATASIZE",
+      "UUID",
+      "STRFIND",
+      "STRREPLACE"
     );
 
     Set<String> metadataTypes = Set.of(
@@ -460,6 +483,12 @@ class BSLHighlighterTest {
       "BAR" // TODO: Убрать из лексера
     );
 
+    Set<String> eds = Set.of(
+      "EDS_CUBE",
+      "EDS_TABLE",
+      "EDS_CUBE_DIMTABLE"
+    );
+
     var maxTokenType = vocabulary.getMaxTokenType();
 
     Map<String, TypeOfText> highlightingMap = new HashMap<>();
@@ -485,6 +514,8 @@ class BSLHighlighterTest {
         typeOfText = TypeOfText.KEYWORD_LIGHT;
       } else if (virtualTables.contains(ruleName)) {
         typeOfText = TypeOfText.KEYWORD_LIGHT;
+      } else if (eds.contains(ruleName)) {
+        typeOfText = TypeOfText.KEYWORD_LIGHT;
       } else if (ruleName.equals("STR")) {
         typeOfText = TypeOfText.STRING;
       } else if (ruleName.contains("LINE_COMMENT")) {
@@ -501,5 +532,4 @@ class BSLHighlighterTest {
     }
     return highlightingMap;
   }
-
 }

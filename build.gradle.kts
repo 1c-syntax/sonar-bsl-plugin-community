@@ -32,14 +32,12 @@ val sonarQubeVersion = "9.9.0.65466"
 dependencies {
     implementation("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
 
-    // в jitpack лежат в группе com.github.1c-syntax, в централе - io.github.1c-syntax
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.22.0") {
-        exclude("com.github.1c-syntax", "utils")
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.23.0-rc.5") {
+        exclude("com.contrastsecurity", "java-sarif")
+        exclude("io.sentry", "sentry-logback")
+        exclude("org.springframework.boot", "spring-boot-starter-websocket")
     }
-    implementation("com.github.1c-syntax", "utils", "0.5.1")
 
-    implementation("org.apache.commons", "commons-lang3", "3.14.0")
-    implementation("com.fasterxml.jackson.core", "jackson-databind", "2.16.1")
     implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.5.0.1358")
 
     // MD to HTML converter of BSL LS rule descriptions
@@ -47,16 +45,6 @@ dependencies {
     implementation("org.commonmark", "commonmark-ext-gfm-tables", "0.21.0")
     implementation("org.commonmark", "commonmark-ext-autolink", "0.21.0")
     implementation("org.commonmark", "commonmark-ext-heading-anchor", "0.21.0")
-    implementation("me.tongfei", "progressbar", "0.10.0")
-
-    // CONSTRAINTS
-    implementation("com.google.guava", "guava") {
-        version {
-            strictly("32.0.1-jre")
-        }
-    }
-
-    compileOnly("com.google.code.findbugs", "jsr305", "3.0.2")
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.8.0")
     testImplementation("org.assertj", "assertj-core", "3.25.1")

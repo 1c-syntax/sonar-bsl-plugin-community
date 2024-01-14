@@ -73,5 +73,4 @@ class QualityProfileTest {
     profile.define(context);
     assertThat(context.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(3);
   }
-
 }

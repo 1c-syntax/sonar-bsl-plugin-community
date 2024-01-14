@@ -44,5 +44,4 @@ class BSLLanguageTest {
     assertThat(language.getFileSuffixes()).containsOnly(".bsl", ".os");
 
   }
-
 }

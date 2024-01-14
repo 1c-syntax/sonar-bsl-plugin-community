@@ -212,9 +212,6 @@ class BSLCoreSensorTest {
 
   @Test
   void testCPD() {
-    var diagnosticName = "OneStatementPerLine";
-    var ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
-
     // Mock visitor for metrics.
     var fileLinesContext = mock(FileLinesContext.class);
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
@@ -235,7 +232,6 @@ class BSLCoreSensorTest {
     assertThat(context.cpdTokens(componentKey))
       .filteredOn(tok -> tok.getValue().startsWith("ПропущенныйТокен"))
       .isEmpty();
-
   }
 
   private void setActiveRules(SensorContextTester context, String diagnosticName, RuleKey ruleKey) {
@@ -276,5 +272,4 @@ class BSLCoreSensorTest {
 
     return context;
   }
-
 }

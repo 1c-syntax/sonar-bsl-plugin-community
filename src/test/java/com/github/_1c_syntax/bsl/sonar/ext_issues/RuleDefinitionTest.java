@@ -86,5 +86,4 @@ class RuleDefinitionTest {
     assertThat(repository).isNotNull();
     assertThat(repository.rules()).hasSize(183);
   }
-
 }

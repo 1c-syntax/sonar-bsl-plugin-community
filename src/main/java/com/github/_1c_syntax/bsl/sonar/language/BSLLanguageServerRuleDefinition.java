@@ -138,11 +138,20 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       newRule.addTags(tagsName);
     }
 
-    newRule.setDebtRemediationFunction(
-      newRule.debtRemediationFunctions().linear(
-        diagnosticInfo.getMinutesToFix() + "min"
-      )
-    );
+    if (diagnosticInfo.getExtraMinForComplexity() > 0) {
+      newRule.setDebtRemediationFunction(
+        newRule.debtRemediationFunctions().linearWithOffset(
+          (int) diagnosticInfo.getExtraMinForComplexity() + "min",
+          diagnosticInfo.getMinutesToFix() + "min"
+        )
+      );
+    } else {
+      newRule.setDebtRemediationFunction(
+        newRule.debtRemediationFunctions().constantPerIssue(
+          diagnosticInfo.getMinutesToFix() + "min"
+        )
+      );
+    }
   }
 
   private String getHtmlDescription(String markdownDescription) {

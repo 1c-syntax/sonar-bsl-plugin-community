@@ -65,6 +65,7 @@ public class BSLHighlighter {
   private static final Set<Integer> SDBL_STRINGS = createSdblStrings();
   private static final Set<Integer> SDBL_COMMENTS = createSdblComments();
   private static final Set<Integer> SDBL_PARAMETERS = createSdblParameters();
+  private static final Set<Integer> SDBL_EDS = createSdblEDS();
 
   private final SensorContext context;
 
@@ -258,6 +259,8 @@ public class BSLHighlighter {
       typeOfText = TypeOfText.COMMENT;
     } else if (SDBL_PARAMETERS.contains(tokenType)) {
       typeOfText = TypeOfText.ANNOTATION;
+    } else if (SDBL_EDS.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD_LIGHT;
     } else {
       typeOfText = null;
     }
@@ -525,7 +528,30 @@ public class BSLHighlighter {
       SDBLLexer.VALUETYPE,
       SDBLLexer.WEEK,
       SDBLLexer.WEEKDAY,
-      SDBLLexer.YEAR
+      SDBLLexer.YEAR,
+      SDBLLexer.INT,
+      SDBLLexer.ACOS,
+      SDBLLexer.ASIN,
+      SDBLLexer.ATAN,
+      SDBLLexer.COS,
+      SDBLLexer.SIN,
+      SDBLLexer.TAN,
+      SDBLLexer.LOG,
+      SDBLLexer.LOG10,
+      SDBLLexer.EXP,
+      SDBLLexer.POW,
+      SDBLLexer.SQRT,
+      SDBLLexer.LOWER,
+      SDBLLexer.STRINGLENGTH,
+      SDBLLexer.TRIMALL,
+      SDBLLexer.TRIML,
+      SDBLLexer.TRIMR,
+      SDBLLexer.UPPER,
+      SDBLLexer.ROUND,
+      SDBLLexer.STOREDDATASIZE,
+      SDBLLexer.UUID,
+      SDBLLexer.STRFIND,
+      SDBLLexer.STRREPLACE
     );
   }
 
@@ -607,6 +633,14 @@ public class BSLHighlighter {
     return Set.of(
       SDBLLexer.AMPERSAND,
       SDBLLexer.PARAMETER_IDENTIFIER
+    );
+  }
+
+  private static Set<Integer> createSdblEDS() {
+    return Set.of(
+      SDBLLexer.EDS_CUBE,
+      SDBLLexer.EDS_TABLE,
+      SDBLLexer.EDS_CUBE_DIMTABLE
     );
   }
 
