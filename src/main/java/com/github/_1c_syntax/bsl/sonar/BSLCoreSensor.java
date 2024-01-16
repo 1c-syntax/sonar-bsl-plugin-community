@@ -27,6 +27,7 @@ import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConf
 import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
@@ -36,6 +37,7 @@ import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.batch.fs.InputFile;
@@ -55,9 +57,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -71,6 +75,9 @@ public class BSLCoreSensor implements Sensor {
   private final List<String> sourcesList = new ArrayList<>();
   private final IssuesLoader issuesLoader;
   private final BSLHighlighter highlighter;
+
+  private final Set<String> diagnosticsOnProject;
+  private final Set<String> diagnosticsWithExtraMins;
 
   public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
     this.context = context;
@@ -95,6 +102,9 @@ public class BSLCoreSensor implements Sensor {
 
     issuesLoader = new IssuesLoader(context);
     highlighter = new BSLHighlighter(context);
+
+    diagnosticsOnProject = new HashSet<>();
+    diagnosticsWithExtraMins = new HashSet<>();
   }
 
   @Override
@@ -170,7 +180,6 @@ public class BSLCoreSensor implements Sensor {
     BSLLSBinding.getApplicationContext().close();
   }
 
-
   private void processFile(InputFile inputFile, ServerContext bslServerContext) {
     var uri = inputFile.uri();
     var documentContext = bslServerContext.addDocument(uri);
@@ -178,7 +187,16 @@ public class BSLCoreSensor implements Sensor {
 
     if (langServerEnabled) {
       documentContext.getDiagnostics()
-        .forEach(diagnostic -> issuesLoader.createIssue(inputFile, diagnostic));
+        .forEach((Diagnostic diagnostic) -> {
+          var code = DiagnosticCode.getStringValue(diagnostic.getCode());
+          var hasExtraMins = diagnosticsWithExtraMins.contains(code);
+
+          if (diagnosticsOnProject.contains(code)) {
+            issuesLoader.createIssue(Either.forRight(context.project()), diagnostic, hasExtraMins);
+          } else {
+            issuesLoader.createIssue(Either.forLeft(inputFile), diagnostic, hasExtraMins);
+          }
+        });
     }
 
     saveCpd(inputFile, documentContext);
@@ -221,7 +239,6 @@ public class BSLCoreSensor implements Sensor {
     synchronized (this) {
       cpdTokens.save();
     }
-
   }
 
   private void saveMeasures(InputFile inputFile, DocumentContext documentContext) {
@@ -332,6 +349,14 @@ public class BSLCoreSensor implements Sensor {
           diagnosticCode,
           Either.forRight(diagnosticConfiguration)
         );
+
+        if (diagnosticInfo.canLocateOnProject()) {
+          diagnosticsOnProject.add(diagnosticCode);
+        }
+
+        if (diagnosticInfo.getExtraMinForComplexity() > 0) {
+          diagnosticsWithExtraMins.add(diagnosticCode);
+        }
       }
     }
 

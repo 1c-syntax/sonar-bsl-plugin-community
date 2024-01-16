@@ -63,5 +63,4 @@ class BSLLanguageServerRuleDefinitionTest {
       .count()
     ).isZero();
   }
-
 }

@@ -32,6 +32,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
@@ -42,6 +43,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -152,7 +154,15 @@ public class IssuesLoader {
     return settings;
   }
 
-  public void createIssue(InputFile inputFile, Diagnostic diagnostic) {
+  public void createIssue(InputFile file, Diagnostic diagnostic) {
+    createIssue(Either.forLeft(file), diagnostic, false);
+  }
+
+  public void createIssue(InputProject project, Diagnostic diagnostic) {
+    createIssue(Either.forRight(project), diagnostic, false);
+  }
+
+  public void createIssue(Either<InputFile, InputProject> fileOrProject, Diagnostic diagnostic, boolean hasExtraMins) {
 
     var ruleId = DiagnosticCode.getStringValue(diagnostic.getCode());
 
@@ -166,37 +176,43 @@ public class IssuesLoader {
     var activeRule = context.activeRules().find(ruleKey);
 
     if (settings.needCreateExternalIssues && activeRule == null) {
-      createExternalIssue(settings, inputFile, diagnostic);
+      createExternalIssue(settings, fileOrProject, diagnostic);
       return;
     }
 
     var issue = context.newIssue();
     issue.forRule(ruleKey);
-
-    processDiagnostic(inputFile,
+    processDiagnostic(fileOrProject,
       diagnostic,
       ruleId,
       issue::newLocation,
       issue::addLocation,
       issue::at);
 
+    if (hasExtraMins && diagnostic.getRelatedInformation() != null) {
+      issue.gap((double) diagnostic.getRelatedInformation().size() - 1); // первый - это основной
+    }
+
     issue.save();
   }
 
-  private void processDiagnostic(InputFile inputFile,
+  private void processDiagnostic(Either<InputFile, InputProject> fileOrProject,
                                  Diagnostic diagnostic,
                                  String ruleId,
                                  Supplier<NewIssueLocation> newIssueLocationSupplier,
                                  Consumer<NewIssueLocation> newIssueAddLocationConsumer,
                                  Consumer<NewIssueLocation> newIssueAtConsumer) {
 
-    var textRange = getTextRange(inputFile, diagnostic.getRange(), ruleId);
-
     var location = newIssueLocationSupplier.get();
-    location.on(inputFile);
-    location.at(textRange);
-    location.message(diagnostic.getMessage());
+    if (fileOrProject.isLeft()) {
+      var textRange = getTextRange(fileOrProject.getLeft(), diagnostic.getRange(), ruleId);
+      location.on(fileOrProject.getLeft());
+      location.at(textRange);
+    } else {
+      location.on(fileOrProject.getRight());
+    }
 
+    location.message(diagnostic.getMessage());
     newIssueAtConsumer.accept(location);
 
     var relatedInformation = diagnostic.getRelatedInformation();
@@ -221,7 +237,9 @@ public class IssuesLoader {
     }
   }
 
-  private void createExternalIssue(LoaderSettings settings, InputFile inputFile, Diagnostic diagnostic) {
+  private void createExternalIssue(LoaderSettings settings,
+                                   Either<InputFile, InputProject> fileOrProject,
+                                   Diagnostic diagnostic) {
     var issue = context.newExternalIssue();
 
     issue.engineId(settings.engineId);
@@ -232,7 +250,7 @@ public class IssuesLoader {
     issue.type(ruleTypeMap.get(diagnostic.getSeverity()));
     issue.severity(severityMap.get(diagnostic.getSeverity()));
 
-    processDiagnostic(inputFile,
+    processDiagnostic(fileOrProject,
       diagnostic,
       ruleId,
       issue::newLocation,

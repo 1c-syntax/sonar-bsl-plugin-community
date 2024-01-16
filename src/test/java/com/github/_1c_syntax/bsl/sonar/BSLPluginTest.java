@@ -80,5 +80,4 @@ class BSLPluginTest {
     profile.define(contextProfile);
     assertThat(contextProfile.profilesByLanguageAndName().get(BSLLanguage.KEY)).hasSize(5);
   }
-
 }
