@@ -8,7 +8,7 @@ plugins {
     id("org.sonarqube") version "4.4.1.3373"
     id("org.cadixdev.licenser") version "0.6.1"
     id("com.github.johnrengelman.shadow") version ("7.0.0")
-    id("com.github.ben-manes.versions") version "0.50.0"
+    id("com.github.ben-manes.versions") version "0.51.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
     id("io.freefair.lombok") version "8.4"
 }
