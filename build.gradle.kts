@@ -119,6 +119,7 @@ tasks.jar {
         attributes["Plugin-Class"] = "com.github._1c_syntax.bsl.sonar.BSLPlugin"
         attributes["Plugin-Name"] = "1C (BSL) Community Plugin"
         attributes["Plugin-Version"] = "${project.version}"
+        attributes["Plugin-RequiredForLanguages"] = "bsl"
 
         attributes["Plugin-License"] = "GNU LGPL v3"
 
