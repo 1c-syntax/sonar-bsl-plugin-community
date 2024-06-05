@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2023
+ * Copyright (c) 2018-2024
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -212,9 +212,6 @@ class BSLCoreSensorTest {
 
   @Test
   void testCPD() {
-    var diagnosticName = "OneStatementPerLine";
-    var ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
-
     // Mock visitor for metrics.
     var fileLinesContext = mock(FileLinesContext.class);
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
@@ -235,7 +232,6 @@ class BSLCoreSensorTest {
     assertThat(context.cpdTokens(componentKey))
       .filteredOn(tok -> tok.getValue().startsWith("ПропущенныйТокен"))
       .isEmpty();
-
   }
 
   private void setActiveRules(SensorContextTester context, String diagnosticName, RuleKey ruleKey) {
@@ -276,5 +272,4 @@ class BSLCoreSensorTest {
 
     return context;
   }
-
 }

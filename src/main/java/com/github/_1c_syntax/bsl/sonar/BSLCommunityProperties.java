@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2023
+ * Copyright (c) 2018-2024
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -30,7 +30,6 @@ import org.sonar.api.resources.Qualifiers;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -54,9 +53,8 @@ public final class BSLCommunityProperties {
   public static final String BSL_FILE_EXTENSIONS_DEFAULT_VALUE = ".bsl,.os";
 
   public static final String BSL_CATEGORY = "1C (BSL)";
-  private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
-  private static final String BSL_SUBCATEGORY = "1C (BSL) Community";
 
+  private static final String BSL_SUBCATEGORY = "1C (BSL) Community";
 
   private BSLCommunityProperties() {
     // only statics
@@ -64,79 +62,61 @@ public final class BSLCommunityProperties {
 
   public static List<PropertyDefinition> getProperties() {
     return Arrays.asList(
-      PropertyDefinition.builder(LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
-        .name("BSL Language server rule names and messages language")
-        .description(
-          "Defines the language of the rules names (on APP level) and language of rules message (on PROJECT level)"
-        )
-        .defaultValue(LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
+      PropertyDefinitionUtils.newPropertyBuilderBSL(0,
+          LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY,
+          "diagnosticLanguage",
+          LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
         .type(PropertyType.SINGLE_SELECT_LIST)
         .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
-        .category(BSL_CATEGORY)
         .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
-        .index(0)
         .build(),
-      PropertyDefinition.builder(LANG_SERVER_ENABLED_KEY)
-        .name("BSL Language Server enabled")
-        .description("Run internal BSL Language Server Diagnostic Provider")
-        .defaultValue(LANG_SERVER_ENABLED_DEFAULT_VALUE.toString())
+      PropertyDefinitionUtils.newPropertyBuilderBSL(1,
+          LANG_SERVER_ENABLED_KEY,
+          "enabled",
+          LANG_SERVER_ENABLED_DEFAULT_VALUE.toString())
         .type(PropertyType.BOOLEAN)
-        .category(BSL_CATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
-        .index(1)
         .build(),
-      PropertyDefinition.builder(LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY)
-        .name("BSL Language Server - Skip computing diagnostics on modules with parent configurations")
-        .description("Skip computing diagnostics according to module's support mode " +
-          "(if there is a parent configuration).")
-        .category(BSL_CATEGORY)
-        .defaultValue(LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE)
+      PropertyDefinitionUtils.newPropertyBuilderBSL(2,
+          LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY,
+          "skipSupport",
+          LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_DEFAULT_VALUE)
         .type(PropertyType.SINGLE_SELECT_LIST)
         .options(Stream.of(SkipSupport.values())
           .map(value -> value.name().toLowerCase(Locale.ENGLISH).replace("_", " "))
-          .collect(Collectors.toList())
+          .toList()
         )
         .onQualifiers(Qualifiers.PROJECT)
-        .index(2)
         .build(),
-      PropertyDefinition.builder(LANG_SERVER_OVERRIDE_CONFIGURATION_KEY)
-        .name("BSL Language Server - Use configuration file")
-        .description("Override SonarQube settings with BSL LS configuration file.")
-        .category(BSL_CATEGORY)
-        .defaultValue(LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE.toString())
+      PropertyDefinitionUtils.newPropertyBuilderBSL(3,
+          LANG_SERVER_OVERRIDE_CONFIGURATION_KEY,
+          "overrideConfiguration",
+          LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE.toString())
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
-        .index(3)
         .build(),
-      PropertyDefinition.builder(LANG_SERVER_CONFIGURATION_PATH_KEY)
-        .name("BSL Language Server - Configuration file")
-        .description("Path to BSL LS configuration file.")
-        .category(BSL_CATEGORY)
-        .defaultValue(LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE)
+      PropertyDefinitionUtils.newPropertyBuilderBSL(4,
+          LANG_SERVER_CONFIGURATION_PATH_KEY,
+          "enabled.configurationPath",
+          LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE)
         .type(PropertyType.STRING)
         .onQualifiers(Qualifiers.PROJECT)
-        .index(4)
         .build(),
-      PropertyDefinition.builder(BSL_FILE_EXTENSIONS_KEY)
-        .name("BSL File suffixes")
-        .description("List of file suffixes that will be scanned.")
-        .category(BSL_CATEGORY)
-        .defaultValue(BSL_FILE_EXTENSIONS_DEFAULT_VALUE)
+      PropertyDefinitionUtils.newPropertyBuilderBSL(5,
+          BSL_FILE_EXTENSIONS_KEY,
+          "file.suffixes",
+          BSL_FILE_EXTENSIONS_DEFAULT_VALUE)
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
-        .index(5)
         .build(),
-      PropertyDefinition.builder(LANG_SERVER_REPORT_PATH_KEY)
-        .name("BSL Language Server Report Files")
-        .description("Paths (absolute or relative) to xml files with BSL Language Server diagnostics")
-        .defaultValue("")
-        .category(EXTERNAL_ANALYZERS_CATEGORY)
+      PropertyDefinitionUtils.newPropertyBuilderExternal(0,
+          LANG_SERVER_REPORT_PATH_KEY,
+          "reportPaths",
+          "")
         .subCategory(BSL_SUBCATEGORY)
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
-        .index(0)
         .build()
     );
   }
-
 }

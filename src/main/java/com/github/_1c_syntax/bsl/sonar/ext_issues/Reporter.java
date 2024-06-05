@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2023
+ * Copyright (c) 2018-2024
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -21,15 +21,12 @@
  */
 package com.github._1c_syntax.bsl.sonar.ext_issues;
 
-import com.github._1c_syntax.bsl.languageserver.configuration.Language;
+import com.github._1c_syntax.bsl.sonar.PropertyDefinitionUtils;
 import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
-import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
 import java.util.Arrays;
-
-import static com.github._1c_syntax.bsl.sonar.BSLCommunityProperties.BSL_CATEGORY;
 
 /**
  * Общий интерфейс для настроек импортеров
@@ -112,44 +109,36 @@ public interface Reporter {
   default void addExtension(Plugin.Context context) {
     var index = getStartIndex();
     Arrays.asList(
-      PropertyDefinition.builder(getEnabledKey())
-        .name(String.format("Enable %s rules", getName()))
-        .description(
-          String.format("Enable %s rules. Need restart server", getName())
+      PropertyDefinitionUtils.newPropertyBuilderReport(++index,
+          getEnabledKey(),
+          "enabled",
+          getName(),
+          getSubcategory()
         )
         .defaultValue(Boolean.toString(isEnableDefaultValue()))
         .type(PropertyType.BOOLEAN)
-        .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
-        .category(BSL_CATEGORY)
-        .subCategory(getSubcategory())
         .onQualifiers(Qualifiers.APP)
-        .index(++index)
         .build(),
-      PropertyDefinition.builder(getCreateExternalIssuesKey())
-        .name("Create external issues")
-        .description(
-          String.format("Create external issue if no active %s rule was found", getSource())
+      PropertyDefinitionUtils.newPropertyBuilderReport(++index,
+          getCreateExternalIssuesKey(),
+          "createExternalIssues",
+          getName(),
+          getSubcategory()
         )
         .defaultValue(Boolean.toString(isCreateExternalIssuesDefaultValue()))
         .type(PropertyType.BOOLEAN)
-        .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
-        .category(BSL_CATEGORY)
-        .subCategory(getSubcategory())
         .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
-        .index(++index)
         .build(),
-      PropertyDefinition.builder(getRulesPathsKey())
-        .name(String.format("%s rules path", getName()))
-        .description(
-          String.format("Path (absolute or relative) to json file with %s rules", getName())
+      PropertyDefinitionUtils.newPropertyBuilderReport(++index,
+          getRulesPathsKey(),
+          "rulePath",
+          getName(),
+          getSubcategory()
         )
         .defaultValue("")
         .type(PropertyType.STRING)
-        .category(BSL_CATEGORY)
-        .subCategory(getSubcategory())
         .onQualifiers(Qualifiers.APP)
         .multiValues(true)
-        .index(++index)
         .build()
     ).forEach(context::addExtension);
   }

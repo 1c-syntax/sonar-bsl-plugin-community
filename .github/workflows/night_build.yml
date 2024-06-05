@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: nigth_build
       - name: Set up JDK
-        uses: actions/setup-java@v3.11.0
+        uses: actions/setup-java@v4.2.1
         with:
           java-version: 17
           distribution: 'adopt'
@@ -28,9 +28,7 @@ jobs:
       - name: Save current date
         run: echo "PLUGIN_CURRENT_DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
       - name: Deploy build
-        uses: WebFreak001/deploy-nightly@v2.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: WebFreak001/deploy-nightly@v3.1.0
         with:
           upload_url: https://uploads.github.com/repos/1c-syntax/sonar-bsl-plugin-community/releases/51033599/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
           release_id: 51033599 # same as above (id can just be taken out the upload_url, it's used to find old releases)

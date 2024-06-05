@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2023
+ * Copyright (c) 2018-2024
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -138,11 +138,20 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       newRule.addTags(tagsName);
     }
 
-    newRule.setDebtRemediationFunction(
-      newRule.debtRemediationFunctions().linear(
-        diagnosticInfo.getMinutesToFix() + "min"
-      )
-    );
+    if (diagnosticInfo.getExtraMinForComplexity() > 0) {
+      newRule.setDebtRemediationFunction(
+        newRule.debtRemediationFunctions().linearWithOffset(
+          (int) diagnosticInfo.getExtraMinForComplexity() + "min",
+          diagnosticInfo.getMinutesToFix() + "min"
+        )
+      );
+    } else {
+      newRule.setDebtRemediationFunction(
+        newRule.debtRemediationFunctions().constantPerIssue(
+          diagnosticInfo.getMinutesToFix() + "min"
+        )
+      );
+    }
   }
 
   private String getHtmlDescription(String markdownDescription) {

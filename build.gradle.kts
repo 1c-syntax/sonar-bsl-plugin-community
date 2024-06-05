@@ -5,12 +5,12 @@ plugins {
     jacoco
     java
     `maven-publish`
-    id("org.sonarqube") version "4.2.1.3168"
+    id("org.sonarqube") version "5.0.0.4638"
     id("org.cadixdev.licenser") version "0.6.1"
-    id("com.github.johnrengelman.shadow") version("7.0.0")
-    id("com.github.ben-manes.versions") version "0.47.0"
+    id("com.github.johnrengelman.shadow") version ("7.0.0")
+    id("com.github.ben-manes.versions") version "0.51.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.freefair.lombok") version "8.0.1"
+    id("io.freefair.lombok") version "8.6"
 }
 
 group = "io.github.1c-syntax"
@@ -20,29 +20,25 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven {
-        url = URI("https://s01.oss.sonatype.org/content/repositories/snapshots")   
+        url = URI("https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
     maven {
         url = URI("https://jitpack.io")
     }
 }
 
-val sonarQubeVersion = "8.9.0.43852"
+val sonarQubeVersion = "9.9.0.65466"
 
 dependencies {
-    implementation("org.sonarsource.sonarqube", "sonar-plugin-api", sonarQubeVersion)
+    implementation("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
 
-    // в jitpack лежат в группе com.github.1c-syntax, в централе - io.github.1c-syntax
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.21.0") {
-        exclude("com.github.1c-syntax", "utils")
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.23.0") {
+        exclude("com.contrastsecurity", "java-sarif")
+        exclude("io.sentry", "sentry-logback")
+        exclude("org.springframework.boot", "spring-boot-starter-websocket")
     }
-    implementation("com.github.1c-syntax", "utils", "0.5.1")
 
-    implementation("org.apache.commons:commons-lang3:3.12.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
-
-    // https://mvnrepository.com/artifact/org.sonarsource.analyzer-commons/sonar-analyzer-commons
-    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:2.5.0.1358")
+    implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.5.0.1358")
 
     // MD to HTML converter of BSL LS rule descriptions
     implementation("org.commonmark", "commonmark", "0.21.0")
@@ -50,37 +46,19 @@ dependencies {
     implementation("org.commonmark", "commonmark-ext-autolink", "0.21.0")
     implementation("org.commonmark", "commonmark-ext-heading-anchor", "0.21.0")
 
-    implementation("me.tongfei:progressbar:0.9.5")
-
-    compileOnly("com.google.code.findbugs:jsr305:3.0.2")
-
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.8.0")
-    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.8.0")
-
-    testImplementation("org.assertj:assertj-core:3.24.2")
-    testImplementation("org.mockito:mockito-core:5.4.0")
-
+    testImplementation("org.assertj", "assertj-core", "3.25.1")
+    testImplementation("org.mockito", "mockito-core", "5.8.0")
     testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
     testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)
     testImplementation("org.reflections", "reflections", "0.9.12")
 
-    // CONSTRAINTS
-
-    implementation("org.slf4j:slf4j-api") {
-        version {
-            strictly("1.7.30")
-        }
-    }
-    implementation("com.google.guava:guava") {
-        version {
-            strictly("30.1-jre")
-        }
-    }
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.8.0")
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType<JavaCompile> {
@@ -141,6 +119,7 @@ tasks.jar {
         attributes["Plugin-Class"] = "com.github._1c_syntax.bsl.sonar.BSLPlugin"
         attributes["Plugin-Name"] = "1C (BSL) Community Plugin"
         attributes["Plugin-Version"] = "${project.version}"
+        attributes["Plugin-RequiredForLanguages"] = "bsl"
 
         attributes["Plugin-License"] = "GNU LGPL v3"
 
@@ -155,7 +134,6 @@ tasks.jar {
         attributes["Plugin-Organization"] = "1c-syntax"
         attributes["Plugin-OrganizationUrl"] = "https://github.com/1c-syntax"
     }
-
 
     enabled = false
     dependsOn(tasks.shadowJar)
