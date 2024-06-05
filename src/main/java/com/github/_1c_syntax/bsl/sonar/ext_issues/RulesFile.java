@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2023
+ * Copyright (c) 2018-2024
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -21,68 +21,27 @@
  */
 package com.github._1c_syntax.bsl.sonar.ext_issues;
 
-import lombok.AllArgsConstructor;
-import lombok.Value;
-
 import java.util.List;
 
 /**
  * DTO для чтения списка описаний диагностик из файла json
  */
-@Value
-@AllArgsConstructor
-public class RulesFile {
-
-  List<Rule> rules;
+public record RulesFile(List<Rule> rules) {
 
   /**
    * DTO для описания самих описаний диагностик в файле
+   *
+   * @param code               Код диагностики (обязательный)
+   * @param name               Имя диагностики (обязательный)
+   * @param description        Описание диагностики
+   * @param type               Тип диагностики
+   * @param severity           Важность диагностики
+   * @param active             Признак активизации по умолчанию
+   * @param needForCertificate Признак вхождения диагностики в профиль обязательных для сертификации
+   * @param effortMinutes      Время на исправление (в минутах)
+   * @param internalCode       Идентификатор правила внешней системы
    */
-  @Value
-  public static class Rule {
-    /**
-     * Код диагностики (обязательный)
-     */
-    String code;
-
-    /**
-     * Имя диагностики (обязательный)
-     */
-    String name;
-
-    /**
-     * Описание диагностики
-     */
-    String description;
-
-    /**
-     * Тип диагностики
-     */
-    String type;
-
-    /**
-     * Важность диагностики
-     */
-    String severity;
-
-    /**
-     * Признак активизации по умолчанию
-     */
-    boolean active;
-
-    /**
-     * Признак вхождения диагностики в профиль обязательных для сертификации
-     */
-    boolean needForCertificate;
-
-    /**
-     * Время на исправление (в минутах)
-     */
-    int effortMinutes;
-
-    /**
-     * Идентификатор правила внешней системы
-     */
-    String internalCode;
+  public record Rule(String code, String name, String description, String type, String severity, boolean active,
+                     boolean needForCertificate, int effortMinutes, String internalCode) {
   }
 }

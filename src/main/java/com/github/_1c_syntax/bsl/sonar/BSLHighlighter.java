@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2023
+ * Copyright (c) 2018-2024
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -65,6 +65,7 @@ public class BSLHighlighter {
   private static final Set<Integer> SDBL_STRINGS = createSdblStrings();
   private static final Set<Integer> SDBL_COMMENTS = createSdblComments();
   private static final Set<Integer> SDBL_PARAMETERS = createSdblParameters();
+  private static final Set<Integer> SDBL_EDS = createSdblEDS();
 
   private final SensorContext context;
 
@@ -108,7 +109,7 @@ public class BSLHighlighter {
       var currentTokens = dataOfCurrentLine.stream()
         .filter(sdblData -> Ranges.containsRange(stringRange, sdblData.getRange()))
         .sorted(Comparator.comparing(data -> data.getRange().getStart().getCharacter()))
-        .collect(Collectors.toList());
+        .toList();
 
       if (currentTokens.isEmpty()) {
         return;
@@ -258,6 +259,8 @@ public class BSLHighlighter {
       typeOfText = TypeOfText.COMMENT;
     } else if (SDBL_PARAMETERS.contains(tokenType)) {
       typeOfText = TypeOfText.ANNOTATION;
+    } else if (SDBL_EDS.contains(tokenType)) {
+      typeOfText = TypeOfText.KEYWORD_LIGHT;
     } else {
       typeOfText = null;
     }
@@ -525,7 +528,30 @@ public class BSLHighlighter {
       SDBLLexer.VALUETYPE,
       SDBLLexer.WEEK,
       SDBLLexer.WEEKDAY,
-      SDBLLexer.YEAR
+      SDBLLexer.YEAR,
+      SDBLLexer.INT,
+      SDBLLexer.ACOS,
+      SDBLLexer.ASIN,
+      SDBLLexer.ATAN,
+      SDBLLexer.COS,
+      SDBLLexer.SIN,
+      SDBLLexer.TAN,
+      SDBLLexer.LOG,
+      SDBLLexer.LOG10,
+      SDBLLexer.EXP,
+      SDBLLexer.POW,
+      SDBLLexer.SQRT,
+      SDBLLexer.LOWER,
+      SDBLLexer.STRINGLENGTH,
+      SDBLLexer.TRIMALL,
+      SDBLLexer.TRIML,
+      SDBLLexer.TRIMR,
+      SDBLLexer.UPPER,
+      SDBLLexer.ROUND,
+      SDBLLexer.STOREDDATASIZE,
+      SDBLLexer.UUID,
+      SDBLLexer.STRFIND,
+      SDBLLexer.STRREPLACE
     );
   }
 
@@ -607,6 +633,14 @@ public class BSLHighlighter {
     return Set.of(
       SDBLLexer.AMPERSAND,
       SDBLLexer.PARAMETER_IDENTIFIER
+    );
+  }
+
+  private static Set<Integer> createSdblEDS() {
+    return Set.of(
+      SDBLLexer.EDS_CUBE,
+      SDBLLexer.EDS_TABLE,
+      SDBLLexer.EDS_CUBE_DIMTABLE
     );
   }
 

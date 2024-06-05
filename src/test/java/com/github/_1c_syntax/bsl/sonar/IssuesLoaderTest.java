@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2023
+ * Copyright (c) 2018-2024
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -31,7 +31,6 @@ import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
-import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -142,6 +141,41 @@ class IssuesLoaderTest {
   }
 
   @Test
+  void test_createIssueOnProject() {
+    var issueSeverity = DiagnosticSeverity.Information;
+    var diagnosticName = "OneStatementPerLine";
+    var ruleKey = RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, diagnosticName);
+
+    var context = SensorContextTester.create(BASE_DIR);
+
+    var activeRules = new ActiveRulesBuilder()
+      .addRule(new NewActiveRule.Builder()
+        .setRuleKey(ruleKey)
+        .setName(diagnosticName)
+        .build())
+      .build();
+    context.setActiveRules(activeRules);
+
+    var inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+    context.fileSystem().add(inputFile);
+
+    var issuesLoader = new IssuesLoader(context);
+
+    var diagnostic = new Diagnostic();
+    diagnostic.setCode(diagnosticName);
+    diagnostic.setSeverity(issueSeverity);
+    diagnostic.setMessage("Check message OneStatementPerLine");
+    diagnostic.setRange(new Range(new Position(0, 0), new Position(0, 1)));
+
+    issuesLoader.createIssue(context.project(), diagnostic);
+
+    assertThat(context.allIssues()).hasSize(1);
+    var issue = (DefaultIssue) context.allIssues().toArray()[0];
+    assertThat(issue.ruleKey()).isEqualTo(ruleKey);
+    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(context.project());
+  }
+
+  @Test
   void issueWithIncorrectRange() {
     // given
     var issueSeverity = DiagnosticSeverity.Information;
@@ -150,7 +184,7 @@ class IssuesLoaderTest {
 
     var context = SensorContextTester.create(BASE_DIR);
 
-    ActiveRules activeRules = new ActiveRulesBuilder()
+    var activeRules = new ActiveRulesBuilder()
       .addRule(new NewActiveRule.Builder()
         .setRuleKey(ruleKey)
         .setName(diagnosticName)

@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2023
+ * Copyright (c) 2018-2024
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -27,6 +27,7 @@ import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConf
 import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
@@ -36,8 +37,11 @@ import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -53,9 +57,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -70,6 +76,9 @@ public class BSLCoreSensor implements Sensor {
   private final IssuesLoader issuesLoader;
   private final BSLHighlighter highlighter;
 
+  private final Set<String> diagnosticsOnProject;
+  private final Set<String> diagnosticsWithExtraMins;
+
   public BSLCoreSensor(SensorContext context, FileLinesContextFactory fileLinesContextFactory) {
     this.context = context;
     this.fileLinesContextFactory = fileLinesContextFactory;
@@ -81,18 +90,21 @@ public class BSLCoreSensor implements Sensor {
       .map(sources ->
         Arrays.stream(StringUtils.split(sources, ","))
           .map(String::strip)
-          .collect(Collectors.toList()))
+          .toList())
       .orElse(Collections.singletonList(".")));
 
     sourcesList.addAll(context.config().get("sonar.tests")
       .map(sources ->
         Arrays.stream(StringUtils.split(sources, ","))
           .map(String::strip)
-          .collect(Collectors.toList()))
+          .toList())
       .orElse(Collections.emptyList()));
 
     issuesLoader = new IssuesLoader(context);
     highlighter = new BSLHighlighter(context);
+
+    diagnosticsOnProject = new HashSet<>();
+    diagnosticsWithExtraMins = new HashSet<>();
   }
 
   @Override
@@ -118,7 +130,7 @@ public class BSLCoreSensor implements Sensor {
         }
       })
       .map(Absolute::path)
-      .collect(Collectors.toList());
+      .toList();
 
     var predicates = fileSystem.predicates();
     var inputFiles = fileSystem.inputFiles(
@@ -168,7 +180,6 @@ public class BSLCoreSensor implements Sensor {
     BSLLSBinding.getApplicationContext().close();
   }
 
-
   private void processFile(InputFile inputFile, ServerContext bslServerContext) {
     var uri = inputFile.uri();
     var documentContext = bslServerContext.addDocument(uri);
@@ -176,7 +187,16 @@ public class BSLCoreSensor implements Sensor {
 
     if (langServerEnabled) {
       documentContext.getDiagnostics()
-        .forEach(diagnostic -> issuesLoader.createIssue(inputFile, diagnostic));
+        .forEach((Diagnostic diagnostic) -> {
+          var code = DiagnosticCode.getStringValue(diagnostic.getCode());
+          var hasExtraMins = diagnosticsWithExtraMins.contains(code);
+
+          if (diagnosticsOnProject.contains(code)) {
+            issuesLoader.createIssue(Either.forRight(context.project()), diagnostic, hasExtraMins);
+          } else {
+            issuesLoader.createIssue(Either.forLeft(inputFile), diagnostic, hasExtraMins);
+          }
+        });
     }
 
     saveCpd(inputFile, documentContext);
@@ -219,7 +239,6 @@ public class BSLCoreSensor implements Sensor {
     synchronized (this) {
       cpdTokens.save();
     }
-
   }
 
   private void saveMeasures(InputFile inputFile, DocumentContext documentContext) {
@@ -325,23 +344,19 @@ public class BSLCoreSensor implements Sensor {
       if (activeRule == null) {
         diagnostics.put(diagnosticCode, Either.forLeft(false));
       } else {
-        var params = activeRule.params();
-
-        var diagnosticParameters = diagnosticInfo.getParameters();
-        Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
-
-        params.forEach((String key, String value) ->
-          diagnosticInfo.getParameter(key).ifPresent(diagnosticParameterInfo ->
-            diagnosticConfiguration.put(
-              key,
-              castDiagnosticParameterValue(value, diagnosticParameterInfo.getType())
-            )
-          )
-        );
+        var diagnosticConfiguration = getDiagnosticConfiguration(diagnosticInfo, activeRule);
         diagnostics.put(
           diagnosticCode,
           Either.forRight(diagnosticConfiguration)
         );
+
+        if (diagnosticInfo.canLocateOnProject()) {
+          diagnosticsOnProject.add(diagnosticCode);
+        }
+
+        if (diagnosticInfo.getExtraMinForComplexity() > 0) {
+          diagnosticsWithExtraMins.add(diagnosticCode);
+        }
       }
     }
 
@@ -380,5 +395,22 @@ public class BSLCoreSensor implements Sensor {
       skipCpd = false;
     }
     return skipCpd;
+  }
+
+  @NotNull
+  private static Map<String, Object> getDiagnosticConfiguration(DiagnosticInfo diagnosticInfo,
+                                                                ActiveRule activeRule) {
+    var params = activeRule.params();
+    var diagnosticParameters = diagnosticInfo.getParameters();
+    Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
+    params.forEach((String key, String value) ->
+      diagnosticInfo.getParameter(key).ifPresent(diagnosticParameterInfo ->
+        diagnosticConfiguration.put(
+          key,
+          castDiagnosticParameterValue(value, diagnosticParameterInfo.getType())
+        )
+      )
+    );
+    return diagnosticConfiguration;
   }
 }
