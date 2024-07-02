@@ -50,7 +50,7 @@ class BSLPluginTest {
     var runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     var context = new Plugin.Context(runtime);
     bslPlugin.define(context);
-    assertThat((List<?>) context.getExtensions()).hasSize(23);
+    assertThat((List<?>) context.getExtensions()).hasSize(25);
   }
 
   @Test

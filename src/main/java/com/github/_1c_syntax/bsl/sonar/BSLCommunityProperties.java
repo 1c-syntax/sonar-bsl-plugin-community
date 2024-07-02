@@ -41,6 +41,8 @@ public final class BSLCommunityProperties {
   public static final String LANG_SERVER_CONFIGURATION_PATH_KEY = "sonar.bsl.languageserver.configurationPath";
   public static final String LANG_SERVER_OVERRIDE_CONFIGURATION_KEY = "sonar.bsl.languageserver.overrideConfiguration";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
+  public static final String LANG_SERVER_SUBSYSTEM_FILTER_INCLUDE_KEY = "sonar.bsl.languageserver.subsystemsFilter.include";
+  public static final String LANG_SERVER_SUBSYSTEM_FILTER_EXCLUDE_KEY = "sonar.bsl.languageserver.subsystemsFilter.exclude";
   public static final String BSL_FILE_EXTENSIONS_KEY = "sonar.bsl.file.suffixes";
 
   public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
@@ -96,6 +98,20 @@ public final class BSLCommunityProperties {
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(4,
+          LANG_SERVER_SUBSYSTEM_FILTER_INCLUDE_KEY,
+          "subsystemfilter.include",
+          "")
+         .onQualifiers(Qualifiers.PROJECT)
+         .multiValues(true)
+         .build(),
+      PropertyDefinitionUtils.newPropertyBuilderBSL(5,
+          LANG_SERVER_SUBSYSTEM_FILTER_EXCLUDE_KEY,
+          "subsystemfilter.exclude",
+          "")
+        .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
+        .build(),
+      PropertyDefinitionUtils.newPropertyBuilderBSL(7,
           LANG_SERVER_CONFIGURATION_PATH_KEY,
           "enabled.configurationPath",
           LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE)

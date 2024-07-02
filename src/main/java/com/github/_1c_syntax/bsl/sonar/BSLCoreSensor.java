@@ -328,6 +328,19 @@ public class BSLCoreSensor implements Sensor {
 
     configuration.getDiagnosticsOptions().setSkipSupport(skipSupport);
 
+
+    Set<String> includeSubsystems = new HashSet<>();
+    Collections.addAll(includeSubsystems, context.config()
+      .getStringArray(BSLCommunityProperties.LANG_SERVER_SUBSYSTEM_FILTER_INCLUDE_KEY));
+
+    configuration.getDiagnosticsOptions().getSubsystemsFilter().setInclude(includeSubsystems);
+
+    Set<String> excludeSubsystems = new HashSet<>();
+    Collections.addAll(excludeSubsystems, context.config()
+      .getStringArray(BSLCommunityProperties.LANG_SERVER_SUBSYSTEM_FILTER_EXCLUDE_KEY));
+
+    configuration.getDiagnosticsOptions().getSubsystemsFilter().setExclude(excludeSubsystems);
+
     var activeRules = context.activeRules();
 
     Map<String, Either<Boolean, Map<String, Object>>> diagnostics = new HashMap<>();
