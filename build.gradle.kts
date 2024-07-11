@@ -32,7 +32,7 @@ val sonarQubeVersion = "9.9.0.65466"
 dependencies {
     implementation("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.23.0") {
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.23.1") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("io.sentry", "sentry-logback")
         exclude("org.springframework.boot", "spring-boot-starter-websocket")
