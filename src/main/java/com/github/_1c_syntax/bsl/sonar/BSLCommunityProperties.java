@@ -98,20 +98,6 @@ public final class BSLCommunityProperties {
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(4,
-          LANG_SERVER_SUBSYSTEM_FILTER_INCLUDE_KEY,
-          "subsystemfilter.include",
-          "")
-         .onQualifiers(Qualifiers.PROJECT)
-         .multiValues(true)
-         .build(),
-      PropertyDefinitionUtils.newPropertyBuilderBSL(5,
-          LANG_SERVER_SUBSYSTEM_FILTER_EXCLUDE_KEY,
-          "subsystemfilter.exclude",
-          "")
-        .onQualifiers(Qualifiers.PROJECT)
-        .multiValues(true)
-        .build(),
-      PropertyDefinitionUtils.newPropertyBuilderBSL(7,
           LANG_SERVER_CONFIGURATION_PATH_KEY,
           "enabled.configurationPath",
           LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE)
@@ -119,6 +105,20 @@ public final class BSLCommunityProperties {
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(5,
+          LANG_SERVER_SUBSYSTEM_FILTER_INCLUDE_KEY,
+          "subsystemfilter.include",
+          "")
+         .onQualifiers(Qualifiers.PROJECT)
+         .multiValues(true)
+         .build(),
+      PropertyDefinitionUtils.newPropertyBuilderBSL(6,
+          LANG_SERVER_SUBSYSTEM_FILTER_EXCLUDE_KEY,
+          "subsystemfilter.exclude",
+          "")
+        .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
+        .build(),
+      PropertyDefinitionUtils.newPropertyBuilderBSL(7,
           BSL_FILE_EXTENSIONS_KEY,
           "file.suffixes",
           BSL_FILE_EXTENSIONS_DEFAULT_VALUE)
