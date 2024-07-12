@@ -89,6 +89,8 @@ Available values:
     * never *default* - modules are not skipped
 - `sonar.bsl.languageserver.overrideConfiguration` - override Quality Profile settings with settings from BSL Language Server configuration file;
 - `sonar.bsl.languageserver.configurationPath` - path to BSL Language Server configuration file to override settings;
+- `sonar.bsl.languageserver.subsystemsFilter.include` - List of names of subsystems for which objects the analysis is performed, including child subsystems. Default `""` - include all;
+- `sonar.bsl.languageserver.subsystemsFilter.exclude` - List of names of subsystems excluded from analysis, including child subsystems. Default - `""` - not exclude;
 - `sonar.bsl.file.suffixes` - list of file suffixes that will be scanned. Default - `.bsl,.os`
 
 ## Language switch for rule names/descriptions and issue messages
