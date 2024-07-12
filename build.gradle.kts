@@ -5,7 +5,7 @@ plugins {
     jacoco
     java
     `maven-publish`
-    id("org.sonarqube") version "5.0.0.4638"
+    id("org.sonarqube") version "5.1.0.4882"
     id("org.cadixdev.licenser") version "0.6.1"
     id("com.github.johnrengelman.shadow") version ("7.0.0")
     id("com.github.ben-manes.versions") version "0.51.0"
@@ -32,7 +32,7 @@ val sonarQubeVersion = "9.9.0.65466"
 dependencies {
     implementation("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.23.0") {
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.23.1") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("io.sentry", "sentry-logback")
         exclude("org.springframework.boot", "spring-boot-starter-websocket")

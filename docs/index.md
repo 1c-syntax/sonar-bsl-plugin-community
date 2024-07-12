@@ -91,6 +91,8 @@ sonar-scanner -Dsonar.host.url=https://sonar.company.com -Dsonar.login=SONAR_AUT
   - never *по умолчанию* - модули не пропускаются;
 * `sonar.bsl.languageserver.overrideConfiguration` - переопределить настройки Quality Profile настройками из файла конфигурации BSL Language Server;
 * `sonar.bsl.languageserver.configurationPath` - путь к файлу конфигурации BSL Language Server для переопределения настроек;
+* `sonar.bsl.languageserver.subsystemsFilter.include` - Список имен подсистем по объектам которых выполняется анализ, включая подчиненные подсистемы. По умолчанию `""` - Все подсистемы;
+* `sonar.bsl.languageserver.subsystemsFilter.exclude` - Список имен подсистем исключенных из анализа, включая подчиненные подсистемы. По умолчанию - `""` - Нет исключаемых подсистем;
 * `sonar.bsl.file.suffixes` - список расширений файлов для анализа. По умолчанию - `.bsl,.os`
 
 ## Переключение языка имен правил и сообщений в замечаниях
