@@ -227,7 +227,7 @@ public class BSLCoreSensor implements Sensor {
           line,
           charPositionInLine,
           line,
-          charPositionInLine + tokenText.length(),
+          charPositionInLine + (int) tokenText.codePoints().count(),
           tokenText
         );
       }
