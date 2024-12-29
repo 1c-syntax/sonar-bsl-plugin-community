@@ -201,7 +201,7 @@ public class BSLHighlighter {
       line,
       charPositionInLine,
       line,
-      charPositionInLine + tokenText.length()
+      charPositionInLine + (int) tokenText.codePoints().count()
     );
 
     var data = new HighlightingData(
