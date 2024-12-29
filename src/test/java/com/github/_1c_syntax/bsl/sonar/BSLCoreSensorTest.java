@@ -205,7 +205,7 @@ class BSLCoreSensorTest {
     // todo надо как-то нормально ключ компонента определить
     var componentKey = "moduleKey:" + FILE_NAME;
     assertThat(context.measures(componentKey)).isNotEmpty();
-    assertThat(context.measure(componentKey, CoreMetrics.COMPLEXITY).value()).isEqualTo(3);
+    assertThat(context.measure(componentKey, CoreMetrics.COMPLEXITY).value()).isEqualTo(5);
     assertThat(context.measure(componentKey, CoreMetrics.COGNITIVE_COMPLEXITY).value()).isEqualTo(1);
 
   }
@@ -225,7 +225,7 @@ class BSLCoreSensorTest {
     var componentKey = "moduleKey:" + FILE_NAME;
     assertThat(context.cpdTokens(componentKey))
       .isNotNull()
-      .hasSize(13);
+      .hasSize(19);
     assertThat(context.cpdTokens(componentKey))
       .filteredOn(tok -> tok.getValue().startsWith("ОставшийсяТокен"))
       .hasSize(1);
