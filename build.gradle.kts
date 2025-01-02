@@ -41,19 +41,19 @@ dependencies {
     implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.5.0.1358")
 
     // MD to HTML converter of BSL LS rule descriptions
-    implementation("org.commonmark", "commonmark", "0.21.0")
-    implementation("org.commonmark", "commonmark-ext-gfm-tables", "0.21.0")
-    implementation("org.commonmark", "commonmark-ext-autolink", "0.21.0")
-    implementation("org.commonmark", "commonmark-ext-heading-anchor", "0.21.0")
+    implementation("org.commonmark", "commonmark", "0.24.0")
+    implementation("org.commonmark", "commonmark-ext-gfm-tables", "0.24.0")
+    implementation("org.commonmark", "commonmark-ext-autolink", "0.24.0")
+    implementation("org.commonmark", "commonmark-ext-heading-anchor", "0.24.0")
 
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.8.0")
-    testImplementation("org.assertj", "assertj-core", "3.25.1")
-    testImplementation("org.mockito", "mockito-core", "5.8.0")
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.11.4")
+    testImplementation("org.assertj", "assertj-core", "3.27.0")
+    testImplementation("org.mockito", "mockito-core", "5.14.2")
     testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
     testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)
-    testImplementation("org.reflections", "reflections", "0.9.12")
+    testImplementation("org.reflections", "reflections", "0.10.2")
 
-    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.8.0")
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.11.4")
 }
 
 java {
@@ -85,7 +85,7 @@ tasks.check {
 tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
-        xml.outputLocation.set(File("$buildDir/reports/jacoco/test/jacoco.xml"))
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/test/jacoco.xml"))
     }
 }
 
@@ -108,7 +108,7 @@ sonarqube {
         property("sonar.projectKey", "1c-syntax_sonar-bsl-plugin-community")
         property("sonar.projectName", "SonarQube 1C (BSL) Community Plugin")
         property("sonar.exclusions", "**/gen/**/*.*")
-        property("sonar.coverage.jacoco.xmlReportPaths", "$buildDir/reports/jacoco/test/jacoco.xml")
+        property("sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file("reports/jacoco/test/jacoco.xml"))
     }
 }
 
