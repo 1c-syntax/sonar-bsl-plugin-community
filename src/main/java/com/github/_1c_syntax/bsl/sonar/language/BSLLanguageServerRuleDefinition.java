@@ -48,7 +48,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.springframework.core.annotation.AnnotationUtils;
 
 import javax.annotation.CheckForNull;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
