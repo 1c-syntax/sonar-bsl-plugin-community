@@ -241,7 +241,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
   private static List<DiagnosticInfo> getDiagnosticInfo(LanguageServerConfiguration configuration) {
     var stringInterner = new StringInterner();
 
-    return ClassPath.from(ClassLoader.getSystemClassLoader())
+    return ClassPath.from(BSLLanguageServerRuleDefinition.class.getClassLoader())
         .getAllClasses()
         .stream()
         .filter(clazz -> clazz.getPackageName().equals("com.github._1c_syntax.bsl.languageserver.diagnostics"))
