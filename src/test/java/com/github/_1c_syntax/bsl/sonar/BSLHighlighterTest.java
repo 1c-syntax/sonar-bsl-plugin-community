@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2024
+ * Copyright (c) 2018-2025
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -50,9 +50,9 @@ import static org.mockito.Mockito.when;
 
 class BSLHighlighterTest {
 
-  private final String BASE_PATH = "src/test/resources/src";
-  private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
-  private final String FILE_NAME = "src/test.bsl";
+  private static final String BASE_PATH = "src/test/resources/src";
+  private static final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
+  private static final String FILE_NAME = "src/test.bsl";
 
   private SensorContextTester context;
   private BSLHighlighter highlighter;

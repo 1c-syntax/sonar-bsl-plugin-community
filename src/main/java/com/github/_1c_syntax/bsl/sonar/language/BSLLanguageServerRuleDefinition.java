@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2024
+ * Copyright (c) 2018-2025
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -21,14 +21,19 @@
  */
 package com.github._1c_syntax.bsl.sonar.language;
 
-import com.github._1c_syntax.bsl.languageserver.BSLLSBinding;
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
+import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticMetadata;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
+import com.github._1c_syntax.utils.StringInterner;
+import com.google.common.reflect.ClassPath;
+import lombok.SneakyThrows;
 import org.commonmark.ext.autolink.AutolinkExtension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.ext.heading.anchor.HeadingAnchorExtension;
@@ -40,6 +45,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.springframework.core.annotation.AnnotationUtils;
 
 import javax.annotation.CheckForNull;
 import java.util.Arrays;
@@ -47,7 +53,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
@@ -66,9 +71,6 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   public BSLLanguageServerRuleDefinition(Configuration config) {
     this.config = config;
-
-    var configuration = BSLLSBinding.getLanguageServerConfiguration();
-    configuration.setLanguage(createDiagnosticLanguage());
 
     var extensions = Arrays.asList(
       TablesExtension.create(),
@@ -91,7 +93,10 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .createRepository(REPOSITORY_KEY, BSLLanguage.KEY)
       .setName(REPOSITORY_NAME);
 
-    var diagnosticInfos = BSLLSBinding.getDiagnosticInfos();
+    var configuration = new LanguageServerConfiguration();
+    configuration.setLanguage(createDiagnosticLanguage());
+
+    var diagnosticInfos = getDiagnosticInfo(configuration);
 
     diagnosticInfos.forEach((DiagnosticInfo currentDiagnosticInfo) -> {
       diagnosticInfo = currentDiagnosticInfo;
@@ -101,17 +106,17 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     });
 
     repository.done();
-
-    BSLLSBinding.getApplicationContext().close();
   }
 
   public static List<String> getActivatedRuleKeys() {
-    return BSLLSBinding.getDiagnosticInfos()
-      .stream()
-      .filter(DiagnosticInfo::isActivatedByDefault)
-      .map(DiagnosticInfo::getCode)
-      .map((DiagnosticCode diagnosticCode) -> diagnosticCode.getStringValue())
-      .collect(Collectors.toList());
+    var configuration = new LanguageServerConfiguration();
+
+    return getDiagnosticInfo(configuration)
+        .stream()
+        .filter(DiagnosticInfo::isActivatedByDefault)
+        .map(DiagnosticInfo::getCode)
+        .map((DiagnosticCode diagnosticCode) -> diagnosticCode.getStringValue())
+        .toList();
   }
 
   private void setUpNewRule(NewRule newRule) {
@@ -228,5 +233,21 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     map.put(DiagnosticType.SECURITY_HOTSPOT, RuleType.SECURITY_HOTSPOT);
 
     return map;
+  }
+
+  @SneakyThrows
+  @SuppressWarnings("unchecked")
+  private static List<DiagnosticInfo> getDiagnosticInfo(LanguageServerConfiguration configuration) {
+    var stringInterner = new StringInterner();
+
+    return ClassPath.from(BSLLanguageServerRuleDefinition.class.getClassLoader())
+        .getAllClasses()
+        .stream()
+        .filter(clazz -> "com.github._1c_syntax.bsl.languageserver.diagnostics".equals(clazz.getPackageName()))
+        .map(ClassPath.ClassInfo::load)
+        .filter(aClass -> AnnotationUtils.getAnnotation(aClass, DiagnosticMetadata.class) != null)
+        .map(aClass -> (Class<? extends BSLDiagnostic>) aClass)
+        .map(aClass -> new DiagnosticInfo(aClass, configuration, stringInterner))
+        .toList();
   }
 }

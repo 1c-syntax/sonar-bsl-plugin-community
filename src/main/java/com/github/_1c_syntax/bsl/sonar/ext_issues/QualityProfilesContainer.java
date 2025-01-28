@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2024
+ * Copyright (c) 2018-2025
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -96,13 +96,11 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
     }
 
     protected void define(Context context) {
-      if (!isEnabled) {
-        return;
-      }
-
-      addFullCheckProfile(context);
-      if (reporter.isInclude1CCertifiedProfile()) {
-        add1CCertifiedProfile(context);
+      if (isEnabled) {
+        addFullCheckProfile(context);
+        if (reporter.isInclude1CCertifiedProfile()) {
+          add1CCertifiedProfile(context);
+        }
       }
     }
 

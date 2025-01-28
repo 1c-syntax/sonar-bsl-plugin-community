@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2024
+ * Copyright (c) 2018-2025
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -49,15 +49,15 @@ import static org.mockito.Mockito.when;
 
 class BSLCoreSensorTest {
 
-  private final String BASE_PATH = "src/test/resources/examples";
-  private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
-  private final String FILE_NAME = "src/test.bsl";
-  private final Version SONAR_VERSION = Version.create(7, 9);
-  private final SensorContextTester context = createSensorContext();
+  private static final String BASE_PATH = "src/test/resources/examples";
+  private static final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
+  private static final String FILE_NAME = "src/test.bsl";
+  private static final Version SONAR_VERSION = Version.create(7, 9);
 
   @Test
   void testDescriptor() {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    var context = createSensorContext();
 
     var sensor = new BSLCoreSensor(context, fileLinesContextFactory);
     var sensorDescriptor = new DefaultSensorDescriptor();
@@ -205,7 +205,7 @@ class BSLCoreSensorTest {
     // todo надо как-то нормально ключ компонента определить
     var componentKey = "moduleKey:" + FILE_NAME;
     assertThat(context.measures(componentKey)).isNotEmpty();
-    assertThat(context.measure(componentKey, CoreMetrics.COMPLEXITY).value()).isEqualTo(3);
+    assertThat(context.measure(componentKey, CoreMetrics.COMPLEXITY).value()).isEqualTo(5);
     assertThat(context.measure(componentKey, CoreMetrics.COGNITIVE_COMPLEXITY).value()).isEqualTo(1);
 
   }
@@ -225,7 +225,7 @@ class BSLCoreSensorTest {
     var componentKey = "moduleKey:" + FILE_NAME;
     assertThat(context.cpdTokens(componentKey))
       .isNotNull()
-      .hasSize(13);
+      .hasSize(19);
     assertThat(context.cpdTokens(componentKey))
       .filteredOn(tok -> tok.getValue().startsWith("ОставшийсяТокен"))
       .hasSize(1);

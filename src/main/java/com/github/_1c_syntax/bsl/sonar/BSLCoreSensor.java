@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2024
+ * Copyright (c) 2018-2025
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -227,7 +227,7 @@ public class BSLCoreSensor implements Sensor {
           line,
           charPositionInLine,
           line,
-          charPositionInLine + tokenText.length(),
+          charPositionInLine + (int) tokenText.codePoints().count(),
           tokenText
         );
       }

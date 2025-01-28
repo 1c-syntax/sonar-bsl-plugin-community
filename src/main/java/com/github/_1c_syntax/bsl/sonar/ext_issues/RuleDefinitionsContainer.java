@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2024
+ * Copyright (c) 2018-2025
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -68,13 +68,11 @@ public class RuleDefinitionsContainer implements RulesDefinition {
     }
 
     protected void define(Context context) {
-      if (!enabled) {
-        return;
+      if (enabled) {
+        repository = context.createRepository(repositoryKey, BSLLanguage.KEY).setName(repositoryName);
+        loadRules();
+        repository.done();
       }
-
-      repository = context.createRepository(repositoryKey, BSLLanguage.KEY).setName(repositoryName);
-      loadRules();
-      repository.done();
     }
 
     private void loadRules() {
