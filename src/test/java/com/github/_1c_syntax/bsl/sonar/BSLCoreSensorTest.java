@@ -49,15 +49,15 @@ import static org.mockito.Mockito.when;
 
 class BSLCoreSensorTest {
 
-  private final String BASE_PATH = "src/test/resources/examples";
-  private final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
-  private final String FILE_NAME = "src/test.bsl";
-  private final Version SONAR_VERSION = Version.create(7, 9);
-  private final SensorContextTester context = createSensorContext();
+  private static final String BASE_PATH = "src/test/resources/examples";
+  private static final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
+  private static final String FILE_NAME = "src/test.bsl";
+  private static final Version SONAR_VERSION = Version.create(7, 9);
 
   @Test
   void testDescriptor() {
     var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    var context = createSensorContext();
 
     var sensor = new BSLCoreSensor(context, fileLinesContextFactory);
     var sensorDescriptor = new DefaultSensorDescriptor();

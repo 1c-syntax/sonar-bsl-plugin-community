@@ -68,13 +68,11 @@ public class RuleDefinitionsContainer implements RulesDefinition {
     }
 
     protected void define(Context context) {
-      if (!enabled) {
-        return;
+      if (enabled) {
+        repository = context.createRepository(repositoryKey, BSLLanguage.KEY).setName(repositoryName);
+        loadRules();
+        repository.done();
       }
-
-      repository = context.createRepository(repositoryKey, BSLLanguage.KEY).setName(repositoryName);
-      loadRules();
-      repository.done();
     }
 
     private void loadRules() {

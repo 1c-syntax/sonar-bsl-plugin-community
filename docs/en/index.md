@@ -28,12 +28,13 @@
 
 ## Version matrix
 
-SonarQube Version | Plugin Version | JAVA version
-------------------|----------------|------------------
-9.9+              | 1.13.0+        | 17
-8.9+              | 1.11.0...1.12.0| 11
-7.9+              | 0.7.0...1.10.0 | 11
-7.4 - 7.8         | 0.1.0...0.6.0  | 8
+| SonarQube Version | Plugin Version  | JAVA version |
+|-------------------|-----------------|--------------|
+| 25.1+             | 1.15.2+         | 17           |
+| 9.9+              | 1.13.0+         | 17           |
+| 8.9+              | 1.11.0...1.12.0 | 11           |
+| 7.9+              | 0.7.0...1.10.0  | 11           |
+| 7.4 - 7.8         | 0.1.0...0.6.0   | 8            |
 
 ## Run analysis
 
@@ -74,7 +75,7 @@ If the SonarQube server has enabled the requirement of forced authorization and/
 ### For example
 
 ```sh
-sonar-scanner -Dsonar.host.url=http://sonar.company.com -Dsonar.login=SONAR_AUTH_TOKEN
+sonar-scanner -Dsonar.host.url=https://sonar.company.com -Dsonar.login=SONAR_AUTH_TOKEN
 ```
 
 ## Plugin settings

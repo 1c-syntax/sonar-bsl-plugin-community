@@ -130,12 +130,7 @@ public class BSLHighlighter {
 
         if (startChar < endChar) {
           // add string part
-          highlightingData.add(new HighlightingData(
-            line,
-            startChar,
-            endChar,
-            typeOfText
-          ));
+          highlightingData.add(new HighlightingData(line, startChar, endChar, typeOfText));
         }
 
         endChar = currentToken.getRange().getEnd().getCharacter();
@@ -147,22 +142,14 @@ public class BSLHighlighter {
       var typeOfText = string.getType();
 
       if (startChar < endChar) {
-        highlightingData.add(new HighlightingData(
-          line,
-          startChar,
-          endChar,
-          typeOfText
-        ));
+        highlightingData.add(new HighlightingData(line, startChar, endChar, typeOfText));
       }
     });
 
     // merge collected bsl tokens with sdbl tokens
     highlightingDataSDBL.values().forEach(highlightingData::addAll);
 
-    if (highlightingData.stream()
-      .filter(HighlightingData::isActive)
-      .findAny()
-      .isEmpty()) {
+    if (highlightingData.stream().filter(HighlightingData::isActive).findAny().isEmpty()) {
       return;
     }
 
@@ -200,16 +187,10 @@ public class BSLHighlighter {
     var range = Ranges.create(
       line,
       charPositionInLine,
-      line,
       charPositionInLine + (int) tokenText.codePoints().count()
     );
 
-    var data = new HighlightingData(
-      range,
-      typeOfText
-    );
-
-    highlightingData.add(data);
+    highlightingData.add(new HighlightingData(range, typeOfText));
   }
 
   @Nullable

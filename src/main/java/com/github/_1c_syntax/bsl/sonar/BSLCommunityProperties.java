@@ -23,6 +23,7 @@ package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
+import lombok.experimental.UtilityClass;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
@@ -32,8 +33,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
-
-public final class BSLCommunityProperties {
+@UtilityClass
+public class BSLCommunityProperties {
 
   public static final String LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY = "sonar.bsl.languageserver.diagnosticLanguage";
   public static final String LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY = "sonar.bsl.languageserver.skipSupport";
@@ -41,8 +42,10 @@ public final class BSLCommunityProperties {
   public static final String LANG_SERVER_CONFIGURATION_PATH_KEY = "sonar.bsl.languageserver.configurationPath";
   public static final String LANG_SERVER_OVERRIDE_CONFIGURATION_KEY = "sonar.bsl.languageserver.overrideConfiguration";
   public static final String LANG_SERVER_REPORT_PATH_KEY = "sonar.bsl.languageserver.reportPaths";
-  public static final String LANG_SERVER_SUBSYSTEM_FILTER_INCLUDE_KEY = "sonar.bsl.languageserver.subsystemsFilter.include";
-  public static final String LANG_SERVER_SUBSYSTEM_FILTER_EXCLUDE_KEY = "sonar.bsl.languageserver.subsystemsFilter.exclude";
+  public static final String LANG_SERVER_SUBSYSTEM_FILTER_INCLUDE_KEY
+    = "sonar.bsl.languageserver.subsystemsFilter.include";
+  public static final String LANG_SERVER_SUBSYSTEM_FILTER_EXCLUDE_KEY
+    = "sonar.bsl.languageserver.subsystemsFilter.exclude";
   public static final String BSL_FILE_EXTENSIONS_KEY = "sonar.bsl.file.suffixes";
 
   public static final Boolean LANG_SERVER_ENABLED_DEFAULT_VALUE = Boolean.TRUE;
@@ -57,10 +60,6 @@ public final class BSLCommunityProperties {
   public static final String BSL_CATEGORY = "1C (BSL)";
 
   private static final String BSL_SUBCATEGORY = "1C (BSL) Community";
-
-  private BSLCommunityProperties() {
-    // only statics
-  }
 
   public static List<PropertyDefinition> getProperties() {
     return Arrays.asList(
@@ -108,9 +107,9 @@ public final class BSLCommunityProperties {
           LANG_SERVER_SUBSYSTEM_FILTER_INCLUDE_KEY,
           "subsystemfilter.include",
           "")
-         .onQualifiers(Qualifiers.PROJECT)
-         .multiValues(true)
-         .build(),
+        .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
+        .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(6,
           LANG_SERVER_SUBSYSTEM_FILTER_EXCLUDE_KEY,
           "subsystemfilter.exclude",

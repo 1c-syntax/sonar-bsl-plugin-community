@@ -47,7 +47,7 @@ class RuleDefinitionTest {
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
     assertThat(repository.rules()).hasSize(179);
-    assertThat(repository.rules()).allMatch(rule-> rule.name().length() < 200);
+    assertThat(repository.rules()).allMatch(rule -> rule.name().length() < 200);
   }
 
   @Test
@@ -64,7 +64,7 @@ class RuleDefinitionTest {
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
     assertThat(repository.rules()).hasSize(179);
-    assertThat(repository.rules()).allMatch(rule-> rule.name().length() < 200);
+    assertThat(repository.rules()).allMatch(rule -> rule.name().length() < 200);
   }
 
   @Test
@@ -87,6 +87,6 @@ class RuleDefinitionTest {
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
     assertThat(repository.rules()).hasSize(183);
-    assertThat(repository.rules()).allMatch(rule-> rule.name().length() < 200);
+    assertThat(repository.rules()).allMatch(rule -> rule.name().length() < 200);
   }
 }

@@ -243,7 +243,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     return ClassPath.from(BSLLanguageServerRuleDefinition.class.getClassLoader())
         .getAllClasses()
         .stream()
-        .filter(clazz -> clazz.getPackageName().equals("com.github._1c_syntax.bsl.languageserver.diagnostics"))
+        .filter(clazz -> "com.github._1c_syntax.bsl.languageserver.diagnostics".equals(clazz.getPackageName()))
         .map(ClassPath.ClassInfo::load)
         .filter(aClass -> AnnotationUtils.getAnnotation(aClass, DiagnosticMetadata.class) != null)
         .map(aClass -> (Class<? extends BSLDiagnostic>) aClass)
