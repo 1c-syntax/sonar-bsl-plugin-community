@@ -96,13 +96,11 @@ public class QualityProfilesContainer implements BuiltInQualityProfilesDefinitio
     }
 
     protected void define(Context context) {
-      if (!isEnabled) {
-        return;
-      }
-
-      addFullCheckProfile(context);
-      if (reporter.isInclude1CCertifiedProfile()) {
-        add1CCertifiedProfile(context);
+      if (isEnabled) {
+        addFullCheckProfile(context);
+        if (reporter.isInclude1CCertifiedProfile()) {
+          add1CCertifiedProfile(context);
+        }
       }
     }
 

@@ -37,8 +37,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LanguageServerDiagnosticsLoaderSensorTest {
 
-  private final String BASE_PATH = "src/test/resources/examples";
-  private final File BASE_DIR = new File(BASE_PATH);
+  private static final String BASE_PATH = "src/test/resources/examples";
+  private static final File BASE_DIR = new File(BASE_PATH);
 
   @Test
   void test_describe() {
@@ -54,8 +54,8 @@ class LanguageServerDiagnosticsLoaderSensorTest {
   @Test
   void test_execute() {
 
-    var FILE_NAME = "src/test.bsl";
-    var inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR);
+    var fileName = "src/test.bsl";
+    var inputFile = Tools.inputFileBSL(fileName, BASE_DIR);
 
     var sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(7, 9));
     var context = SensorContextTester.create(BASE_DIR);

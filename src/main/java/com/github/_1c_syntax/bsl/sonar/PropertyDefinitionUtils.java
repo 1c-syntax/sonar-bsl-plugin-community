@@ -21,20 +21,19 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
+import lombok.experimental.UtilityClass;
 import org.sonar.api.config.PropertyDefinition;
 
 import java.util.ResourceBundle;
 
+/**
+ * Вспомогательный класс для создания параметров плагина с выводом в UI
+ */
+@UtilityClass
 public class PropertyDefinitionUtils {
-
   private static final String PREFIX_KEY = "communitybsl";
   private static final ResourceBundle L10N_BUNDLE = ResourceBundle.getBundle("org.sonar.l10n.communitybsl");
-
   private static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
-
-  private PropertyDefinitionUtils() {
-    // static class
-  }
 
   public static PropertyDefinition.Builder newPropertyBuilderBSL(int index,
                                                                  String key,
