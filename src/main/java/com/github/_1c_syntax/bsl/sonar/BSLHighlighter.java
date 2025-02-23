@@ -419,7 +419,8 @@ public class BSLHighlighter {
       SDBLLexer.GREATER,
       SDBLLexer.COMMA,
       SDBLLexer.BRACE,
-      SDBLLexer.BRACE_START
+      SDBLLexer.BRACE_START,
+      SDBLLexer.NUMBER_SIGH
     );
   }
 
