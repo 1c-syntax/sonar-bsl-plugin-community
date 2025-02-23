@@ -467,7 +467,8 @@ class BSLHighlighterTest {
       "GREATER",
       "COMMA",
       "BRACE",
-      "BRACE_START"
+      "BRACE_START",
+      "NUMBER_SIGH"
     );
 
     Set<String> noOpTypes = Set.of(

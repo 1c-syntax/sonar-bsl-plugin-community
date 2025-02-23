@@ -10,7 +10,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version ("7.0.0")
     id("com.github.ben-manes.versions") version "0.52.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.freefair.lombok") version "8.12"
+    id("io.freefair.lombok") version "8.12.1"
 }
 
 group = "io.github.1c-syntax"
@@ -32,7 +32,7 @@ val sonarQubeVersion = "9.9.0.65466"
 dependencies {
     implementation("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.23.1") {
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.24.0") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("io.sentry", "sentry-logback")
         exclude("org.springframework.boot", "spring-boot-starter-websocket")
