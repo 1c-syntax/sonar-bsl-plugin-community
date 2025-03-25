@@ -10,7 +10,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version ("7.0.0")
     id("com.github.ben-manes.versions") version "0.52.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.freefair.lombok") version "8.12.1"
+    id("io.freefair.lombok") version "8.13"
 }
 
 group = "io.github.1c-syntax"
@@ -22,9 +22,6 @@ repositories {
     maven {
         url = URI("https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
-    maven {
-        url = URI("https://jitpack.io")
-    }
 }
 
 val sonarQubeVersion = "9.9.0.65466"
@@ -32,7 +29,7 @@ val sonarQubeVersion = "9.9.0.65466"
 dependencies {
     implementation("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.24.0") {
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.24.1") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("io.sentry", "sentry-logback")
         exclude("org.springframework.boot", "spring-boot-starter-websocket")
@@ -85,7 +82,7 @@ tasks.check {
 tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
-        xml.outputLocation.set(File("$buildDir/reports/jacoco/test/jacoco.xml"))
+        xml.outputLocation.set(File("${layout.buildDirectory.get()}/reports/jacoco/test/jacoco.xml"))
     }
 }
 
@@ -109,7 +106,7 @@ sonarqube {
         property("sonar.projectName", "SonarQube 1C (BSL) Community Plugin")
         property("sonar.exclusions", "**/gen/**/*.*")
         property("sonar.coverage.jacoco.xmlReportPaths",
-            "$buildDir/reports/jacoco/test/jacoco.xml")
+            "${layout.buildDirectory.get()}/reports/jacoco/test/jacoco.xml")
     }
 }
 
