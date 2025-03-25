@@ -138,7 +138,6 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-    project.configurations.implementation.get().isCanBeResolved = true
-    configurations = listOf(project.configurations["implementation"])
+    configurations = listOf(project.configurations["runtimeClasspath"])
     archiveClassifier.set("")
 }
