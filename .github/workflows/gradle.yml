@@ -11,7 +11,7 @@ jobs:
         java_version: ['17', '21']
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up JDK ${{ matrix.java_version }}
       uses: actions/setup-java@v5
       with:
