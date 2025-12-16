@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: nigth_build
       - name: Set up JDK
-        uses: actions/setup-java@v4.7.0
+        uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: 'adopt'
