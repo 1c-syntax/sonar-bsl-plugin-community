@@ -1,4 +1,3 @@
-import java.net.URI
 import java.util.*
 
 plugins {
@@ -7,7 +6,7 @@ plugins {
     `maven-publish`
     id("org.sonarqube") version "7.2.2.6593"
     id("cloud.rio.license") version "0.18.0"
-    id("com.github.johnrengelman.shadow") version ("8.1.1")
+    id("com.gradleup.shadow") version "9.3.1"
     id("com.github.ben-manes.versions") version "0.53.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
     id("io.freefair.lombok") version "9.2.0"
@@ -25,14 +24,15 @@ repositories {
 val sonarQubeVersion = "9.9.0.65466"
 
 dependencies {
-    implementation("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
+    compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.25.0") {
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.28.4") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("io.sentry", "sentry-logback")
-        exclude("org.springframework.boot", "spring-boot-starter-websocket")
+        exclude("info.picocli", "picocli-spring-boot-starter")
+        exclude("me.tongfei", "progressbar")
+        exclude("io.sentry", "sentry")
     }
-
     implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.5.0.1358")
 
     // MD to HTML converter of BSL LS rule descriptions
@@ -104,8 +104,10 @@ sonarqube {
         property("sonar.projectKey", "1c-syntax_sonar-bsl-plugin-community")
         property("sonar.projectName", "SonarQube 1C (BSL) Community Plugin")
         property("sonar.exclusions", "**/gen/**/*.*")
-        property("sonar.coverage.jacoco.xmlReportPaths",
-            "${layout.buildDirectory.get()}/reports/jacoco/test/jacoco.xml")
+        property(
+            "sonar.coverage.jacoco.xmlReportPaths",
+            "${layout.buildDirectory.get()}/reports/jacoco/test/jacoco.xml"
+        )
     }
 }
 
@@ -137,6 +139,7 @@ tasks.jar {
 }
 
 tasks.shadowJar {
+    mergeServiceFiles() // Критично для плагинов Sonar
     configurations = listOf(project.configurations["runtimeClasspath"])
     archiveClassifier.set("")
 }

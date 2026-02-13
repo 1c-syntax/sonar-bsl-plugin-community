@@ -33,8 +33,6 @@ import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.utils.Absolute;
-import me.tongfei.progressbar.ProgressBarBuilder;
-import me.tongfei.progressbar.ProgressBarStyle;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp4j.Diagnostic;
@@ -160,19 +158,20 @@ public class BSLCoreSensor implements Sensor {
       bslServerContext.setConfigurationRoot(configurationRoot);
       bslServerContext.populateContext();
 
-      try (var pb = new ProgressBarBuilder()
-        .setTaskName("")
-        .setInitialMax(inputFilesList.size())
-        .setStyle(ProgressBarStyle.ASCII)
-        .build()) {
-        inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
-          var uri = inputFile.uri();
-          LOGGER.debug(uri.toString());
-          pb.step();
+      int total = inputFilesList.size();
+      final int[] count = {0};
 
-          processFile(inputFile, bslServerContext);
-        });
-      }
+      inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
+        var uri = inputFile.uri();
+        LOGGER.debug(uri.toString());
+        processFile(inputFile, bslServerContext);
+        count[0]++;
+        if (count[0] % 100 == 0) {
+          LOGGER.info("Processing files: {}/{}", count[0], total);
+        }
+      });
+
+      LOGGER.info("Processing files: {}/{}", count[0], total);
 
       bslServerContext.clear();
     });

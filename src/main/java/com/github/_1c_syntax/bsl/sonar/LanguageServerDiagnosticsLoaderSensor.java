@@ -23,7 +23,7 @@ package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.reporters.data.AnalysisInfo;
 import com.github._1c_syntax.bsl.languageserver.reporters.data.FileInfo;
-import com.github._1c_syntax.bsl.languageserver.reporters.databind.AnalysisInfoObjectMapper;
+import com.github._1c_syntax.bsl.languageserver.reporters.databind.AnalysisInfoJsonMapper;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lsp4j.Diagnostic;
@@ -77,11 +77,11 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     LOGGER.info(analysisResultsFile.getAbsolutePath());
 
     var analysisInfo = getAnalysisInfo(analysisResultsFile);
-    if (analysisInfo == null) {
+    if (analysisInfo == null || analysisInfo.fileinfos() == null) {
       return;
     }
 
-    var fileinfos = analysisInfo.getFileinfos();
+    var fileinfos = analysisInfo.fileinfos();
     for (var fileInfo : fileinfos) {
       processFileInfo(fileInfo);
     }
@@ -127,11 +127,10 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
       return null;
     }
 
-    var objectMapper = new AnalysisInfoObjectMapper();
-
+    var objectMapper = new AnalysisInfoJsonMapper();
     try {
       return objectMapper.readValue(json, AnalysisInfo.class);
-    } catch (IOException e) {
+    } catch (Exception e) {
       LOGGER.error("Can't parse analysis report file", e);
       return null;
     }

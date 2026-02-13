@@ -42,12 +42,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class BSLPluginTest {
 
-  private static final Version VERSION_8_9 = Version.create(8, 9);
+  private static final Version VERSION_9_9 = Version.create(9, 9);
   private final BSLPlugin bslPlugin = new BSLPlugin();
 
   @Test
   void testGetExtensions() {
-    var runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    var runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     var context = new Plugin.Context(runtime);
     bslPlugin.define(context);
     assertThat((List<?>) context.getExtensions()).hasSize(25);
@@ -63,7 +63,7 @@ class BSLPluginTest {
 
   @Test
   void testQualityProfileAll() {
-    var runtime = SonarRuntimeImpl.forSonarQube(VERSION_8_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
+    var runtime = SonarRuntimeImpl.forSonarQube(VERSION_9_9, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
     var config = new MapSettings()
       .setProperty(AccReporter.create().getEnabledKey(), true)
       .setProperty(EdtReporter.create().getEnabledKey(), true)
