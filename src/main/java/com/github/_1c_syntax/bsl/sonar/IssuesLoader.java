@@ -28,6 +28,7 @@ import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -44,8 +45,6 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.scanner.fs.InputProject;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.CheckForNull;
 import java.net.URI;
@@ -58,9 +57,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class IssuesLoader {
-
-  private static final Logger LOGGER = Loggers.get(IssuesLoader.class);
   private static final String BSLLS_ENGINE_ID = "bsl-language-server";
 
   private final SensorContext context;

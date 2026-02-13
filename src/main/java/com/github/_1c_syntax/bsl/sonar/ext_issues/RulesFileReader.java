@@ -23,10 +23,9 @@ package com.github._1c_syntax.bsl.sonar.ext_issues;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,9 +38,8 @@ import java.util.Optional;
 /**
  * Читатель файлов с описаниями диагностик
  */
+@Slf4j
 public class RulesFileReader {
-
-  private static final Logger LOGGER = Loggers.get(RulesFileReader.class);
 
   private final String[] filePaths;
   private int current;
@@ -55,6 +53,7 @@ public class RulesFileReader {
    *
    * @param resourceName Имя ресурса-файла
    * @param filePaths    Массив путей к загружаемым файлам
+   *
    * @return Список прочитанных файлов-описаний
    */
   public static List<RulesFile> getRulesFiles(String resourceName, String[] filePaths) {
@@ -117,7 +116,7 @@ public class RulesFileReader {
     try {
       json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
     } catch (IOException e) {
-      LOGGER.error("Can't read json file rules", file.toURI().toString(), e);
+      LOGGER.error("Can't read json file rules {}", file.toURI(), e);
       return Optional.empty();
     }
 

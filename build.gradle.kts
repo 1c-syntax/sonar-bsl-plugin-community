@@ -19,12 +19,13 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven("https://central.sonatype.com/repository/maven-snapshots")
+    maven("https://repo.maven.apache.org/maven2")
 }
 
-val sonarQubeVersion = "9.9.0.65466"
+val sonarQubeVersion = "25.4.0.105899"
 
 dependencies {
-    compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
+    compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "11.3.0.2824")
 
     implementation("io.github.1c-syntax", "bsl-language-server", "0.28.4") {
         exclude("com.contrastsecurity", "java-sarif")
@@ -32,7 +33,7 @@ dependencies {
         exclude("info.picocli", "picocli-spring-boot-starter")
         exclude("me.tongfei", "progressbar")
     }
-    implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.5.0.1358")
+    implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.21.0.4626")
 
     // MD to HTML converter of BSL LS rule descriptions
     implementation("org.commonmark", "commonmark", "0.24.0")
@@ -43,8 +44,12 @@ dependencies {
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.11.4")
     testImplementation("org.assertj", "assertj-core", "3.27.0")
     testImplementation("org.mockito", "mockito-core", "5.14.2")
-    testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
-    testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)
+    testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion) {
+        exclude("org.sonarsource.sonarqube", "sonar-sarif")
+    }
+    testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion) {
+        exclude("org.sonarsource.sonarqube", "sonar-sarif")
+    }
     testImplementation("org.reflections", "reflections", "0.10.2")
 
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.11.4")
@@ -126,8 +131,9 @@ tasks.jar {
         attributes["Plugin-SourcesUrl"] = "https://github.com/1c-syntax/sonar-bsl-plugin-community"
         attributes["Plugin-Developers"] = "Alexey Sosnoviy, Nikita Fedkin"
 
-        attributes["SonarLint-Supported"] = false
-        attributes["Sonar-Version"] = sonarQubeVersion
+        attributes["SonarLint-Supported"] = true
+//        attributes["Sonar-Version"] = sonarQubeVersion
+//        attributes["Sonar-Plugin-Api-Version"] = sonarQubeVersion
 
         attributes["Plugin-Organization"] = "1c-syntax"
         attributes["Plugin-OrganizationUrl"] = "https://github.com/1c-syntax"

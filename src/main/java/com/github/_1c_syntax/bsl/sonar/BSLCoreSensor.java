@@ -33,6 +33,7 @@ import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.utils.Absolute;
+import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp4j.Diagnostic;
@@ -46,8 +47,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -63,9 +62,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@Slf4j
 public class BSLCoreSensor implements Sensor {
-
-  private static final Logger LOGGER = Loggers.get(BSLCoreSensor.class);
   private final SensorContext context;
   private final FileLinesContextFactory fileLinesContextFactory;
 
