@@ -6,11 +6,11 @@ plugins {
     java
     `maven-publish`
     id("org.sonarqube") version "7.2.2.6593"
-    id("org.cadixdev.licenser") version "0.6.1"
-    id("com.github.johnrengelman.shadow") version ("7.0.0")
+    id("cloud.rio.license") version "0.18.0"
+    id("com.github.johnrengelman.shadow") version ("8.1.1")
     id("com.github.ben-manes.versions") version "0.53.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.freefair.lombok") version "9.1.0"
+    id("io.freefair.lombok") version "9.2.0"
 }
 
 group = "io.github.1c-syntax"
@@ -19,9 +19,7 @@ version = gitVersionCalculator.calculateVersion("v")
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url = URI("https://s01.oss.sonatype.org/content/repositories/snapshots")
-    }
+    maven("https://central.sonatype.com/repository/maven-snapshots")
 }
 
 val sonarQubeVersion = "9.9.0.65466"
@@ -51,6 +49,7 @@ dependencies {
     testImplementation("org.reflections", "reflections", "0.10.2")
 
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.11.4")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.4")
 }
 
 java {
@@ -87,14 +86,14 @@ tasks.jacocoTestReport {
 }
 
 license {
-    header(rootProject.file("license/HEADER.txt"))
-    newLine(false)
+    header = rootProject.file("license/HEADER.txt")
+    skipExistingHeaders = false
+    strictCheck = true
+    mapping("java", "SLASHSTAR_STYLE")
     ext["year"] = Calendar.getInstance().get(Calendar.YEAR)
     ext["name"] = "Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>"
     ext["project"] = "SonarQube 1C (BSL) Community Plugin"
-    exclude("**/*.properties")
-    exclude("**/*.bsl")
-    exclude("**/*.json")
+    include("**/*.java")
 }
 
 sonarqube {
