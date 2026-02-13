@@ -31,7 +31,6 @@ dependencies {
         exclude("io.sentry", "sentry-logback")
         exclude("info.picocli", "picocli-spring-boot-starter")
         exclude("me.tongfei", "progressbar")
-        exclude("io.sentry", "sentry")
     }
     implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.5.0.1358")
 
