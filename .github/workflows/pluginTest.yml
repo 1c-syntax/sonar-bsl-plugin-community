@@ -1,0 +1,57 @@
+name: Plugin Integration Test
+
+on: [push, pull_request]
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          cache: 'gradle'
+
+      - name: Build Plugin
+        run: ./gradlew clean jar
+
+      - name: Start SonarQube server
+        run: |
+          PLUGIN_JAR=$(find build/libs -name "*.jar" ! -name "*-sources.jar" | head -n 1)
+          docker run -d --name sonarqube -p 9000:9000 \
+            -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
+            -v "$(pwd)/$PLUGIN_JAR:/opt/sonarqube/extensions/plugins/sonar-communitybsl-plugin.jar" \
+            sonarqube:25.4.0.105899-community
+
+      - name: Wait & Setup
+        run: |
+          until curl -s -f http://localhost:9000/api/system/status | grep -q '"status":"UP"'; do sleep 5; done
+          curl -u admin:admin -X POST "http://localhost:9000/api/users/change_password?login=admin&previousPassword=admin&password=Sonar_Password_1"
+          RESPONSE=$(curl -u admin:Sonar_Password_1 -s -X POST "http://localhost:9000/api/user_tokens/generate?name=gha-token")
+          TOKEN=$(echo $RESPONSE | jq -r '.token')
+          echo "SONAR_TOKEN=$TOKEN" >> $GITHUB_ENV
+          curl -u admin:Sonar_Password_1 -s -X POST "http://localhost:9000/api/projects/create?name=Test&project=test-project"
+
+      - name: Checkout SSL 3.1
+        uses: actions/checkout@v5
+        with:
+          repository: '1c-syntax/ssl_3_1'
+          path: 'target-project'
+
+      - name: Run Sonar Scanner
+        run: |
+          docker run --rm --network="host" -v "$(pwd)/target-project:/usr/src" \
+            sonarsource/sonar-scanner-cli \
+            -Dsonar.projectKey=test-project \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=http://localhost:9000 \
+            -Dsonar.token=${{ env.SONAR_TOKEN }} \
+            -Dsonar.lang.patterns.bsl=**/*.bsl,**/*.os \
+            -Dsonar.scm.disabled=true
+
+      - name: Server Logs on Failure
+        if: failure()
+        run: docker logs sonarqube

@@ -26,7 +26,7 @@ val sonarQubeVersion = "9.9.0.65466"
 dependencies {
     compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.28.4") {
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.28.5") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("io.sentry", "sentry-logback")
         exclude("info.picocli", "picocli-spring-boot-starter")
