@@ -8,31 +8,37 @@ on:
   workflow_dispatch:
 
 jobs:
+  run-test:
+    uses: ./.github/workflows/pluginTest.yml
+    # Если репозитории разные, указывается полный путь: owner/repo/.github/workflows/file.yml@branch
+
   nightly:
     name: Night build
+    needs: [run-test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@v6
         with:
           ref: nigth_build
-      - name: Set up JDK
-        uses: actions/setup-java@v5
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
         with:
-          java-version: 21
-          distribution: 'adopt'
-      - name: Build with Gradle
-        run: ./gradlew build
-      - name: Save file name
-        run: echo "PLUGIN_FILE_NAME=$(ls -t ./build/libs | head -1)" >> $GITHUB_ENV
+          name: sonar-plugin-jar
+          path: build/libs
+
+      - name: Restore file name
+        run: echo "PLUGIN_FILE_NAME=${{ needs.run-test.outputs.plugin_file_name }}" >> $GITHUB_ENV
+
       - name: Save current date
         run: echo "PLUGIN_CURRENT_DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
       - name: Deploy build
         uses: WebFreak001/deploy-nightly@v3.2.0
         with:
-          upload_url: https://uploads.github.com/repos/1c-syntax/sonar-bsl-plugin-community/releases/51033599/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
-          release_id: 51033599 # same as above (id can just be taken out the upload_url, it's used to find old releases)
-          asset_path: ./build/libs/${{ env.PLUGIN_FILE_NAME }} # path to archive to upload
-          asset_name: sonar-communitybsl-plugin-nightly-${{ env.PLUGIN_CURRENT_DATE }}.jar # name, format is "-nightly-20210101"
-          asset_content_type: application/java-archive # required by GitHub API
-          max_releases: 7 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+          upload_url: https://uploads.github.com/repos/1c-syntax/sonar-bsl-plugin-community/releases/51033599/assets{?name,label}
+          release_id: 51033599
+          asset_path: ./build/libs/${{ env.PLUGIN_FILE_NAME }}
+          asset_name: sonar-communitybsl-plugin-nightly-${{ env.PLUGIN_CURRENT_DATE }}.jar
+          asset_content_type: application/java-archive
+          max_releases: 7
