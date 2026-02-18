@@ -1,10 +1,20 @@
 name: Plugin Integration Test
 
-on: [push, pull_request]
+on:
+  workflow_call: # Позволяет вызывать этот воркфлоу из других файлов
+    outputs:
+      plugin_file_name:
+        description: "The name of the built jar file"
+        value: ${{ jobs.integration-test.outputs.plugin_file_name }}
+        
+  workflow_dispatch: # Позволяет запускать вручную
 
 jobs:
   integration-test:
     runs-on: ubuntu-latest
+    outputs:
+      plugin_file_name: ${{ steps.set_plugin_info.outputs.plugin_file_name }}
+
     steps:
       - uses: actions/checkout@v6
 
@@ -18,9 +28,20 @@ jobs:
       - name: Build Plugin
         run: ./gradlew clean jar
 
-      - name: Start SonarQube server
+      - name: Save Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonar-plugin-jar
+          path: build/libs/*.jar
+
+      - id: set_plugin_info # Добавляем ID, чтобы потом обратиться к outputs этого шага
+        name: Start SonarQube server
         run: |
           PLUGIN_JAR=$(find build/libs -name "*.jar" ! -name "*-sources.jar" | head -n 1)
+          
+          FILE_NAME=$(basename $PLUGIN_JAR)
+          echo "plugin_file_name=$FILE_NAME" >> $GITHUB_OUTPUT
+          
           docker run -d --name sonarqube -p 9000:9000 \
             -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
             -v "$(pwd)/$PLUGIN_JAR:/opt/sonarqube/extensions/plugins/sonar-communitybsl-plugin.jar" \
