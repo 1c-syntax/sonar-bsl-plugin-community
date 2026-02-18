@@ -1,16 +1,15 @@
-import java.net.URI
 import java.util.*
 
 plugins {
     jacoco
     java
     `maven-publish`
-    id("org.sonarqube") version "7.2.1.6560"
-    id("org.cadixdev.licenser") version "0.6.1"
-    id("com.github.johnrengelman.shadow") version ("7.0.0")
+    id("org.sonarqube") version "7.2.2.6593"
+    id("cloud.rio.license") version "0.18.0"
+    id("com.gradleup.shadow") version "9.3.1"
     id("com.github.ben-manes.versions") version "0.53.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.freefair.lombok") version "9.1.0"
+    id("io.freefair.lombok") version "9.2.0"
 }
 
 group = "io.github.1c-syntax"
@@ -19,22 +18,20 @@ version = gitVersionCalculator.calculateVersion("v")
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url = URI("https://s01.oss.sonatype.org/content/repositories/snapshots")
-    }
+    maven("https://central.sonatype.com/repository/maven-snapshots")
 }
 
 val sonarQubeVersion = "9.9.0.65466"
 
 dependencies {
-    implementation("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
+    compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.25.0") {
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.28.4") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("io.sentry", "sentry-logback")
-        exclude("org.springframework.boot", "spring-boot-starter-websocket")
+        exclude("info.picocli", "picocli-spring-boot-starter")
+        exclude("me.tongfei", "progressbar")
     }
-
     implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.5.0.1358")
 
     // MD to HTML converter of BSL LS rule descriptions
@@ -51,6 +48,7 @@ dependencies {
     testImplementation("org.reflections", "reflections", "0.10.2")
 
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.11.4")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.4")
 }
 
 java {
@@ -87,14 +85,14 @@ tasks.jacocoTestReport {
 }
 
 license {
-    header(rootProject.file("license/HEADER.txt"))
-    newLine(false)
+    header = rootProject.file("license/HEADER.txt")
+    skipExistingHeaders = false
+    strictCheck = true
+    mapping("java", "SLASHSTAR_STYLE")
     ext["year"] = Calendar.getInstance().get(Calendar.YEAR)
     ext["name"] = "Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>"
     ext["project"] = "SonarQube 1C (BSL) Community Plugin"
-    exclude("**/*.properties")
-    exclude("**/*.bsl")
-    exclude("**/*.json")
+    include("**/*.java")
 }
 
 sonarqube {
@@ -105,8 +103,10 @@ sonarqube {
         property("sonar.projectKey", "1c-syntax_sonar-bsl-plugin-community")
         property("sonar.projectName", "SonarQube 1C (BSL) Community Plugin")
         property("sonar.exclusions", "**/gen/**/*.*")
-        property("sonar.coverage.jacoco.xmlReportPaths",
-            "${layout.buildDirectory.get()}/reports/jacoco/test/jacoco.xml")
+        property(
+            "sonar.coverage.jacoco.xmlReportPaths",
+            "${layout.buildDirectory.get()}/reports/jacoco/test/jacoco.xml"
+        )
     }
 }
 
@@ -138,6 +138,7 @@ tasks.jar {
 }
 
 tasks.shadowJar {
+    mergeServiceFiles() // Критично для плагинов Sonar
     configurations = listOf(project.configurations["runtimeClasspath"])
     archiveClassifier.set("")
 }
