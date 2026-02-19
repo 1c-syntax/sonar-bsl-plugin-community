@@ -48,7 +48,7 @@ dependencies {
     testImplementation("org.reflections", "reflections", "0.10.2")
 
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.11.4")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.4")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.3")
 }
 
 java {
