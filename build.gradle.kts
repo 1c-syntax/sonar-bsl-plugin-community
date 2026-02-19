@@ -21,10 +21,11 @@ repositories {
     maven("https://central.sonatype.com/repository/maven-snapshots")
 }
 
-val sonarQubeVersion = "9.9.0.65466"
+val sonarQubeVersion = "25.4.0.105899"
+val commonmarkVersion = "0.27.1"
 
 dependencies {
-    compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
+    compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "11.3.0.2824")
 
     implementation("io.github.1c-syntax", "bsl-language-server", "0.28.5") {
         exclude("com.contrastsecurity", "java-sarif")
@@ -32,28 +33,32 @@ dependencies {
         exclude("info.picocli", "picocli-spring-boot-starter")
         exclude("me.tongfei", "progressbar")
     }
-    implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.5.0.1358")
+    implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.21.0.4626")
 
     // MD to HTML converter of BSL LS rule descriptions
-    implementation("org.commonmark", "commonmark", "0.24.0")
-    implementation("org.commonmark", "commonmark-ext-gfm-tables", "0.24.0")
-    implementation("org.commonmark", "commonmark-ext-autolink", "0.24.0")
-    implementation("org.commonmark", "commonmark-ext-heading-anchor", "0.24.0")
+    implementation("org.commonmark", "commonmark", commonmarkVersion)
+    implementation("org.commonmark", "commonmark-ext-gfm-tables", commonmarkVersion)
+    implementation("org.commonmark", "commonmark-ext-autolink", commonmarkVersion)
+    implementation("org.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.11.4")
-    testImplementation("org.assertj", "assertj-core", "3.27.0")
-    testImplementation("org.mockito", "mockito-core", "5.14.2")
-    testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
-    testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)
+    testImplementation("org.junit.jupiter", "junit-jupiter-api", "6.0.3")
+    testImplementation("org.assertj", "assertj-core", "3.27.7")
+    testImplementation("org.mockito", "mockito-core", "5.21.0")
+    testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion) {
+        exclude("org.sonarsource.sonarqube", "sonar-sarif")
+    }
+    testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion) {
+        exclude("org.sonarsource.sonarqube", "sonar-sarif")
+    }
     testImplementation("org.reflections", "reflections", "0.10.2")
 
-    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.11.4")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.4")
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "6.0.3")
+    testRuntimeOnly("org.junit.platform", "junit-platform-launcher", "6.0.3")
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks.withType<JavaCompile> {
@@ -127,7 +132,6 @@ tasks.jar {
         attributes["Plugin-Developers"] = "Alexey Sosnoviy, Nikita Fedkin"
 
         attributes["SonarLint-Supported"] = false
-        attributes["Sonar-Version"] = sonarQubeVersion
 
         attributes["Plugin-Organization"] = "1c-syntax"
         attributes["Plugin-OrganizationUrl"] = "https://github.com/1c-syntax"
