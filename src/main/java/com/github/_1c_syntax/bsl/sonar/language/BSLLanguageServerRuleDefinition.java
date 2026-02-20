@@ -53,6 +53,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 
 import javax.annotation.CheckForNull;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -248,7 +249,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     map.put(DiagnosticSeverity.CRITICAL, org.sonar.api.rule.Severity.CRITICAL);
     map.put(DiagnosticSeverity.BLOCKER, org.sonar.api.rule.Severity.BLOCKER);
 
-    return map;
+    return Collections.unmodifiableMap(map);
   }
 
   private static Map<DiagnosticType, RuleType> createRuleTypeMap() {
@@ -258,7 +259,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     map.put(DiagnosticType.VULNERABILITY, RuleType.VULNERABILITY);
     map.put(DiagnosticType.SECURITY_HOTSPOT, RuleType.SECURITY_HOTSPOT);
 
-    return map;
+    return Collections.unmodifiableMap(map);
   }
 
   private static Map<DiagnosticTag, CleanCodeAttribute> createCleanCodeAttributeMap() {
@@ -277,7 +278,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     map.put(DiagnosticTag.SUSPICIOUS, CleanCodeAttribute.LOGICAL);
     map.put(DiagnosticTag.UNPREDICTABLE, CleanCodeAttribute.LOGICAL);
     map.put(DiagnosticTag.UNUSED, CleanCodeAttribute.LOGICAL);
-    return map;
+    return Collections.unmodifiableMap(map);
   }
 
   private static Map<DiagnosticTag, Pair<SoftwareQuality, Severity>> createImpactsMap() {
@@ -296,7 +297,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     map.put(DiagnosticTag.SUSPICIOUS, Pair.of(SoftwareQuality.RELIABILITY, Severity.LOW));
     map.put(DiagnosticTag.UNPREDICTABLE, Pair.of(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
     map.put(DiagnosticTag.UNUSED, Pair.of(SoftwareQuality.MAINTAINABILITY, Severity.INFO));
-    return map;
+    return Collections.unmodifiableMap(map);
   }
 
   @SneakyThrows
