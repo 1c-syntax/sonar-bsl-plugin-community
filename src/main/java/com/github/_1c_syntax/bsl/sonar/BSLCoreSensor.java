@@ -33,6 +33,7 @@ import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import com.github._1c_syntax.utils.Absolute;
+import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp4j.Diagnostic;
@@ -46,8 +47,6 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -60,12 +59,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@Slf4j
 public class BSLCoreSensor implements Sensor {
-
-  private static final Logger LOGGER = Loggers.get(BSLCoreSensor.class);
+  private static final int COUNT_FILES_PB = 100;
   private final SensorContext context;
   private final FileLinesContextFactory fileLinesContextFactory;
 
@@ -159,19 +159,19 @@ public class BSLCoreSensor implements Sensor {
       bslServerContext.populateContext();
 
       int total = inputFilesList.size();
-      final int[] count = {0};
+      var count = new AtomicInteger(0);
 
       inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
         var uri = inputFile.uri();
         LOGGER.debug(uri.toString());
         processFile(inputFile, bslServerContext);
-        count[0]++;
-        if (count[0] % 100 == 0) {
-          LOGGER.info("Processing files: {}/{}", count[0], total);
+        var current = count.incrementAndGet();
+        if (current % COUNT_FILES_PB == 0) {
+          LOGGER.info("Processing files: {}/{}", current, total);
         }
       });
 
-      LOGGER.info("Processing files: {}/{}", count[0], total);
+      LOGGER.info("Processing files: {}/{}", count.get(), total);
 
       bslServerContext.clear();
     });
@@ -414,7 +414,7 @@ public class BSLCoreSensor implements Sensor {
                                                                 ActiveRule activeRule) {
     var params = activeRule.params();
     var diagnosticParameters = diagnosticInfo.getParameters();
-    Map<String, Object> diagnosticConfiguration = new HashMap<>(diagnosticParameters.size());
+    Map<String, Object> diagnosticConfiguration = HashMap.newHashMap(diagnosticParameters.size());
     params.forEach((String key, String value) ->
       diagnosticInfo.getParameter(key).ifPresent(diagnosticParameterInfo ->
         diagnosticConfiguration.put(
