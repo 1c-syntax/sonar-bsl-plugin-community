@@ -184,10 +184,22 @@ public class BSLHighlighter {
     var charPositionInLine = token.getCharPositionInLine();
     String tokenText = token.getText();
 
+    var firstNewLine = tokenText.indexOf('\n');
+    var firstCR = tokenText.indexOf('\r');
+    int effectiveLength;
+    if (firstNewLine >= 0 || firstCR >= 0) {
+      var boundary = (firstNewLine >= 0 && firstCR >= 0)
+        ? Math.min(firstNewLine, firstCR)
+        : Math.max(firstNewLine, firstCR);
+      effectiveLength = boundary;
+    } else {
+      effectiveLength = (int) tokenText.codePoints().count();
+    }
+
     var range = Ranges.create(
       line,
       charPositionInLine,
-      charPositionInLine + (int) tokenText.codePoints().count()
+      charPositionInLine + effectiveLength
     );
 
     highlightingData.add(new HighlightingData(range, typeOfText));
