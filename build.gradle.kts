@@ -143,10 +143,15 @@ tasks.jar {
 
 tasks.shadowJar {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    mergeServiceFiles() // Критично для плагинов Sonar
+    mergeServiceFiles()
     transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer::class.java) {
         resource.set("META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
         separator.set("\n")
+    }
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer::class.java) {
+        paths.set(setOf("META-INF/org/languagetool/language-module.properties"))
+        mergeStrategy.set(com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer.MergeStrategy.Append)
+        mergeSeparator.set(",")
     }
     configurations = listOf(project.configurations["runtimeClasspath"])
     archiveClassifier.set("")
