@@ -11,7 +11,7 @@
 
 [Russian version](../index.md)
 
-## Opportunities
+## Features
 
 - Project "Overview" dashboard;
 - Highlighting the source code of 1C: Enterprise;
