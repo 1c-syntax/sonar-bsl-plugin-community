@@ -114,6 +114,7 @@ public class BSLCommunityProperties {
           "subsystemfilter.exclude",
           "")
         .multiValues(true)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(7,
           BSL_FILE_EXTENSIONS_KEY,
