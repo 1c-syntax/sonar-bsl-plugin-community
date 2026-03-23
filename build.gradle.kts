@@ -4,7 +4,7 @@ plugins {
     jacoco
     java
     `maven-publish`
-    id("org.sonarqube") version "7.2.2.6593"
+    id("org.sonarqube") version "7.2.3.7755"
     id("cloud.rio.license") version "0.18.0"
     id("com.gradleup.shadow") version "9.3.1"
     id("com.github.ben-manes.versions") version "0.53.0"
