@@ -289,14 +289,14 @@ class BSLHighlighterTest {
   private Map<String, TypeOfText> getHighlightingMapSDBL(Vocabulary vocabulary) {
 
     Set<String> keywords = Set.of(
-      "ALL",
+      "ADD",
       "ALLOWED",
       "AND",
       "AS",
       "ASC",
       "AUTOORDER",
       "BETWEEN",
-      "BY_EN",
+      "BY",
       "CASE",
       "CAST",
       "DESC",
@@ -307,45 +307,47 @@ class BSLHighlighterTest {
       "ESCAPE",
       "EMPTYREF",
       "FALSE",
-      "FOR",
+      "FOR_UPDATE",
       "FROM",
-      "FULL",
-      "GROUP",
+      "FULL_JOIN",
+      "FULL_OUTER_JOIN",
+      "GROUP_BY",
+      "GROUP_BY_GROUPING_SETS",
       "GROUPEDBY",
-      "GROUPING",
       "HAVING",
       "HIERARCHY",
-      "HIERARCHY_FOR_IN",
+      "IN_HIERARCHY",
       "IN",
-      "INDEX",
-      "INNER",
+      "INDEX_BY",
+      "INDEX_BY_SETS",
+      "INNER_JOIN",
       "INTO",
       "IS",
       "ISNULL",
       "JOIN",
       "LEFT",
+      "LEFT_JOIN",
+      "LEFT_OUTER_JOIN",
       "LIKE",
       "NOT",
       "OF",
-      "ON_EN",
+      "ONLY_HIERARCHY",
       "OR",
-      "ORDER",
+      "ORDER_BY",
       "OVERALL",
-      "OUTER",
-      "PO_RU",
+      "PERIODS",
+      "REFS",
       "RIGHT",
+      "RIGHT_JOIN",
+      "RIGHT_OUTER_JOIN",
       "SELECT",
-      "SET",
       "THEN",
       "TOP",
       "TOTALS",
       "UNION",
+      "UNION_ALL",
       "WHEN",
-      "WHERE",
-      "ONLY",
-      "PERIODS",
-      "REFS",
-      "UPDATE"
+      "WHERE"
     );
 
     Set<String> functions = Set.of(
@@ -405,7 +407,8 @@ class BSLHighlighterTest {
       "STOREDDATASIZE",
       "UUID",
       "STRFIND",
-      "STRREPLACE"
+      "STRREPLACE",
+      "UNIQUE"
     );
 
     Set<String> metadataTypes = Set.of(
@@ -479,9 +482,7 @@ class BSLHighlighterTest {
       "ROUTEPOINT_FIELD",
       "IDENTIFIER",
       "INCORRECT_IDENTIFIER",
-      "BRACE_IDENTIFIER",
-      "UNKNOWN",
-      "BAR" // TODO: Убрать из лексера
+      "UNKNOWN"
     );
 
     Set<String> eds = Set.of(

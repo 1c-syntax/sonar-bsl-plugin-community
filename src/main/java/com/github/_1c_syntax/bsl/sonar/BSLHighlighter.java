@@ -182,7 +182,7 @@ public class BSLHighlighter {
 
     var line = token.getLine();
     var charPositionInLine = token.getCharPositionInLine();
-    String tokenText = token.getText();
+    var tokenText = token.getText().stripTrailing();
 
     var range = Ranges.create(
       line,
@@ -533,20 +533,21 @@ public class BSLHighlighter {
       SDBLLexer.STOREDDATASIZE,
       SDBLLexer.UUID,
       SDBLLexer.STRFIND,
-      SDBLLexer.STRREPLACE
+      SDBLLexer.STRREPLACE,
+      SDBLLexer.UNIQUE
     );
   }
 
   private static Set<Integer> createSdblKeywords() {
     return Set.of(
-      SDBLLexer.ALL,
+      SDBLLexer.ADD,
       SDBLLexer.ALLOWED,
       SDBLLexer.AND,
       SDBLLexer.AS,
       SDBLLexer.ASC,
       SDBLLexer.AUTOORDER,
       SDBLLexer.BETWEEN,
-      SDBLLexer.BY_EN,
+      SDBLLexer.BY,
       SDBLLexer.CASE,
       SDBLLexer.CAST,
       SDBLLexer.DESC,
@@ -556,46 +557,48 @@ public class BSLHighlighter {
       SDBLLexer.END,
       SDBLLexer.ESCAPE,
       SDBLLexer.FALSE,
-      SDBLLexer.FOR,
+      SDBLLexer.FOR_UPDATE,
       SDBLLexer.FROM,
-      SDBLLexer.FULL,
-      SDBLLexer.GROUP,
+      SDBLLexer.FULL_JOIN,
+      SDBLLexer.FULL_OUTER_JOIN,
+      SDBLLexer.GROUP_BY,
+      SDBLLexer.GROUP_BY_GROUPING_SETS,
       SDBLLexer.HAVING,
       SDBLLexer.HIERARCHY,
-      SDBLLexer.HIERARCHY_FOR_IN,
+      SDBLLexer.IN_HIERARCHY,
       SDBLLexer.IN,
-      SDBLLexer.INDEX,
-      SDBLLexer.INNER,
+      SDBLLexer.INDEX_BY,
+      SDBLLexer.INDEX_BY_SETS,
+      SDBLLexer.INNER_JOIN,
       SDBLLexer.INTO,
       SDBLLexer.IS,
       SDBLLexer.ISNULL,
       SDBLLexer.JOIN,
       SDBLLexer.LEFT,
+      SDBLLexer.LEFT_JOIN,
+      SDBLLexer.LEFT_OUTER_JOIN,
       SDBLLexer.LIKE,
       SDBLLexer.NOT,
       SDBLLexer.OF,
-      SDBLLexer.ONLY,
-      SDBLLexer.ON_EN,
+      SDBLLexer.ONLY_HIERARCHY,
       SDBLLexer.OR,
-      SDBLLexer.ORDER,
+      SDBLLexer.ORDER_BY,
       SDBLLexer.OVERALL,
-      SDBLLexer.OUTER,
       SDBLLexer.PERIODS,
-      SDBLLexer.PO_RU,
       SDBLLexer.REFS,
       SDBLLexer.RIGHT,
+      SDBLLexer.RIGHT_JOIN,
+      SDBLLexer.RIGHT_OUTER_JOIN,
       SDBLLexer.SELECT,
-      SDBLLexer.SET,
       SDBLLexer.THEN,
       SDBLLexer.TOP,
       SDBLLexer.TOTALS,
       SDBLLexer.UNION,
-      SDBLLexer.UPDATE,
+      SDBLLexer.UNION_ALL,
       SDBLLexer.WHEN,
       SDBLLexer.WHERE,
       SDBLLexer.EMPTYREF,
-      SDBLLexer.GROUPEDBY,
-      SDBLLexer.GROUPING
+      SDBLLexer.GROUPEDBY
     );
   }
 

@@ -27,7 +27,7 @@ val commonmarkVersion = "0.27.1"
 dependencies {
     compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "11.3.0.2824")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.28.5") {
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.29.0-rc.1") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("io.sentry", "sentry-logback")
         exclude("info.picocli", "picocli-spring-boot-starter")
@@ -142,7 +142,17 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-    mergeServiceFiles() // Критично для плагинов Sonar
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    mergeServiceFiles()
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer::class.java) {
+        resource.set("META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
+        separator.set("\n")
+    }
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer::class.java) {
+        paths.set(setOf("META-INF/org/languagetool/language-module.properties"))
+        mergeStrategy.set(com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer.MergeStrategy.Append)
+        mergeSeparator.set(",")
+    }
     configurations = listOf(project.configurations["runtimeClasspath"])
     archiveClassifier.set("")
 }
