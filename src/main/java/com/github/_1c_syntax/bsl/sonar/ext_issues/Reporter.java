@@ -24,6 +24,7 @@ package com.github._1c_syntax.bsl.sonar.ext_issues;
 import com.github._1c_syntax.bsl.sonar.PropertyDefinitionUtils;
 import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
+import org.sonar.api.config.PropertyDefinition;
 
 import java.util.Arrays;
 
@@ -116,6 +117,7 @@ public interface Reporter {
         )
         .defaultValue(Boolean.toString(isEnableDefaultValue()))
         .type(PropertyType.BOOLEAN)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.APP)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderReport(++index,
           getCreateExternalIssuesKey(),
@@ -125,6 +127,7 @@ public interface Reporter {
         )
         .defaultValue(Boolean.toString(isCreateExternalIssuesDefaultValue()))
         .type(PropertyType.BOOLEAN)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.APP, PropertyDefinition.ConfigScope.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderReport(++index,
           getRulesPathsKey(),
@@ -135,6 +138,7 @@ public interface Reporter {
         .defaultValue("")
         .type(PropertyType.STRING)
         .multiValues(true)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.APP)
         .build()
     ).forEach(context::addExtension);
   }
