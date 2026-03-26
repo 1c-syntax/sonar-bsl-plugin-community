@@ -24,3 +24,4 @@
 .idea/modules
 .idea/compiler.xml
 build/
+/.scannerwork/.sonar_lock
