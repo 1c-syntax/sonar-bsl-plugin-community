@@ -8,11 +8,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
-          distribution: 'adopt'
+          java-version: '21'
+          distribution: 'temurin'
           cache: 'gradle'
 
       - name: Build Plugin
@@ -36,21 +36,23 @@ jobs:
           curl -u admin:Sonar_Password_1 -s -X POST "http://localhost:9000/api/projects/create?name=Test&project=test-project"
 
       - name: Checkout SSL 3.1
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: '1c-syntax/ssl_3_1'
           path: 'target-project'
 
-      - name: Run Sonar Scanner
+      - name: Install Sonar scanner
+        run: npm install -g sonar-scanner
+
+      - name: SonarQube Scan
         run: |
-          docker run --rm --network="host" -v "$(pwd)/target-project:/usr/src" \
-            sonarsource/sonar-scanner-cli \
-            -Dsonar.projectKey=test-project \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.token=${{ env.SONAR_TOKEN }} \
-            -Dsonar.lang.patterns.bsl=**/*.bsl,**/*.os \
-            -Dsonar.scm.disabled=true
+          sonar-scanner \
+              -Dsonar.projectKey=test-project \
+              -Dsonar.sources=target-project \
+              -Dsonar.host.url=http://localhost:9000 \
+              -Dsonar.token=${{ env.SONAR_TOKEN }} \
+              -Dsonar.lang.patterns.bsl=**/*.bsl,**/*.os \
+              -Dsonar.scm.disabled=true
 
       - name: Server Logs on Failure
         if: failure()

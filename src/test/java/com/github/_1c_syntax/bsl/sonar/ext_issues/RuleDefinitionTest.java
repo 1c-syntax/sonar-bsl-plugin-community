@@ -46,7 +46,7 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(281);
+    assertThat(repository.rules()).hasSize(309);
     assertThat(repository.rules()).allMatch(rule -> rule.name().length() < 200);
   }
 
@@ -63,7 +63,7 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(281);
+    assertThat(repository.rules()).hasSize(309);
     assertThat(repository.rules()).allMatch(rule -> rule.name().length() < 200);
   }
 
@@ -86,7 +86,30 @@ class RuleDefinitionTest {
     assertThat(context.repositories()).hasSize(1);
     var repository = context.repository(reporter.getRepositoryKey());
     assertThat(repository).isNotNull();
-    assertThat(repository.rules()).hasSize(285);
+    assertThat(repository.rules()).hasSize(313);
+    assertThat(repository.rules()).allMatch(rule -> rule.name().length() < 200);
+  }
+
+  @Test
+  void testExternalFileWithErrors() {
+    // все должно отработать, несмотря на отсутствующие и битые файлы
+    var fakeRulePath = new File("fake.json");
+    var noRulePath = new File("src/test/resources/examples/.bsl-language-server.json");
+    var noConfigPath = new File("src/test/resources/examples/highlight.bsl");
+    var config = new MapSettings()
+      .setProperty(reporter.getEnabledKey(), true)
+      .setProperty(reporter.getRulesPathsKey(), fakeRulePath.getAbsolutePath()
+        + "," + noRulePath.getAbsolutePath()
+        + "," + noConfigPath.getAbsolutePath())
+      .asConfig();
+    var ruleDefinition = new RuleDefinitionsContainer(config);
+    var context = new RulesDefinition.Context();
+    ruleDefinition.define(context);
+
+    assertThat(context.repositories()).hasSize(1);
+    var repository = context.repository(reporter.getRepositoryKey());
+    assertThat(repository).isNotNull();
+    assertThat(repository.rules()).hasSize(309);
     assertThat(repository.rules()).allMatch(rule -> rule.name().length() < 200);
   }
 }

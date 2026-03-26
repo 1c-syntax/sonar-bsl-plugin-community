@@ -57,12 +57,41 @@ class LanguageServerDiagnosticsLoaderSensorTest {
     var fileName = "src/test.bsl";
     var inputFile = Tools.inputFileBSL(fileName, BASE_DIR);
 
-    var sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(7, 9));
+    var sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(25, 7));
     var context = SensorContextTester.create(BASE_DIR);
     context.setRuntime(sonarRuntime);
     context.settings().setProperty(
       "sonar.bsl.languageserver.reportPaths",
       "bsl-json.json, bsl-json2.json, empty.json, empty2.json");
+    context.fileSystem().add(inputFile);
+
+    var activeRules = new ActiveRulesBuilder()
+      .addRule(new NewActiveRule.Builder()
+        .setRuleKey(RuleKey.of(BSLLanguageServerRuleDefinition.REPOSITORY_KEY, "OneStatementPerLine"))
+        .setName("OneStatementPerLine")
+        .build())
+      .build();
+    context.setActiveRules(activeRules);
+
+    var diagnosticsLoaderSensor = new LanguageServerDiagnosticsLoaderSensor(context);
+    diagnosticsLoaderSensor.execute(context);
+
+    assertThat(context.isCancelled()).isFalse();
+
+  }
+
+  @Test
+  void test_error() {
+
+    var fileName = "src/test6.bsl";
+    var inputFile = Tools.inputFileBSL(fileName, BASE_DIR);
+
+    var sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(25, 4));
+    var context = SensorContextTester.create(BASE_DIR);
+    context.setRuntime(sonarRuntime);
+    context.settings().setProperty(
+      "sonar.bsl.languageserver.reportPaths",
+      ".bsl-language-server.json, fake.json, highlight.bsl");
     context.fileSystem().add(inputFile);
 
     var activeRules = new ActiveRulesBuilder()

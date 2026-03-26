@@ -26,7 +26,6 @@ import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSu
 import lombok.experimental.UtilityClass;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
 
 import java.util.Arrays;
 import java.util.List;
@@ -69,14 +68,14 @@ public class BSLCommunityProperties {
           LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE)
         .type(PropertyType.SINGLE_SELECT_LIST)
         .options(Language.RU.getLanguageCode(), Language.EN.getLanguageCode())
-        .onQualifiers(Qualifiers.APP, Qualifiers.PROJECT)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.APP, PropertyDefinition.ConfigScope.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(1,
           LANG_SERVER_ENABLED_KEY,
           "enabled",
           LANG_SERVER_ENABLED_DEFAULT_VALUE.toString())
         .type(PropertyType.BOOLEAN)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(2,
           LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY,
@@ -87,50 +86,50 @@ public class BSLCommunityProperties {
           .map(value -> value.name().toLowerCase(Locale.ENGLISH).replace("_", " "))
           .toList()
         )
-        .onQualifiers(Qualifiers.PROJECT)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(3,
           LANG_SERVER_OVERRIDE_CONFIGURATION_KEY,
           "overrideConfiguration",
           LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE.toString())
         .type(PropertyType.BOOLEAN)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(4,
           LANG_SERVER_CONFIGURATION_PATH_KEY,
           "enabled.configurationPath",
           LANG_SERVER_CONFIGURATION_PATH_DEFAULT_VALUE)
         .type(PropertyType.STRING)
-        .onQualifiers(Qualifiers.PROJECT)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(5,
           LANG_SERVER_SUBSYSTEM_FILTER_INCLUDE_KEY,
           "subsystemfilter.include",
           "")
-        .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(6,
           LANG_SERVER_SUBSYSTEM_FILTER_EXCLUDE_KEY,
           "subsystemfilter.exclude",
           "")
-        .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderBSL(7,
           BSL_FILE_EXTENSIONS_KEY,
           "file.suffixes",
           BSL_FILE_EXTENSIONS_DEFAULT_VALUE)
-        .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .build(),
       PropertyDefinitionUtils.newPropertyBuilderExternal(0,
           LANG_SERVER_REPORT_PATH_KEY,
           "reportPaths",
           "")
         .subCategory(BSL_SUBCATEGORY)
-        .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
+        .onlyOnConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .build()
     );
   }

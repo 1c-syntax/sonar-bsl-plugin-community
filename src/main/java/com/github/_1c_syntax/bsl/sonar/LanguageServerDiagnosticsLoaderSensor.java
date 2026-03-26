@@ -25,6 +25,7 @@ import com.github._1c_syntax.bsl.languageserver.reporters.data.AnalysisInfo;
 import com.github._1c_syntax.bsl.languageserver.reporters.data.FileInfo;
 import com.github._1c_syntax.bsl.languageserver.reporters.databind.AnalysisInfoJsonMapper;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lsp4j.Diagnostic;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -33,8 +34,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 import javax.annotation.CheckForNull;
@@ -46,9 +45,8 @@ import java.nio.file.Path;
 
 import static com.github._1c_syntax.bsl.sonar.BSLCommunityProperties.LANG_SERVER_REPORT_PATH_KEY;
 
+@Slf4j
 public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
-
-  private static final Logger LOGGER = Loggers.get(LanguageServerDiagnosticsLoaderSensor.class);
 
   private final SensorContext context;
   private final IssuesLoader issueLoader;

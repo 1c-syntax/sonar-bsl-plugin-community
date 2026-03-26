@@ -11,7 +11,7 @@
 
 [Russian version](../index.md)
 
-## Opportunities
+## Features
 
 - Project "Overview" dashboard;
 - Highlighting the source code of 1C: Enterprise;
@@ -28,13 +28,14 @@
 
 ## Version matrix
 
-| SonarQube Version | Plugin Version  | JAVA version |
-|-------------------|-----------------|--------------|
-| 25.1+             | 1.15.2+         | 17           |
-| 9.9+              | 1.13.0+         | 17           |
-| 8.9+              | 1.11.0...1.12.0 | 11           |
-| 7.9+              | 0.7.0...1.10.0  | 11           |
-| 7.4 - 7.8         | 0.1.0...0.6.0   | 8            |
+| SonarQube Version | Plugin Version | JAVA version|
+|-------------------|----------------|-------------|
+| 25.4+            | 1.18.0+         | 21          |
+| 25.1+            | 1.15.2...1.17.2 | 17          |
+| 9.9+             | 1.13.0...1.17.2 | 17          |
+| 8.9+             | 1.11.0...1.12.0 | 11          |
+| 7.9+             | 0.7.0....1.10.0 | 11          |
+| 7.4 - 7.8        | 0.1.0....0.6.0  | 8           |
 
 ## Run analysis
 

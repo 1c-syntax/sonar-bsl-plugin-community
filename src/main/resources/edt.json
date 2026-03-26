@@ -2537,6 +2537,258 @@
       "Severity": "MINOR",
       "Active": true,
       "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-282",
+      "Name": "Возвращает тип, который имеет отличное окружение от контекста вызова",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-283",
+      "Name": "Длина числа должна быть в диапазоне от 1 до",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-284",
+      "Name": "На карте маршрута отсутствует путь в точку завершения",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-285",
+      "Name": "На карте маршрута отсутствует точка старта",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-286",
+      "Name": "Не рекомендуется создавать подсистемы глубиной вложенности более трех",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-287",
+      "Name": "Некорректное значение свойства. Дублирование имени объекта метаданных",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-288",
+      "Name": "Поле связи параметра выбора не указано или некорректно",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-289",
+      "Name": "Элемент с таким именем уже есть в глобальном контексте",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-290",
+      "Name": "Неизвестный оператор",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-291",
+      "Name": "Окружение для метода не установлено",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-292",
+      "Name": "Данный тип не может входить в состав составного типа",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-293",
+      "Name": "Синтаксическая ошибка. Неверный вводВЫБРАТЬ - ожидается",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-294",
+      "Name": "Комментарий метода не содержит точки в конце",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-295",
+      "Name": "Вызов находится вне конструкции",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-296",
+      "Name": "Право роли установлено для",
+      "Description": "Отсутствует",
+      "Type": "VULNERABILITY",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-297",
+      "Name": "Не найден обработчик для Регламентного задания",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-298",
+      "Name": "Нельзя присваивать атрибуту формы значение типа",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-299",
+      "Name": "Конструктор с данным числом параметров () не найден",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-300",
+      "Name": "Окружение для метода не установленно",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-301",
+      "Name": "Неверный формат литерала типа Число",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-302",
+      "Name": "Оператор может использоваться только внутри циклов",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-303",
+      "Name": "Ключ 1 Структуры инициализируется с пустым типом",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-304",
+      "Name": "Отсутствуют линии, входящие в точку карты маршрута",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-305",
+      "Name": "Для вызова отсутствует парный вызов",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-306",
+      "Name": "Инструкции препроцессора и не могут быть вложены друг в друга",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-307",
+      "Name": "Не найден обработчик для Подписки на событие",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-308",
+      "Name": "Неподдерживаемый режим совместимости, минимальный поддерживаемый режим совместимости - 8.3.6",
+      "Description": "Отсутствует",
+      "Type": "CODE_SMELL",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
+    },
+    {
+      "Code": "EDT-309",
+      "Name": "Асинхронные методы доступны только в клиентском коде",
+      "Description": "Отсутствует",
+      "Type": "BUG",
+      "Severity": "MINOR",
+      "Active": true,
+      "EffortMinutes": 3
     }
   ]
 }
