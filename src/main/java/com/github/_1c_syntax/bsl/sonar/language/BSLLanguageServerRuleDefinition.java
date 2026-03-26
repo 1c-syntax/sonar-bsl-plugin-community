@@ -29,18 +29,23 @@ import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticI
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticMetadata;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticTag;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
 import com.github._1c_syntax.utils.StringInterner;
 import com.google.common.reflect.ClassPath;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.commonmark.ext.autolink.AutolinkExtension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.ext.heading.anchor.HeadingAnchorExtension;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -48,7 +53,9 @@ import org.springframework.core.annotation.AnnotationUtils;
 
 import javax.annotation.CheckForNull;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -58,10 +65,13 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   public static final String REPOSITORY_KEY = "bsl-language-server";
   public static final String PARAMETERS_TAG_NAME = "parameters";
-  private static final String REPOSITORY_NAME = "BSL Language Server";
+  public static final String REPOSITORY_NAME = "BSL Language Server";
 
-  private static final Map<DiagnosticSeverity, String> SEVERITY_MAP = createDiagnosticSeverityMap();
-  private static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
+  public static final Map<DiagnosticSeverity, String> OLD_SEVERITY_MAP = createOldDiagnosticSeverityMap();
+  public static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
+  public static final Map<DiagnosticTag, CleanCodeAttribute> CLEAN_CODE_ATTRIBUTE_MAP = createCleanCodeAttributeMap();
+
+  public static final Map<DiagnosticTag, Pair<SoftwareQuality, Severity>> IMPACTS_MAP = createImpactsMap();
 
   private final Configuration config;
   private final Parser markdownParser;
@@ -124,7 +134,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .setName(diagnosticInfo.getName())
       .setHtmlDescription(getHtmlDescription(diagnosticInfo.getDescription()))
       .setType(RULE_TYPE_MAP.get(diagnosticInfo.getType()))
-      .setSeverity(SEVERITY_MAP.get(diagnosticInfo.getSeverity()))
+      .setSeverity(OLD_SEVERITY_MAP.get(diagnosticInfo.getSeverity())) // "старая" серьезность, на всю диагностику
       .setActivatedByDefault(diagnosticInfo.isActivatedByDefault())
     ;
 
@@ -141,6 +151,19 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     if (tagsName.length > 0) {
       newRule.addTags(tagsName);
     }
+
+    // установим атрибут clean code
+    // переводим теги в соответствующий атрибут, сортируем и берем первый из списка
+    // пока так
+    diagnosticInfo.getTags().stream()
+      .map(CLEAN_CODE_ATTRIBUTE_MAP::get)
+      .distinct()
+      .sorted()
+      .findFirst()
+      .ifPresent(newRule::setCleanCodeAttribute);
+
+    // заполним влияние
+    computeImpact(diagnosticInfo.getTags()).forEach(newRule::addDefaultImpact);
 
     if (diagnosticInfo.getExtraMinForComplexity() > 0) {
       newRule.setDebtRemediationFunction(
@@ -186,6 +209,18 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     return Language.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH));
   }
 
+  private static Map<SoftwareQuality, Severity> computeImpact(List<DiagnosticTag> tags) {
+    Map<SoftwareQuality, Severity> map = new HashMap<>();
+    tags.forEach((DiagnosticTag tag) -> {
+      var impact = IMPACTS_MAP.get(tag);
+      var value = map.get(impact.getLeft());
+      if (value == null || impact.getRight().compareTo(value) > 0) {
+        map.put(impact.getLeft(), impact.getRight());
+      }
+    });
+    return map;
+  }
+
   @CheckForNull
   private static RuleParamType getRuleParamType(Class<?> type) {
 
@@ -206,7 +241,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     return ruleParamType;
   }
 
-  private static Map<DiagnosticSeverity, String> createDiagnosticSeverityMap() {
+  private static Map<DiagnosticSeverity, String> createOldDiagnosticSeverityMap() {
     Map<DiagnosticSeverity, String> map = new EnumMap<>(DiagnosticSeverity.class);
     map.put(DiagnosticSeverity.INFO, org.sonar.api.rule.Severity.INFO);
     map.put(DiagnosticSeverity.MINOR, org.sonar.api.rule.Severity.MINOR);
@@ -214,7 +249,7 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     map.put(DiagnosticSeverity.CRITICAL, org.sonar.api.rule.Severity.CRITICAL);
     map.put(DiagnosticSeverity.BLOCKER, org.sonar.api.rule.Severity.BLOCKER);
 
-    return map;
+    return Collections.unmodifiableMap(map);
   }
 
   private static Map<DiagnosticType, RuleType> createRuleTypeMap() {
@@ -224,7 +259,45 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     map.put(DiagnosticType.VULNERABILITY, RuleType.VULNERABILITY);
     map.put(DiagnosticType.SECURITY_HOTSPOT, RuleType.SECURITY_HOTSPOT);
 
-    return map;
+    return Collections.unmodifiableMap(map);
+  }
+
+  private static Map<DiagnosticTag, CleanCodeAttribute> createCleanCodeAttributeMap() {
+    Map<DiagnosticTag, CleanCodeAttribute> map = new EnumMap<>(DiagnosticTag.class);
+    map.put(DiagnosticTag.BADPRACTICE, CleanCodeAttribute.FOCUSED);
+    map.put(DiagnosticTag.BRAINOVERLOAD, CleanCodeAttribute.CLEAR);
+    map.put(DiagnosticTag.ERROR, CleanCodeAttribute.LOGICAL);
+    map.put(DiagnosticTag.CLUMSY, CleanCodeAttribute.CLEAR);
+    map.put(DiagnosticTag.DEPRECATED, CleanCodeAttribute.MODULAR);
+    map.put(DiagnosticTag.DESIGN, CleanCodeAttribute.MODULAR);
+    map.put(DiagnosticTag.LOCALIZE, CleanCodeAttribute.CONVENTIONAL);
+    map.put(DiagnosticTag.LOCKINOS, CleanCodeAttribute.LOGICAL);
+    map.put(DiagnosticTag.PERFORMANCE, CleanCodeAttribute.EFFICIENT);
+    map.put(DiagnosticTag.SQL, CleanCodeAttribute.EFFICIENT);
+    map.put(DiagnosticTag.STANDARD, CleanCodeAttribute.CONVENTIONAL);
+    map.put(DiagnosticTag.SUSPICIOUS, CleanCodeAttribute.LOGICAL);
+    map.put(DiagnosticTag.UNPREDICTABLE, CleanCodeAttribute.LOGICAL);
+    map.put(DiagnosticTag.UNUSED, CleanCodeAttribute.LOGICAL);
+    return Collections.unmodifiableMap(map);
+  }
+
+  private static Map<DiagnosticTag, Pair<SoftwareQuality, Severity>> createImpactsMap() {
+    Map<DiagnosticTag, Pair<SoftwareQuality, Severity>> map = new EnumMap<>(DiagnosticTag.class);
+    map.put(DiagnosticTag.BADPRACTICE, Pair.of(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+    map.put(DiagnosticTag.BRAINOVERLOAD, Pair.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    map.put(DiagnosticTag.ERROR, Pair.of(SoftwareQuality.RELIABILITY, Severity.HIGH));
+    map.put(DiagnosticTag.CLUMSY, Pair.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    map.put(DiagnosticTag.DEPRECATED, Pair.of(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+    map.put(DiagnosticTag.DESIGN, Pair.of(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+    map.put(DiagnosticTag.LOCALIZE, Pair.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    map.put(DiagnosticTag.LOCKINOS, Pair.of(SoftwareQuality.RELIABILITY, Severity.LOW));
+    map.put(DiagnosticTag.PERFORMANCE, Pair.of(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+    map.put(DiagnosticTag.SQL, Pair.of(SoftwareQuality.RELIABILITY, Severity.HIGH));
+    map.put(DiagnosticTag.STANDARD, Pair.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    map.put(DiagnosticTag.SUSPICIOUS, Pair.of(SoftwareQuality.RELIABILITY, Severity.LOW));
+    map.put(DiagnosticTag.UNPREDICTABLE, Pair.of(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
+    map.put(DiagnosticTag.UNUSED, Pair.of(SoftwareQuality.MAINTAINABILITY, Severity.INFO));
+    return Collections.unmodifiableMap(map);
   }
 
   @SneakyThrows
