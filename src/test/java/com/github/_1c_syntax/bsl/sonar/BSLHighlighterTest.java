@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -128,6 +129,29 @@ class BSLHighlighterTest {
     checkTokenTypeAtPosition(componentKey, 5, 20, TypeOfText.STRING);
     checkTokenTypeAtPosition(componentKey, 5, 21, TypeOfText.KEYWORD_LIGHT);
 
+  }
+
+  @Test
+  void testSaveHighlightingWithInvalidTokenPosition() {
+    // given
+    context = SensorContextTester.create(Path.of("."));
+    highlighter = new BSLHighlighter(context);
+    documentContext = mock(DocumentContext.class);
+
+    // Create a token with position exceeding line length
+    var token = new CommonToken(BSLLexer.IF_KEYWORD, "Если");
+    token.setLine(1);
+    token.setCharPositionInLine(20);
+
+    when(documentContext.getTokens()).thenReturn(List.of(token));
+
+    // Create InputFile with short content (line has less than 20 characters)
+    inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR, "А = 1;");
+
+    // when/then - should not throw
+    assertThatNoException().isThrownBy(() ->
+      highlighter.saveHighlighting(inputFile, documentContext)
+    );
   }
 
   private void testHighlighting(Vocabulary vocabulary, Map<String, TypeOfText> highlightingMap) {
