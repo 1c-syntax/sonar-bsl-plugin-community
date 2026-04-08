@@ -190,6 +190,11 @@ public class BSLHighlighter {
     var charPositionInLine = token.getCharPositionInLine();
     var tokenText = token.getText().stripTrailing();
 
+    var newlineIndex = tokenText.indexOf('\n');
+    if (newlineIndex >= 0) {
+      tokenText = tokenText.substring(0, newlineIndex).stripTrailing();
+    }
+
     var range = Ranges.create(
       line,
       charPositionInLine,

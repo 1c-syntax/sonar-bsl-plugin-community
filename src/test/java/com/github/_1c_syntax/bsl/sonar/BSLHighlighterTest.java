@@ -150,6 +150,25 @@ class BSLHighlighterTest {
   }
 
   @Test
+  void testHighlightingWithMultilineGroupByToken() {
+    // given - file with СГРУППИРОВАТЬ ПО (GROUP BY) on separate lines,
+    // which the SDBL lexer combines into a single multiline token
+    context = SensorContextTester.create(Path.of("."));
+    highlighter = new BSLHighlighter(context);
+    var fileName = "highlightCrmQuery.bsl";
+    var baseDirName = "src/test/resources/examples";
+    var path = Path.of(baseDirName, fileName);
+    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
+    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
+    inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
+
+    // when/then - should not throw despite multiline SDBL tokens
+    assertThatNoException().isThrownBy(() ->
+      highlighter.saveHighlighting(inputFile, documentContext)
+    );
+  }
+
+  @Test
   void testSaveHighlightingWithInvalidTokenPosition() {
     // given
     context = SensorContextTester.create(Path.of("."));
