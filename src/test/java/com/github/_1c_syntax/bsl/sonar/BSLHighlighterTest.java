@@ -132,6 +132,24 @@ class BSLHighlighterTest {
   }
 
   @Test
+  void testHighlightingWithLongQuery() {
+    // given
+    context = SensorContextTester.create(Path.of("."));
+    highlighter = new BSLHighlighter(context);
+    var fileName = "highlightLongQuery.bsl";
+    var baseDirName = "src/test/resources/examples";
+    var path = Path.of(baseDirName, fileName);
+    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
+    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
+    inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
+
+    // when/then - should not throw even with tabs causing position differences
+    assertThatNoException().isThrownBy(() ->
+      highlighter.saveHighlighting(inputFile, documentContext)
+    );
+  }
+
+  @Test
   void testSaveHighlightingWithInvalidTokenPosition() {
     // given
     context = SensorContextTester.create(Path.of("."));
