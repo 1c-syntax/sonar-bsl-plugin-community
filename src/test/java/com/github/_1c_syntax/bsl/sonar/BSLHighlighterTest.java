@@ -169,6 +169,44 @@ class BSLHighlighterTest {
   }
 
   @Test
+  void testHighlightingWithMultilineIndexByToken() {
+    // given - file with ИНДЕКСИРОВАТЬ ПО (INDEX BY) on separate lines,
+    // reproducing the scenario reported on PR #424 (ERP 2.5 module)
+    context = SensorContextTester.create(Path.of("."));
+    highlighter = new BSLHighlighter(context);
+    var fileName = "highlightErpIndexByQuery.bsl";
+    var baseDirName = "src/test/resources/examples";
+    var path = Path.of(baseDirName, fileName);
+    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
+    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
+    inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
+
+    // when/then - should not throw despite multiline SDBL INDEX BY token
+    assertThatNoException().isThrownBy(() ->
+      highlighter.saveHighlighting(inputFile, documentContext)
+    );
+  }
+
+  @Test
+  void testHighlightingWithCrmClientServerModule() {
+    // given - real module attached to issue #318 (CRM_КлиентыСервер.bsl),
+    // where the SonarScanner crashed on a multiline СГРУППИРОВАТЬ ПО SDBL token
+    context = SensorContextTester.create(Path.of("."));
+    highlighter = new BSLHighlighter(context);
+    var fileName = "CRM_КлиентыСервер.bsl";
+    var baseDirName = "src/test/resources/examples";
+    var path = Path.of(baseDirName, fileName);
+    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
+    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
+    inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
+
+    // when/then - should not throw on the real-world reproducer file
+    assertThatNoException().isThrownBy(() ->
+      highlighter.saveHighlighting(inputFile, documentContext)
+    );
+  }
+
+  @Test
   void testSaveHighlightingWithInvalidTokenPosition() {
     // given
     context = SensorContextTester.create(Path.of("."));
