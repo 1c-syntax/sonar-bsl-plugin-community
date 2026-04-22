@@ -30,6 +30,8 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.Vocabulary;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -131,76 +133,28 @@ class BSLHighlighterTest {
 
   }
 
-  @Test
-  void testHighlightingWithLongQuery() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {
+    // Tab-indented query: ensures tabs producing position differences do not crash highlighting.
+    "highlightLongQuery.bsl",
+    // СГРУППИРОВАТЬ ПО on separate BSL continuation lines -> single multiline SDBL token.
+    "highlightCrmQuery.bsl",
+    // ИНДЕКСИРОВАТЬ ПО on separate lines (reproduces PR #424 comment from ERP 2.5 module).
+    "highlightErpIndexByQuery.bsl",
+    // Real-world reproducer from issue #318 (CRM_КлиентыСервер.bsl attachment).
+    "CRM_КлиентыСервер.bsl"
+  })
+  void testHighlightingDoesNotThrowOnFile(String fileName) {
     // given
     context = SensorContextTester.create(Path.of("."));
     highlighter = new BSLHighlighter(context);
-    var fileName = "highlightLongQuery.bsl";
     var baseDirName = "src/test/resources/examples";
     var path = Path.of(baseDirName, fileName);
     documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
     BSLLSBinding.getServerContext().rebuildDocument(documentContext);
     inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
 
-    // when/then - should not throw even with tabs causing position differences
-    assertThatNoException().isThrownBy(() ->
-      highlighter.saveHighlighting(inputFile, documentContext)
-    );
-  }
-
-  @Test
-  void testHighlightingWithMultilineGroupByToken() {
-    // given - file with СГРУППИРОВАТЬ ПО (GROUP BY) on separate lines,
-    // which the SDBL lexer combines into a single multiline token
-    context = SensorContextTester.create(Path.of("."));
-    highlighter = new BSLHighlighter(context);
-    var fileName = "highlightCrmQuery.bsl";
-    var baseDirName = "src/test/resources/examples";
-    var path = Path.of(baseDirName, fileName);
-    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
-    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
-    inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
-
-    // when/then - should not throw despite multiline SDBL tokens
-    assertThatNoException().isThrownBy(() ->
-      highlighter.saveHighlighting(inputFile, documentContext)
-    );
-  }
-
-  @Test
-  void testHighlightingWithMultilineIndexByToken() {
-    // given - file with ИНДЕКСИРОВАТЬ ПО (INDEX BY) on separate lines,
-    // reproducing the scenario reported on PR #424 (ERP 2.5 module)
-    context = SensorContextTester.create(Path.of("."));
-    highlighter = new BSLHighlighter(context);
-    var fileName = "highlightErpIndexByQuery.bsl";
-    var baseDirName = "src/test/resources/examples";
-    var path = Path.of(baseDirName, fileName);
-    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
-    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
-    inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
-
-    // when/then - should not throw despite multiline SDBL INDEX BY token
-    assertThatNoException().isThrownBy(() ->
-      highlighter.saveHighlighting(inputFile, documentContext)
-    );
-  }
-
-  @Test
-  void testHighlightingWithCrmClientServerModule() {
-    // given - real module attached to issue #318 (CRM_КлиентыСервер.bsl),
-    // where the SonarScanner crashed on a multiline СГРУППИРОВАТЬ ПО SDBL token
-    context = SensorContextTester.create(Path.of("."));
-    highlighter = new BSLHighlighter(context);
-    var fileName = "CRM_КлиентыСервер.bsl";
-    var baseDirName = "src/test/resources/examples";
-    var path = Path.of(baseDirName, fileName);
-    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
-    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
-    inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
-
-    // when/then - should not throw on the real-world reproducer file
+    // when/then - should not throw, even for multiline SDBL tokens or tab-indented queries
     assertThatNoException().isThrownBy(() ->
       highlighter.saveHighlighting(inputFile, documentContext)
     );

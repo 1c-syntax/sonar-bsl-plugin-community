@@ -34,6 +34,7 @@ import org.antlr.v4.runtime.Tokenizer;
 import org.eclipse.lsp4j.Range;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 
 import javax.annotation.Nullable;
@@ -160,21 +161,27 @@ public class BSLHighlighter {
 
     highlightingData.stream()
       .filter(HighlightingData::isActive)
-      .forEach(data -> {
-        try {
-          highlighting.highlight(
-            data.getRange().getStart().getLine(),
-            data.getRange().getStart().getCharacter(),
-            data.getRange().getEnd().getLine(),
-            data.getRange().getEnd().getCharacter(),
-            data.getType()
-          );
-        } catch (IllegalArgumentException e) {
-          LOGGER.error("Unable to highlight file {}", inputFile, e);
-        }
-      });
+      .forEach(data -> applyHighlighting(highlighting, data, inputFile));
 
     highlighting.save();
+  }
+
+  private static void applyHighlighting(
+    NewHighlighting highlighting,
+    HighlightingData data,
+    InputFile inputFile
+  ) {
+    try {
+      highlighting.highlight(
+        data.getRange().getStart().getLine(),
+        data.getRange().getStart().getCharacter(),
+        data.getRange().getEnd().getLine(),
+        data.getRange().getEnd().getCharacter(),
+        data.getType()
+      );
+    } catch (IllegalArgumentException e) {
+      LOGGER.error("Unable to highlight file {}", inputFile, e);
+    }
   }
 
   public void highlightToken(

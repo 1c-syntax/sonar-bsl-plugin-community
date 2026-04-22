@@ -42,6 +42,7 @@ dependencies {
     implementation("org.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api", "6.0.3")
+    testImplementation("org.junit.jupiter", "junit-jupiter-params", "6.0.3")
     testImplementation("org.assertj", "assertj-core", "3.27.7")
     testImplementation("org.mockito", "mockito-core", "5.21.0")
     testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion) {
