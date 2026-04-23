@@ -30,6 +30,8 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.Vocabulary;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -45,6 +47,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -128,6 +131,56 @@ class BSLHighlighterTest {
     checkTokenTypeAtPosition(componentKey, 5, 20, TypeOfText.STRING);
     checkTokenTypeAtPosition(componentKey, 5, 21, TypeOfText.KEYWORD_LIGHT);
 
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {
+    // Tab-indented query: ensures tabs producing position differences do not crash highlighting.
+    "highlightLongQuery.bsl",
+    // СГРУППИРОВАТЬ ПО on separate BSL continuation lines -> single multiline SDBL token.
+    "highlightCrmQuery.bsl",
+    // ИНДЕКСИРОВАТЬ ПО on separate lines (reproduces PR #424 comment from ERP 2.5 module).
+    "highlightErpIndexByQuery.bsl",
+    // Real-world reproducer from issue #318 (CRM_КлиентыСервер.bsl attachment).
+    "CRM_КлиентыСервер.bsl"
+  })
+  void testHighlightingDoesNotThrowOnFile(String fileName) {
+    // given
+    context = SensorContextTester.create(Path.of("."));
+    highlighter = new BSLHighlighter(context);
+    var baseDirName = "src/test/resources/examples";
+    var path = Path.of(baseDirName, fileName);
+    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
+    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
+    inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
+
+    // when/then - should not throw, even for multiline SDBL tokens or tab-indented queries
+    assertThatNoException().isThrownBy(() ->
+      highlighter.saveHighlighting(inputFile, documentContext)
+    );
+  }
+
+  @Test
+  void testSaveHighlightingWithInvalidTokenPosition() {
+    // given
+    context = SensorContextTester.create(Path.of("."));
+    highlighter = new BSLHighlighter(context);
+    documentContext = mock(DocumentContext.class);
+
+    // Create a token with position exceeding line length
+    var token = new CommonToken(BSLLexer.IF_KEYWORD, "Если");
+    token.setLine(1);
+    token.setCharPositionInLine(20);
+
+    when(documentContext.getTokens()).thenReturn(List.of(token));
+
+    // Create InputFile with short content (line has less than 20 characters)
+    inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR, "А = 1;");
+
+    // when/then - should not throw
+    assertThatNoException().isThrownBy(() ->
+      highlighter.saveHighlighting(inputFile, documentContext)
+    );
   }
 
   private void testHighlighting(Vocabulary vocabulary, Map<String, TypeOfText> highlightingMap) {

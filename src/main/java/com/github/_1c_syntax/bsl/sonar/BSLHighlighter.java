@@ -28,11 +28,13 @@ import com.github._1c_syntax.bsl.parser.SDBLLexer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.Tokenizer;
 import org.eclipse.lsp4j.Range;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 
 import javax.annotation.Nullable;
@@ -45,6 +47,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 public class BSLHighlighter {
 
@@ -158,17 +161,27 @@ public class BSLHighlighter {
 
     highlightingData.stream()
       .filter(HighlightingData::isActive)
-      .forEach(data ->
-        highlighting.highlight(
-          data.getRange().getStart().getLine(),
-          data.getRange().getStart().getCharacter(),
-          data.getRange().getEnd().getLine(),
-          data.getRange().getEnd().getCharacter(),
-          data.getType()
-        )
-      );
+      .forEach(data -> applyHighlighting(highlighting, data, inputFile));
 
     highlighting.save();
+  }
+
+  private static void applyHighlighting(
+    NewHighlighting highlighting,
+    HighlightingData data,
+    InputFile inputFile
+  ) {
+    try {
+      highlighting.highlight(
+        data.getRange().getStart().getLine(),
+        data.getRange().getStart().getCharacter(),
+        data.getRange().getEnd().getLine(),
+        data.getRange().getEnd().getCharacter(),
+        data.getType()
+      );
+    } catch (IllegalArgumentException e) {
+      LOGGER.error("Unable to highlight file {}", inputFile, e);
+    }
   }
 
   public void highlightToken(
@@ -183,6 +196,11 @@ public class BSLHighlighter {
     var line = token.getLine();
     var charPositionInLine = token.getCharPositionInLine();
     var tokenText = token.getText().stripTrailing();
+
+    var newlineIndex = tokenText.indexOf('\n');
+    if (newlineIndex >= 0) {
+      tokenText = tokenText.substring(0, newlineIndex).stripTrailing();
+    }
 
     var range = Ranges.create(
       line,
