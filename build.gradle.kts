@@ -6,7 +6,7 @@ plugins {
     `maven-publish`
     id("org.sonarqube") version "7.3.0.8198"
     id("cloud.rio.license") version "0.18.0"
-    id("com.gradleup.shadow") version "9.4.1"
+    id("com.gradleup.shadow") version "9.4.2"
     id("com.github.ben-manes.versions") version "0.54.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
     id("io.freefair.lombok") version "9.5.0"
