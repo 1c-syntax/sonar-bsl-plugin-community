@@ -6,7 +6,7 @@ jobs:
   integration-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up JDK
         uses: actions/setup-java@v5
@@ -36,7 +36,7 @@ jobs:
           curl -u admin:Sonar_Password_1 -s -X POST "http://localhost:9000/api/projects/create?name=Test&project=test-project"
 
       - name: Checkout SSL 3.1
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: '1c-syntax/ssl_3_1'
           path: 'target-project'
