@@ -386,8 +386,8 @@ public class BSLCoreSensor implements Sensor {
     } else if (type == Float.class) {
       value = Float.parseFloat(valueToCast);
     } else if (type == String.class || type == List.class) {
-      // List — параметр-список. Из SonarQube значение приходит строкой (через запятую);
-      // в List<String> оно разбирается уже на стороне BSL Language Server.
+      // Параметр-список: из SonarQube значение приходит одной строкой (элементы через запятую),
+      // а в список элементов оно разбирается уже на стороне BSL Language Server.
       value = valueToCast;
     } else {
       throw new IllegalArgumentException("Unsupported diagnostic parameter type " + type);
