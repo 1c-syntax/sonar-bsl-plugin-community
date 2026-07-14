@@ -40,6 +40,7 @@ import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.ext.heading.anchor.HeadingAnchorExtension;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
@@ -193,7 +194,9 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
     if (type == Integer.class) {
       ruleParamType = RuleParamType.INTEGER;
-    } else if (type == String.class) {
+    } else if (type == String.class || type == Either.class) {
+      // Either<String, List<String>> — параметр-список. В SonarQube UI не поддерживаются
+      // параметры правил в виде массива, поэтому остаётся строкой (значения через запятую).
       ruleParamType = RuleParamType.STRING;
     } else if (type == Boolean.class) {
       ruleParamType = RuleParamType.BOOLEAN;
