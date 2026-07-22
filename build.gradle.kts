@@ -28,6 +28,7 @@ dependencies {
     compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "11.3.0.2824")
 
     implementation("io.sentry:sentry-spring-boot-4:8.49.0")
+    implementation("io.micrometer:context-propagation:1.2.1")
     implementation("io.github.1c-syntax", "bsl-language-server", "1.0.5") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("info.picocli", "picocli-spring-boot-starter")
