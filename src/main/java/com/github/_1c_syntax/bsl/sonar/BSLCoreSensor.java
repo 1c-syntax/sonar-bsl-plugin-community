@@ -21,14 +21,15 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.languageserver.BSLLSBinding;
+import com.github._1c_syntax.bsl.languageserver.binding.BSLLSBinding;
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.info.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
+import com.github._1c_syntax.bsl.languageserver.infrastructure.WorkspaceContextHolder;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
@@ -144,36 +145,37 @@ public class BSLCoreSensor implements Sensor {
           .orElse(baseDir.toPath());
       }));
 
-    var languageServerConfiguration = getLanguageServerConfiguration();
-
     inputFilesByPath.forEach((Path sourceDir, List<InputFile> inputFilesList) -> {
       LOGGER.info("Source dir: {}", sourceDir);
 
-      var configurationRoot = LanguageServerConfiguration.getCustomConfigurationRoot(
-        languageServerConfiguration,
-        sourceDir
-      );
+      var bslServerContext = BSLLSBinding.getServerContextProvider().addWorkspace(sourceDir.toUri());
+      try (var ctx = WorkspaceContextHolder.forUri(sourceDir.toUri())) {
+        var languageServerConfiguration = getLanguageServerConfiguration();
+        var configurationRoot = LanguageServerConfiguration.getCustomConfigurationRoot(
+          languageServerConfiguration,
+          sourceDir
+        );
 
-      var bslServerContext = BSLLSBinding.getServerContext();
-      bslServerContext.setConfigurationRoot(configurationRoot);
-      bslServerContext.populateContext();
+        bslServerContext.setConfigurationRoot(configurationRoot);
+        bslServerContext.populateContext();
 
-      int total = inputFilesList.size();
-      var count = new AtomicInteger(0);
+        int total = inputFilesList.size();
+        var count = new AtomicInteger(0);
 
-      inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
-        var uri = inputFile.uri();
-        LOGGER.debug(uri.toString());
-        processFile(inputFile, bslServerContext);
-        var current = count.incrementAndGet();
-        if (current % COUNT_FILES_PB == 0) {
-          LOGGER.info("Processing files: {}/{}", current, total);
-        }
-      });
+        inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
+          var uri = inputFile.uri();
+          LOGGER.debug(uri.toString());
+          processFile(inputFile, bslServerContext);
+          var current = count.incrementAndGet();
+          if (current % COUNT_FILES_PB == 0) {
+            LOGGER.info("Processing files: {}/{}", current, total);
+          }
+        });
 
-      LOGGER.info("Processing files: {}/{}", count.get(), total);
+        LOGGER.info("Processing files: {}/{}", count.get(), total);
 
-      bslServerContext.clear();
+        bslServerContext.clear();
+      }
     });
 
     BSLLSBinding.getApplicationContext().close();
@@ -203,6 +205,7 @@ public class BSLCoreSensor implements Sensor {
     saveMeasures(inputFile, documentContext);
 
     // clean up AST after diagnostic computing to free up RAM.
+    documentContext.unfreezeComputedData();
     bslServerContext.tryClearDocument(documentContext);
   }
 
@@ -293,7 +296,8 @@ public class BSLCoreSensor implements Sensor {
       .map(Boolean::parseBoolean)
       .orElse(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE);
 
-    var configuration = BSLLSBinding.getLanguageServerConfiguration();
+    var factory = BSLLSBinding.getLanguageServerConfigurationFactory();
+    var configuration = factory.createConfiguration(Path.of(""));
     if (overrideConfiguration) {
       String configurationPath = context.config()
         .get(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY)
@@ -313,9 +317,7 @@ public class BSLCoreSensor implements Sensor {
       .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
 
-    configuration.setLanguage(
-      Language.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
-    );
+    configuration.setLanguage(Language.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH)));
 
     var skipSupport = context.config()
       .get(BSLCommunityProperties.LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY)
@@ -326,7 +328,6 @@ public class BSLCoreSensor implements Sensor {
       ));
 
     configuration.getDiagnosticsOptions().setSkipSupport(skipSupport);
-
 
     Set<String> includeSubsystems = new HashSet<>();
     Collections.addAll(includeSubsystems, context.config()
@@ -343,7 +344,7 @@ public class BSLCoreSensor implements Sensor {
     var activeRules = context.activeRules();
 
     Map<String, Either<Boolean, Map<String, Object>>> diagnostics = new HashMap<>();
-    var diagnosticInfos = BSLLSBinding.getDiagnosticInfos();
+    var diagnosticInfos = BSLLSBinding.getDiagnosticInfos(configuration);
 
     for (DiagnosticInfo diagnosticInfo : diagnosticInfos) {
       var diagnosticCode = diagnosticInfo.getCode().getStringValue();

@@ -21,8 +21,9 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.languageserver.BSLLSBinding;
+import com.github._1c_syntax.bsl.languageserver.binding.BSLLSBinding;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
+import com.github._1c_syntax.bsl.languageserver.infrastructure.WorkspaceContextHolder;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.parser.SDBLLexer;
 import com.github._1c_syntax.bsl.parser.SDBLTokenizer;
@@ -37,6 +38,7 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 import java.io.File;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,6 +58,8 @@ class BSLHighlighterTest {
   private static final String BASE_PATH = "src/test/resources/src";
   private static final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
   private static final String FILE_NAME = "src/test.bsl";
+  public static final Path BASEDIR_PATH = Path.of(".");
+  public static final URI BASEDIW_WS = BASEDIR_PATH.toUri();
 
   private SensorContextTester context;
   private BSLHighlighter highlighter;
@@ -86,13 +90,17 @@ class BSLHighlighterTest {
   @Test
   void testMergeHighlightingTokens() {
     // given
-    context = SensorContextTester.create(Path.of("."));
+    context = SensorContextTester.create(BASEDIR_PATH);
     highlighter = new BSLHighlighter(context);
     var fileName = "highlight.bsl";
     var baseDirName = "src/test/resources/examples";
     var path = Path.of(baseDirName, fileName);
-    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
-    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
+    var bslServerContext = BSLLSBinding.getServerContextProvider().addWorkspace(BASEDIW_WS);
+    try (var ctx = WorkspaceContextHolder.forUri(BASEDIW_WS)) {
+      documentContext = bslServerContext.addDocument(path.toUri());
+      bslServerContext.rebuildDocument(documentContext);
+    }
+
     inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
 
     // when
@@ -146,12 +154,15 @@ class BSLHighlighterTest {
   })
   void testHighlightingDoesNotThrowOnFile(String fileName) {
     // given
-    context = SensorContextTester.create(Path.of("."));
+    context = SensorContextTester.create(BASEDIR_PATH);
     highlighter = new BSLHighlighter(context);
     var baseDirName = "src/test/resources/examples";
     var path = Path.of(baseDirName, fileName);
-    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
-    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
+    var bslServerContext = BSLLSBinding.getServerContextProvider().addWorkspace(BASEDIW_WS);
+    try (var ctx = WorkspaceContextHolder.forUri(BASEDIW_WS)) {
+      documentContext = bslServerContext.addDocument(path.toUri());
+      bslServerContext.rebuildDocument(documentContext);
+    }
     inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
 
     // when/then - should not throw, even for multiline SDBL tokens or tab-indented queries
@@ -163,7 +174,7 @@ class BSLHighlighterTest {
   @Test
   void testSaveHighlightingWithInvalidTokenPosition() {
     // given
-    context = SensorContextTester.create(Path.of("."));
+    context = SensorContextTester.create(BASEDIR_PATH);
     highlighter = new BSLHighlighter(context);
     documentContext = mock(DocumentContext.class);
 
@@ -202,7 +213,7 @@ class BSLHighlighterTest {
   }
 
   private void initContext(Vocabulary vocabulary) {
-    context = SensorContextTester.create(Path.of("."));
+    context = SensorContextTester.create(BASEDIR_PATH);
     highlighter = new BSLHighlighter(context);
     documentContext = mock(DocumentContext.class);
     List<Token> tokens = new ArrayList<>();
@@ -289,6 +300,8 @@ class BSLHighlighterTest {
     Set<String> noOpTypes = Set.of(
       "WHITE_SPACE",
       "DOT",
+      "DOT_TRAILING",
+      "Async_DOT",
       "LBRACK",
       "RBRACK",
       "LPAREN",

@@ -27,11 +27,13 @@ val commonmarkVersion = "0.27.1"
 dependencies {
     compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "11.3.0.2824")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.29.0") {
+    implementation("io.sentry:sentry-spring-boot-4:8.49.0")
+    implementation("io.github.1c-syntax", "bsl-language-server", "1.0.5") {
         exclude("com.contrastsecurity", "java-sarif")
-        exclude("io.sentry", "sentry-logback")
         exclude("info.picocli", "picocli-spring-boot-starter")
         exclude("me.tongfei", "progressbar")
+        exclude("org.springframework.ai", "spring-ai-starter-mcp-server-webmvc")
+        exclude("org.springframework.ai", "spring-ai-starter-mcp-server")
     }
     implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.21.0.4626")
 
