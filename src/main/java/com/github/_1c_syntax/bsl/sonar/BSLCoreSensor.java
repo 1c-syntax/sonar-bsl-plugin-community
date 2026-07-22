@@ -149,7 +149,7 @@ public class BSLCoreSensor implements Sensor {
       LOGGER.info("Source dir: {}", sourceDir);
 
       var bslServerContext = BSLLSBinding.getServerContextProvider().addWorkspace(sourceDir.toUri());
-      try (var ctx = WorkspaceContextHolder.forUri(sourceDir.toUri())) {
+      try (var ctx = WorkspaceContextHolder.forUri(bslServerContext.getWorkspaceUri())) {
         var languageServerConfiguration = getLanguageServerConfiguration();
         var configurationRoot = LanguageServerConfiguration.getCustomConfigurationRoot(
           languageServerConfiguration,
@@ -165,9 +165,8 @@ public class BSLCoreSensor implements Sensor {
         inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
           var uri = inputFile.uri();
           LOGGER.debug(uri.toString());
-          try (var ignored = WorkspaceContextHolder.forUri(sourceDir.toUri())) {
-            processFile(inputFile, bslServerContext);
-          }
+          WorkspaceContextHolder.run(bslServerContext.getWorkspaceUri(),
+            () -> processFile(inputFile, bslServerContext));
           var current = count.incrementAndGet();
           if (current % COUNT_FILES_PB == 0) {
             LOGGER.info("Processing files: {}/{}", current, total);
@@ -299,7 +298,7 @@ public class BSLCoreSensor implements Sensor {
       .orElse(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE);
 
     var factory = BSLLSBinding.getLanguageServerConfigurationFactory();
-    var configuration = factory.createConfiguration(Path.of(""));
+    var configuration = factory.createConfiguration(Path.of("."));
     if (overrideConfiguration) {
       String configurationPath = context.config()
         .get(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY)

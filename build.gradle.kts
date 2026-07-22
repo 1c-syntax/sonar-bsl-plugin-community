@@ -10,6 +10,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.54.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
     id("io.freefair.lombok") version "9.5.0"
+    id("io.sentry.jvm.gradle") version "6.15.0"
 }
 
 group = "io.github.1c-syntax"
@@ -27,8 +28,6 @@ val commonmarkVersion = "0.27.1"
 dependencies {
     compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "11.3.0.2824")
 
-    implementation("io.sentry:sentry-spring-boot-4:8.49.0")
-    implementation("io.micrometer:context-propagation:1.2.1")
     implementation("io.github.1c-syntax", "bsl-language-server", "1.0.5") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("info.picocli", "picocli-spring-boot-starter")
