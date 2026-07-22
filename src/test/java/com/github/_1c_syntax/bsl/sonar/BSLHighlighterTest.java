@@ -58,8 +58,8 @@ class BSLHighlighterTest {
   private static final String BASE_PATH = "src/test/resources/src";
   private static final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
   private static final String FILE_NAME = "src/test.bsl";
-  public static final Path BASEDIR_PATH = Path.of(".");
-  public static final URI BASEDIW_WS = BASEDIR_PATH.toUri();
+  private static final Path BASEDIR_PATH = Path.of(".");
+  private static final URI BASEDIW_WS = BASEDIR_PATH.toUri();
 
   private SensorContextTester context;
   private BSLHighlighter highlighter;
