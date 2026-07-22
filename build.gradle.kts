@@ -159,3 +159,8 @@ tasks.shadowJar {
     configurations = listOf(project.configurations["runtimeClasspath"])
     archiveClassifier.set("")
 }
+
+tasks.named("licenseMain") {
+    dependsOn(tasks.generateSentryDebugMetaPropertiesjava)
+    dependsOn(tasks.collectExternalDependenciesForSentry)
+}
