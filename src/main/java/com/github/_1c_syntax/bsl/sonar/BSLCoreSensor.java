@@ -165,7 +165,9 @@ public class BSLCoreSensor implements Sensor {
         inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
           var uri = inputFile.uri();
           LOGGER.debug(uri.toString());
-          processFile(inputFile, bslServerContext);
+          try (var ignored = WorkspaceContextHolder.forUri(sourceDir.toUri())) {
+            processFile(inputFile, bslServerContext);
+          }
           var current = count.incrementAndGet();
           if (current % COUNT_FILES_PB == 0) {
             LOGGER.info("Processing files: {}/{}", current, total);
