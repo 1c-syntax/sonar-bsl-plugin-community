@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout source
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Set up JDK
       uses: actions/setup-java@v5
       with:
@@ -21,7 +21,7 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
     - name: Upload jar to release
-      uses: AButler/upload-release-assets@v3.0
+      uses: AButler/upload-release-assets@v4.0
       with:
         files: './build/libs/*.jar'
         repo-token: ${{ secrets.GITHUB_TOKEN }} 

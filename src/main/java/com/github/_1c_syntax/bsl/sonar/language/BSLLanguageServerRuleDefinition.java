@@ -193,7 +193,9 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
     if (type == Integer.class) {
       ruleParamType = RuleParamType.INTEGER;
-    } else if (type == String.class) {
+    } else if (type == String.class || type == List.class) {
+      // Параметр-список: массивы в параметрах правил SonarQube UI не поддерживаются,
+      // поэтому параметр остаётся строкой (элементы через запятую).
       ruleParamType = RuleParamType.STRING;
     } else if (type == Boolean.class) {
       ruleParamType = RuleParamType.BOOLEAN;
