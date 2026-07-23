@@ -60,6 +60,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -162,16 +164,22 @@ public class BSLCoreSensor implements Sensor {
         int total = inputFilesList.size();
         var count = new AtomicInteger(0);
 
-        inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
-          var uri = inputFile.uri();
-          LOGGER.debug(uri.toString());
-          WorkspaceContextHolder.run(bslServerContext.getWorkspaceUri(),
-            () -> processFile(inputFile, bslServerContext));
-          var current = count.incrementAndGet();
-          if (current % COUNT_FILES_PB == 0) {
-            LOGGER.info("Processing files: {}/{}", current, total);
-          }
-        });
+        // Run the per-file work through BSL LS's workspace-scoped ForkJoinPool (cliExecutor):
+        // its worker threads are workspace-aware, so the workspace context is propagated
+        // automatically (same as the language server's own analyze command) and there is no need
+        // to wrap each file in WorkspaceContextHolder.run. A parallel stream launched from inside
+        // that pool's task executes on the pool's workspace-aware threads.
+        var executor = BSLLSBinding.getApplicationContext().getBean("cliExecutor", ExecutorService.class);
+        awaitInWorkspacePool(executor, sourceDir, () ->
+          inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
+            LOGGER.debug(inputFile.uri().toString());
+            processFile(inputFile, bslServerContext);
+            var current = count.incrementAndGet();
+            if (current % COUNT_FILES_PB == 0) {
+              LOGGER.info("Processing files: {}/{}", current, total);
+            }
+          })
+        );
 
         LOGGER.info("Processing files: {}/{}", count.get(), total);
 
@@ -180,6 +188,25 @@ public class BSLCoreSensor implements Sensor {
     });
 
     BSLLSBinding.getApplicationContext().close();
+  }
+
+  /**
+   * Submit the per-source-directory work to BSL LS's workspace-scoped pool and wait for it to
+   * finish, translating the pool's checked failures into an unchecked {@link IllegalStateException}.
+   *
+   * @param executor  workspace-scoped executor (BSL LS {@code cliExecutor})
+   * @param sourceDir source directory being processed, used in the failure message
+   * @param work      per-source-directory processing to run on the pool's workspace-aware threads
+   */
+  static void awaitInWorkspacePool(ExecutorService executor, Path sourceDir, Runnable work) {
+    try {
+      executor.submit(work).get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException("Interrupted while processing files in " + sourceDir, e);
+    } catch (ExecutionException e) {
+      throw new IllegalStateException("Error processing files in " + sourceDir, e);
+    }
   }
 
   private void processFile(InputFile inputFile, ServerContext bslServerContext) {
