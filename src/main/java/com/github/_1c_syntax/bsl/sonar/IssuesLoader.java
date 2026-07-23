@@ -22,6 +22,7 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticMessage;
 import com.github._1c_syntax.bsl.sonar.ext_issues.ExternalReporters;
 import com.github._1c_syntax.bsl.sonar.ext_issues.Reporter;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
@@ -210,7 +211,7 @@ public class IssuesLoader {
       location.on(fileOrProject.getRight());
     }
 
-    location.message(diagnostic.getMessage());
+    location.message(DiagnosticMessage.getStringValue(diagnostic.getMessage()));
     newIssueAtConsumer.accept(location);
 
     var relatedInformation = diagnostic.getRelatedInformation();

@@ -10,6 +10,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.54.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
     id("io.freefair.lombok") version "9.5.0"
+    id("io.sentry.jvm.gradle") version "6.15.0"
 }
 
 group = "io.github.1c-syntax"
@@ -27,11 +28,12 @@ val commonmarkVersion = "0.27.1"
 dependencies {
     compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "11.3.0.2824")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.29.0") {
+    implementation("io.github.1c-syntax", "bsl-language-server", "1.0.4.57-SNAPSHOT") {
         exclude("com.contrastsecurity", "java-sarif")
-        exclude("io.sentry", "sentry-logback")
         exclude("info.picocli", "picocli-spring-boot-starter")
         exclude("me.tongfei", "progressbar")
+        exclude("org.springframework.ai", "spring-ai-starter-mcp-server-webmvc")
+        exclude("org.springframework.ai", "spring-ai-starter-mcp-server")
     }
     implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.21.0.4626")
 
@@ -69,6 +71,12 @@ tasks.withType<JavaCompile> {
 
 tasks.test {
     useJUnitPlatform()
+
+    // The tests boot the embedded BSL Language Server Spring context and run the sensor
+    // pipeline. Without an explicit heap the test JVM inherits the runner's default
+    // (a fraction of physical RAM), which is small on the macOS runners and led to
+    // OutOfMemoryError there. Pin a fixed heap so the pipeline has room on every runner.
+    maxHeapSize = "3g"
 
     testLogging {
         events("passed", "skipped", "failed")
@@ -156,4 +164,9 @@ tasks.shadowJar {
     }
     configurations = listOf(project.configurations["runtimeClasspath"])
     archiveClassifier.set("")
+}
+
+tasks.named("licenseMain") {
+    dependsOn(tasks.generateSentryDebugMetaPropertiesjava)
+    dependsOn(tasks.collectExternalDependenciesForSentry)
 }

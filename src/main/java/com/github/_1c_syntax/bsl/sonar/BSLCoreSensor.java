@@ -21,14 +21,15 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.languageserver.BSLLSBinding;
+import com.github._1c_syntax.bsl.languageserver.binding.BSLLSBinding;
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.languageserver.configuration.diagnostics.SkipSupport;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import com.github._1c_syntax.bsl.languageserver.context.ServerContext;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.info.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
+import com.github._1c_syntax.bsl.languageserver.infrastructure.WorkspaceContextHolder;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
@@ -59,6 +60,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -144,39 +147,66 @@ public class BSLCoreSensor implements Sensor {
           .orElse(baseDir.toPath());
       }));
 
-    var languageServerConfiguration = getLanguageServerConfiguration();
-
     inputFilesByPath.forEach((Path sourceDir, List<InputFile> inputFilesList) -> {
       LOGGER.info("Source dir: {}", sourceDir);
 
-      var configurationRoot = LanguageServerConfiguration.getCustomConfigurationRoot(
-        languageServerConfiguration,
-        sourceDir
-      );
+      var bslServerContext = BSLLSBinding.getServerContextProvider().addWorkspace(sourceDir.toUri());
+      try (var ctx = WorkspaceContextHolder.forUri(bslServerContext.getWorkspaceUri())) {
+        var languageServerConfiguration = getLanguageServerConfiguration();
+        var configurationRoot = LanguageServerConfiguration.getCustomConfigurationRoot(
+          languageServerConfiguration,
+          sourceDir
+        );
 
-      var bslServerContext = BSLLSBinding.getServerContext();
-      bslServerContext.setConfigurationRoot(configurationRoot);
-      bslServerContext.populateContext();
+        bslServerContext.setConfigurationRoot(configurationRoot);
+        bslServerContext.populateContext();
 
-      int total = inputFilesList.size();
-      var count = new AtomicInteger(0);
+        int total = inputFilesList.size();
+        var count = new AtomicInteger(0);
 
-      inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
-        var uri = inputFile.uri();
-        LOGGER.debug(uri.toString());
-        processFile(inputFile, bslServerContext);
-        var current = count.incrementAndGet();
-        if (current % COUNT_FILES_PB == 0) {
-          LOGGER.info("Processing files: {}/{}", current, total);
-        }
-      });
+        // Run the per-file work through BSL LS's workspace-scoped ForkJoinPool (cliExecutor):
+        // its worker threads are workspace-aware, so the workspace context is propagated
+        // automatically (same as the language server's own analyze command) and there is no need
+        // to wrap each file in WorkspaceContextHolder.run. A parallel stream launched from inside
+        // that pool's task executes on the pool's workspace-aware threads.
+        var executor = BSLLSBinding.getApplicationContext().getBean("cliExecutor", ExecutorService.class);
+        awaitInWorkspacePool(executor, sourceDir, () ->
+          inputFilesList.parallelStream().forEach((InputFile inputFile) -> {
+            LOGGER.debug(inputFile.uri().toString());
+            processFile(inputFile, bslServerContext);
+            var current = count.incrementAndGet();
+            if (current % COUNT_FILES_PB == 0) {
+              LOGGER.info("Processing files: {}/{}", current, total);
+            }
+          })
+        );
 
-      LOGGER.info("Processing files: {}/{}", count.get(), total);
+        LOGGER.info("Processing files: {}/{}", count.get(), total);
 
-      bslServerContext.clear();
+        bslServerContext.clear();
+      }
     });
 
     BSLLSBinding.getApplicationContext().close();
+  }
+
+  /**
+   * Submit the per-source-directory work to BSL LS's workspace-scoped pool and wait for it to
+   * finish, translating the pool's checked failures into an unchecked {@link IllegalStateException}.
+   *
+   * @param executor  workspace-scoped executor (BSL LS {@code cliExecutor})
+   * @param sourceDir source directory being processed, used in the failure message
+   * @param work      per-source-directory processing to run on the pool's workspace-aware threads
+   */
+  static void awaitInWorkspacePool(ExecutorService executor, Path sourceDir, Runnable work) {
+    try {
+      executor.submit(work).get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException("Interrupted while processing files in " + sourceDir, e);
+    } catch (ExecutionException e) {
+      throw new IllegalStateException("Error processing files in " + sourceDir, e);
+    }
   }
 
   private void processFile(InputFile inputFile, ServerContext bslServerContext) {
@@ -203,6 +233,7 @@ public class BSLCoreSensor implements Sensor {
     saveMeasures(inputFile, documentContext);
 
     // clean up AST after diagnostic computing to free up RAM.
+    documentContext.unfreezeComputedData();
     bslServerContext.tryClearDocument(documentContext);
   }
 
@@ -293,7 +324,8 @@ public class BSLCoreSensor implements Sensor {
       .map(Boolean::parseBoolean)
       .orElse(BSLCommunityProperties.LANG_SERVER_OVERRIDE_CONFIGURATION_DEFAULT_VALUE);
 
-    var configuration = BSLLSBinding.getLanguageServerConfiguration();
+    var factory = BSLLSBinding.getLanguageServerConfigurationFactory();
+    var configuration = factory.createConfiguration(Path.of("."));
     if (overrideConfiguration) {
       String configurationPath = context.config()
         .get(BSLCommunityProperties.LANG_SERVER_CONFIGURATION_PATH_KEY)
@@ -313,9 +345,7 @@ public class BSLCoreSensor implements Sensor {
       .get(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_KEY)
       .orElse(BSLCommunityProperties.LANG_SERVER_DIAGNOSTIC_LANGUAGE_DEFAULT_VALUE);
 
-    configuration.setLanguage(
-      Language.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH))
-    );
+    configuration.setLanguage(Language.valueOf(diagnosticLanguageCode.toUpperCase(Locale.ENGLISH)));
 
     var skipSupport = context.config()
       .get(BSLCommunityProperties.LANG_SERVER_COMPUTE_DIAGNOSTICS_SKIP_SUPPORT_KEY)
@@ -326,7 +356,6 @@ public class BSLCoreSensor implements Sensor {
       ));
 
     configuration.getDiagnosticsOptions().setSkipSupport(skipSupport);
-
 
     Set<String> includeSubsystems = new HashSet<>();
     Collections.addAll(includeSubsystems, context.config()
@@ -343,7 +372,7 @@ public class BSLCoreSensor implements Sensor {
     var activeRules = context.activeRules();
 
     Map<String, Either<Boolean, Map<String, Object>>> diagnostics = new HashMap<>();
-    var diagnosticInfos = BSLLSBinding.getDiagnosticInfos();
+    var diagnosticInfos = BSLLSBinding.getDiagnosticInfos(configuration);
 
     for (DiagnosticInfo diagnosticInfo : diagnosticInfos) {
       var diagnosticCode = diagnosticInfo.getCode().getStringValue();
