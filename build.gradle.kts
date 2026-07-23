@@ -72,6 +72,12 @@ tasks.withType<JavaCompile> {
 tasks.test {
     useJUnitPlatform()
 
+    // The tests boot the embedded BSL Language Server Spring context and run the sensor
+    // pipeline. Without an explicit heap the test JVM inherits the runner's default
+    // (a fraction of physical RAM), which is small on the macOS runners and led to
+    // OutOfMemoryError there. Pin a fixed heap so the pipeline has room on every runner.
+    maxHeapSize = "3g"
+
     testLogging {
         events("passed", "skipped", "failed")
     }
