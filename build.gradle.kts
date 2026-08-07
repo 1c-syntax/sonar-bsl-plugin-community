@@ -23,40 +23,40 @@ repositories {
 }
 
 val sonarQubeVersion = "25.4.0.105899"
-val commonmarkVersion = "0.27.1"
+val commonmarkVersion = "0.29.0"
 
 dependencies {
-    compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "11.3.0.2824")
+    compileOnly("org.sonarsource.api.plugin:sonar-plugin-api:11.3.0.2824")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "1.0.4.57-SNAPSHOT") {
+    implementation("io.github.1c-syntax:bsl-language-server:1.0.6") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("info.picocli", "picocli-spring-boot-starter")
         exclude("me.tongfei", "progressbar")
         exclude("org.springframework.ai", "spring-ai-starter-mcp-server-webmvc")
         exclude("org.springframework.ai", "spring-ai-starter-mcp-server")
     }
-    implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.21.0.4626")
+    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:2.21.0.4626")
 
     // MD to HTML converter of BSL LS rule descriptions
-    implementation("org.commonmark", "commonmark", commonmarkVersion)
-    implementation("org.commonmark", "commonmark-ext-gfm-tables", commonmarkVersion)
-    implementation("org.commonmark", "commonmark-ext-autolink", commonmarkVersion)
-    implementation("org.commonmark", "commonmark-ext-heading-anchor", commonmarkVersion)
+    implementation("org.commonmark:commonmark:$commonmarkVersion")
+    implementation("org.commonmark:commonmark-ext-gfm-tables:$commonmarkVersion")
+    implementation("org.commonmark:commonmark-ext-autolink:$commonmarkVersion")
+    implementation("org.commonmark:commonmark-ext-heading-anchor:$commonmarkVersion")
 
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "6.0.3")
-    testImplementation("org.junit.jupiter", "junit-jupiter-params", "6.0.3")
-    testImplementation("org.assertj", "assertj-core", "3.27.7")
-    testImplementation("org.mockito", "mockito-core", "5.21.0")
-    testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion) {
+    testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:6.0.3")
+    testImplementation("org.assertj:assertj-core:3.27.7")
+    testImplementation("org.mockito:mockito-core:5.21.0")
+    testImplementation("org.sonarsource.sonarqube:sonar-testing-harness:$sonarQubeVersion") {
         exclude("org.sonarsource.sonarqube", "sonar-sarif")
     }
-    testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion) {
+    testImplementation("org.sonarsource.sonarqube:sonar-core:$sonarQubeVersion") {
         exclude("org.sonarsource.sonarqube", "sonar-sarif")
     }
-    testImplementation("org.reflections", "reflections", "0.10.2")
+    testImplementation("org.reflections:reflections:0.10.2")
 
-    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "6.0.3")
-    testRuntimeOnly("org.junit.platform", "junit-platform-launcher", "6.0.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.3")
 }
 
 java {
