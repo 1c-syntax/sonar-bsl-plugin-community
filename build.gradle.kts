@@ -28,7 +28,9 @@ val commonmarkVersion = "0.29.0"
 dependencies {
     compileOnly("org.sonarsource.api.plugin:sonar-plugin-api:11.3.0.2824")
 
-    implementation("io.github.1c-syntax:bsl-language-server:1.0.7") {
+    compileOnly("org.sonarsource.api.plugin", "sonar-plugin-api", "11.3.0.2824")
+
+    implementation("io.github.1c-syntax", "bsl-language-server", "0.+") {
         exclude("com.contrastsecurity", "java-sarif")
         exclude("info.picocli", "picocli-spring-boot-starter")
         exclude("me.tongfei", "progressbar")
