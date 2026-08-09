@@ -1,16 +1,16 @@
-import java.net.URI
 import java.util.*
 
 plugins {
     jacoco
     java
     `maven-publish`
-    id("org.sonarqube") version "6.0.1.5171"
-    id("org.cadixdev.licenser") version "0.6.1"
-    id("com.github.johnrengelman.shadow") version ("7.0.0")
-    id("com.github.ben-manes.versions") version "0.52.0"
+    id("org.sonarqube") version "7.3.1.8318"
+    id("cloud.rio.license") version "0.18.0"
+    id("com.gradleup.shadow") version "9.6.1"
+    id("com.github.ben-manes.versions") version "0.59.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.freefair.lombok") version "8.12"
+    id("io.freefair.lombok") version "9.5.0"
+    id("io.sentry.jvm.gradle") version "6.17.0"
 }
 
 group = "io.github.1c-syntax"
@@ -19,46 +19,49 @@ version = gitVersionCalculator.calculateVersion("v")
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url = URI("https://s01.oss.sonatype.org/content/repositories/snapshots")
-    }
-    maven {
-        url = URI("https://jitpack.io")
-    }
+    maven("https://central.sonatype.com/repository/maven-snapshots")
 }
 
-val sonarQubeVersion = "9.9.0.65466"
+val sonarQubeVersion = "25.4.0.105899"
+val commonmarkVersion = "0.29.0"
 
 dependencies {
-    implementation("org.sonarsource.api.plugin", "sonar-plugin-api", "9.14.0.375")
+    compileOnly("org.sonarsource.api.plugin:sonar-plugin-api:11.3.0.2824")
 
-    implementation("io.github.1c-syntax", "bsl-language-server", "0.23.1") {
+    implementation("io.github.1c-syntax:bsl-language-server:1.0.7") {
         exclude("com.contrastsecurity", "java-sarif")
-        exclude("io.sentry", "sentry-logback")
-        exclude("org.springframework.boot", "spring-boot-starter-websocket")
+        exclude("info.picocli", "picocli-spring-boot-starter")
+        exclude("me.tongfei", "progressbar")
+        exclude("org.springframework.ai", "spring-ai-starter-mcp-server-webmvc")
+        exclude("org.springframework.ai", "spring-ai-starter-mcp-server")
     }
-
-    implementation("org.sonarsource.analyzer-commons", "sonar-analyzer-commons", "2.5.0.1358")
+    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:2.21.0.4626")
 
     // MD to HTML converter of BSL LS rule descriptions
-    implementation("org.commonmark", "commonmark", "0.24.0")
-    implementation("org.commonmark", "commonmark-ext-gfm-tables", "0.24.0")
-    implementation("org.commonmark", "commonmark-ext-autolink", "0.24.0")
-    implementation("org.commonmark", "commonmark-ext-heading-anchor", "0.24.0")
+    implementation("org.commonmark:commonmark:$commonmarkVersion")
+    implementation("org.commonmark:commonmark-ext-gfm-tables:$commonmarkVersion")
+    implementation("org.commonmark:commonmark-ext-autolink:$commonmarkVersion")
+    implementation("org.commonmark:commonmark-ext-heading-anchor:$commonmarkVersion")
 
-    testImplementation("org.junit.jupiter", "junit-jupiter-api", "5.11.4")
-    testImplementation("org.assertj", "assertj-core", "3.27.0")
-    testImplementation("org.mockito", "mockito-core", "5.14.2")
-    testImplementation("org.sonarsource.sonarqube", "sonar-testing-harness", sonarQubeVersion)
-    testImplementation("org.sonarsource.sonarqube", "sonar-core", sonarQubeVersion)
-    testImplementation("org.reflections", "reflections", "0.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:6.0.3")
+    testImplementation("org.assertj:assertj-core:3.27.7")
+    testImplementation("org.mockito:mockito-core:5.21.0")
+    testImplementation("org.sonarsource.sonarqube:sonar-testing-harness:$sonarQubeVersion") {
+        exclude("org.sonarsource.sonarqube", "sonar-sarif")
+    }
+    testImplementation("org.sonarsource.sonarqube:sonar-core:$sonarQubeVersion") {
+        exclude("org.sonarsource.sonarqube", "sonar-sarif")
+    }
+    testImplementation("org.reflections:reflections:0.10.2")
 
-    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine", "5.11.4")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.3")
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks.withType<JavaCompile> {
@@ -68,6 +71,12 @@ tasks.withType<JavaCompile> {
 
 tasks.test {
     useJUnitPlatform()
+
+    // The tests boot the embedded BSL Language Server Spring context and run the sensor
+    // pipeline. Without an explicit heap the test JVM inherits the runner's default
+    // (a fraction of physical RAM), which is small on the macOS runners and led to
+    // OutOfMemoryError there. Pin a fixed heap so the pipeline has room on every runner.
+    maxHeapSize = "3g"
 
     testLogging {
         events("passed", "skipped", "failed")
@@ -85,19 +94,19 @@ tasks.check {
 tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
-        xml.outputLocation.set(File("$buildDir/reports/jacoco/test/jacoco.xml"))
+        xml.outputLocation.set(File("${layout.buildDirectory.get()}/reports/jacoco/test/jacoco.xml"))
     }
 }
 
 license {
-    header(rootProject.file("license/HEADER.txt"))
-    newLine(false)
+    header = rootProject.file("license/HEADER.txt")
+    skipExistingHeaders = false
+    strictCheck = true
+    mapping("java", "SLASHSTAR_STYLE")
     ext["year"] = Calendar.getInstance().get(Calendar.YEAR)
     ext["name"] = "Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>"
     ext["project"] = "SonarQube 1C (BSL) Community Plugin"
-    exclude("**/*.properties")
-    exclude("**/*.bsl")
-    exclude("**/*.json")
+    include("**/*.java")
 }
 
 sonarqube {
@@ -108,8 +117,10 @@ sonarqube {
         property("sonar.projectKey", "1c-syntax_sonar-bsl-plugin-community")
         property("sonar.projectName", "SonarQube 1C (BSL) Community Plugin")
         property("sonar.exclusions", "**/gen/**/*.*")
-        property("sonar.coverage.jacoco.xmlReportPaths",
-            "$buildDir/reports/jacoco/test/jacoco.xml")
+        property(
+            "sonar.coverage.jacoco.xmlReportPaths",
+            "${layout.buildDirectory.get()}/reports/jacoco/test/jacoco.xml"
+        )
     }
 }
 
@@ -130,7 +141,6 @@ tasks.jar {
         attributes["Plugin-Developers"] = "Alexey Sosnoviy, Nikita Fedkin"
 
         attributes["SonarLint-Supported"] = false
-        attributes["Sonar-Version"] = sonarQubeVersion
 
         attributes["Plugin-Organization"] = "1c-syntax"
         attributes["Plugin-OrganizationUrl"] = "https://github.com/1c-syntax"
@@ -141,7 +151,22 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-    project.configurations.implementation.get().isCanBeResolved = true
-    configurations = listOf(project.configurations["implementation"])
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    mergeServiceFiles()
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer::class.java) {
+        resource.set("META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
+        separator.set("\n")
+    }
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer::class.java) {
+        paths.set(setOf("META-INF/org/languagetool/language-module.properties"))
+        mergeStrategy.set(com.github.jengelman.gradle.plugins.shadow.transformers.PropertiesFileTransformer.MergeStrategy.Append)
+        mergeSeparator.set(",")
+    }
+    configurations = listOf(project.configurations["runtimeClasspath"])
     archiveClassifier.set("")
+}
+
+tasks.named("licenseMain") {
+    dependsOn(tasks.generateSentryDebugMetaPropertiesjava)
+    dependsOn(tasks.collectExternalDependenciesForSentry)
 }

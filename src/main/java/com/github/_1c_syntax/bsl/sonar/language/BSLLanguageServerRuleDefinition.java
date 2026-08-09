@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2025
+ * Copyright (c) 2018-2026
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -24,16 +24,17 @@ package com.github._1c_syntax.bsl.sonar.language;
 import com.github._1c_syntax.bsl.languageserver.configuration.Language;
 import com.github._1c_syntax.bsl.languageserver.configuration.LanguageServerConfiguration;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.BSLDiagnostic;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.info.DiagnosticInfo;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.info.DiagnosticParameterInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticMetadata;
-import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticParameterInfo;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import com.github._1c_syntax.bsl.sonar.BSLCommunityProperties;
 import com.github._1c_syntax.utils.StringInterner;
 import com.google.common.reflect.ClassPath;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.commonmark.ext.autolink.AutolinkExtension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.ext.heading.anchor.HeadingAnchorExtension;
@@ -43,8 +44,6 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.springframework.core.annotation.AnnotationUtils;
 
 import javax.annotation.CheckForNull;
@@ -54,12 +53,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@Slf4j
 public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
   public static final String REPOSITORY_KEY = "bsl-language-server";
   public static final String PARAMETERS_TAG_NAME = "parameters";
   private static final String REPOSITORY_NAME = "BSL Language Server";
-  private static final Logger LOGGER = Loggers.get(BSLLanguageServerRuleDefinition.class);
 
   private static final Map<DiagnosticSeverity, String> SEVERITY_MAP = createDiagnosticSeverityMap();
   private static final Map<DiagnosticType, RuleType> RULE_TYPE_MAP = createRuleTypeMap();
@@ -112,11 +111,11 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     var configuration = new LanguageServerConfiguration();
 
     return getDiagnosticInfo(configuration)
-        .stream()
-        .filter(DiagnosticInfo::isActivatedByDefault)
-        .map(DiagnosticInfo::getCode)
-        .map((DiagnosticCode diagnosticCode) -> diagnosticCode.getStringValue())
-        .toList();
+      .stream()
+      .filter(DiagnosticInfo::isActivatedByDefault)
+      .map(DiagnosticInfo::getCode)
+      .map((DiagnosticCode diagnosticCode) -> diagnosticCode.getStringValue())
+      .toList();
   }
 
   private void setUpNewRule(NewRule newRule) {
@@ -168,20 +167,13 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
       .forEach((DiagnosticParameterInfo diagnosticParameter) -> {
         var ruleParamType = getRuleParamType(diagnosticParameter.getType());
         if (ruleParamType == null) {
-          LOGGER.error(
-            String.format(
-              "Can't cast rule param type %s for rule %s",
-              diagnosticParameter.getType(),
-              newRule.key()
-            )
-          );
-          return;
+          LOGGER.error("Can't cast rule param type {} for rule {}", diagnosticParameter.getType(), newRule.key());
+        } else {
+          var newParam = newRule.createParam(diagnosticParameter.getName());
+          newParam.setType(ruleParamType);
+          newParam.setDescription(diagnosticParameter.getDescription());
+          newParam.setDefaultValue(diagnosticParameter.getDefaultValue().toString());
         }
-
-        var newParam = newRule.createParam(diagnosticParameter.getName());
-        newParam.setType(ruleParamType);
-        newParam.setDescription(diagnosticParameter.getDescription());
-        newParam.setDefaultValue(diagnosticParameter.getDefaultValue().toString());
       });
   }
 
@@ -201,7 +193,9 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
 
     if (type == Integer.class) {
       ruleParamType = RuleParamType.INTEGER;
-    } else if (type == String.class) {
+    } else if (type == String.class || type == List.class) {
+      // Параметр-список: массивы в параметрах правил SonarQube UI не поддерживаются,
+      // поэтому параметр остаётся строкой (элементы через запятую).
       ruleParamType = RuleParamType.STRING;
     } else if (type == Boolean.class) {
       ruleParamType = RuleParamType.BOOLEAN;
@@ -241,13 +235,13 @@ public class BSLLanguageServerRuleDefinition implements RulesDefinition {
     var stringInterner = new StringInterner();
 
     return ClassPath.from(BSLLanguageServerRuleDefinition.class.getClassLoader())
-        .getAllClasses()
-        .stream()
-        .filter(clazz -> "com.github._1c_syntax.bsl.languageserver.diagnostics".equals(clazz.getPackageName()))
-        .map(ClassPath.ClassInfo::load)
-        .filter(aClass -> AnnotationUtils.getAnnotation(aClass, DiagnosticMetadata.class) != null)
-        .map(aClass -> (Class<? extends BSLDiagnostic>) aClass)
-        .map(aClass -> new DiagnosticInfo(aClass, configuration, stringInterner))
-        .toList();
+      .getAllClasses()
+      .stream()
+      .filter(clazz -> "com.github._1c_syntax.bsl.languageserver.diagnostics".equals(clazz.getPackageName()))
+      .map(ClassPath.ClassInfo::load)
+      .filter(aClass -> AnnotationUtils.getAnnotation(aClass, DiagnosticMetadata.class) != null)
+      .map(aClass -> (Class<? extends BSLDiagnostic>) aClass)
+      .map(aClass -> new DiagnosticInfo(aClass, configuration, stringInterner))
+      .toList();
   }
 }

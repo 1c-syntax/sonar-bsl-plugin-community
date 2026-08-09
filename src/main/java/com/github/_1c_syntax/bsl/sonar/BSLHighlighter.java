@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2025
+ * Copyright (c) 2018-2026
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -25,14 +25,16 @@ import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
 import com.github._1c_syntax.bsl.languageserver.utils.Ranges;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.parser.SDBLLexer;
-import com.github._1c_syntax.bsl.parser.Tokenizer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.Tokenizer;
 import org.eclipse.lsp4j.Range;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 
 import javax.annotation.Nullable;
@@ -45,6 +47,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 public class BSLHighlighter {
 
@@ -158,17 +161,27 @@ public class BSLHighlighter {
 
     highlightingData.stream()
       .filter(HighlightingData::isActive)
-      .forEach(data ->
-        highlighting.highlight(
-          data.getRange().getStart().getLine(),
-          data.getRange().getStart().getCharacter(),
-          data.getRange().getEnd().getLine(),
-          data.getRange().getEnd().getCharacter(),
-          data.getType()
-        )
-      );
+      .forEach(data -> applyHighlighting(highlighting, data, inputFile));
 
     highlighting.save();
+  }
+
+  private static void applyHighlighting(
+    NewHighlighting highlighting,
+    HighlightingData data,
+    InputFile inputFile
+  ) {
+    try {
+      highlighting.highlight(
+        data.getRange().getStart().getLine(),
+        data.getRange().getStart().getCharacter(),
+        data.getRange().getEnd().getLine(),
+        data.getRange().getEnd().getCharacter(),
+        data.getType()
+      );
+    } catch (IllegalArgumentException e) {
+      LOGGER.error("Unable to highlight file {}", inputFile, e);
+    }
   }
 
   public void highlightToken(
@@ -182,7 +195,12 @@ public class BSLHighlighter {
 
     var line = token.getLine();
     var charPositionInLine = token.getCharPositionInLine();
-    String tokenText = token.getText();
+    var tokenText = token.getText().stripTrailing();
+
+    var newlineIndex = tokenText.indexOf('\n');
+    if (newlineIndex >= 0) {
+      tokenText = tokenText.substring(0, newlineIndex).stripTrailing();
+    }
 
     var range = Ranges.create(
       line,
@@ -310,7 +328,8 @@ public class BSLHighlighter {
       BSLLexer.PREPROC_MACOS,
       BSLLexer.PREPROC_ANY,
       BSLLexer.PREPROC_MOBILE_STANDALONE_SERVER,
-      BSLLexer.PREPROC_NATIVE
+      BSLLexer.PREPROC_NATIVE,
+      BSLLexer.PREPROC_STACK
     );
   }
 
@@ -419,7 +438,8 @@ public class BSLHighlighter {
       SDBLLexer.GREATER,
       SDBLLexer.COMMA,
       SDBLLexer.BRACE,
-      SDBLLexer.BRACE_START
+      SDBLLexer.BRACE_START,
+      SDBLLexer.NUMBER_SIGH
     );
   }
 
@@ -532,20 +552,21 @@ public class BSLHighlighter {
       SDBLLexer.STOREDDATASIZE,
       SDBLLexer.UUID,
       SDBLLexer.STRFIND,
-      SDBLLexer.STRREPLACE
+      SDBLLexer.STRREPLACE,
+      SDBLLexer.UNIQUE
     );
   }
 
   private static Set<Integer> createSdblKeywords() {
     return Set.of(
-      SDBLLexer.ALL,
+      SDBLLexer.ADD,
       SDBLLexer.ALLOWED,
       SDBLLexer.AND,
       SDBLLexer.AS,
       SDBLLexer.ASC,
       SDBLLexer.AUTOORDER,
       SDBLLexer.BETWEEN,
-      SDBLLexer.BY_EN,
+      SDBLLexer.BY,
       SDBLLexer.CASE,
       SDBLLexer.CAST,
       SDBLLexer.DESC,
@@ -555,46 +576,48 @@ public class BSLHighlighter {
       SDBLLexer.END,
       SDBLLexer.ESCAPE,
       SDBLLexer.FALSE,
-      SDBLLexer.FOR,
+      SDBLLexer.FOR_UPDATE,
       SDBLLexer.FROM,
-      SDBLLexer.FULL,
-      SDBLLexer.GROUP,
+      SDBLLexer.FULL_JOIN,
+      SDBLLexer.FULL_OUTER_JOIN,
+      SDBLLexer.GROUP_BY,
+      SDBLLexer.GROUP_BY_GROUPING_SETS,
       SDBLLexer.HAVING,
       SDBLLexer.HIERARCHY,
-      SDBLLexer.HIERARCHY_FOR_IN,
+      SDBLLexer.IN_HIERARCHY,
       SDBLLexer.IN,
-      SDBLLexer.INDEX,
-      SDBLLexer.INNER,
+      SDBLLexer.INDEX_BY,
+      SDBLLexer.INDEX_BY_SETS,
+      SDBLLexer.INNER_JOIN,
       SDBLLexer.INTO,
       SDBLLexer.IS,
       SDBLLexer.ISNULL,
       SDBLLexer.JOIN,
       SDBLLexer.LEFT,
+      SDBLLexer.LEFT_JOIN,
+      SDBLLexer.LEFT_OUTER_JOIN,
       SDBLLexer.LIKE,
       SDBLLexer.NOT,
       SDBLLexer.OF,
-      SDBLLexer.ONLY,
-      SDBLLexer.ON_EN,
+      SDBLLexer.ONLY_HIERARCHY,
       SDBLLexer.OR,
-      SDBLLexer.ORDER,
+      SDBLLexer.ORDER_BY,
       SDBLLexer.OVERALL,
-      SDBLLexer.OUTER,
       SDBLLexer.PERIODS,
-      SDBLLexer.PO_RU,
       SDBLLexer.REFS,
       SDBLLexer.RIGHT,
+      SDBLLexer.RIGHT_JOIN,
+      SDBLLexer.RIGHT_OUTER_JOIN,
       SDBLLexer.SELECT,
-      SDBLLexer.SET,
       SDBLLexer.THEN,
       SDBLLexer.TOP,
       SDBLLexer.TOTALS,
       SDBLLexer.UNION,
-      SDBLLexer.UPDATE,
+      SDBLLexer.UNION_ALL,
       SDBLLexer.WHEN,
       SDBLLexer.WHERE,
       SDBLLexer.EMPTYREF,
-      SDBLLexer.GROUPEDBY,
-      SDBLLexer.GROUPING
+      SDBLLexer.GROUPEDBY
     );
   }
 

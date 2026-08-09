@@ -78,7 +78,10 @@
         "functions": 1,
         "lines": 9,
         "ncloc": 7,
-        "statements": 5
+        "statements": 5,
+        "comments": 17,
+        "cognitiveComplexity": 500,
+        "cyclomaticComplexity": 500
       }
     }
   ]

@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2025
+ * Copyright (c) 2018-2026
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -22,12 +22,14 @@
 package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticCode;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticMessage;
 import com.github._1c_syntax.bsl.sonar.ext_issues.ExternalReporters;
 import com.github._1c_syntax.bsl.sonar.ext_issues.Reporter;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguageServerRuleDefinition;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticRelatedInformation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -44,8 +46,6 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.scanner.fs.InputProject;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.CheckForNull;
 import java.net.URI;
@@ -58,9 +58,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class IssuesLoader {
-
-  private static final Logger LOGGER = Loggers.get(IssuesLoader.class);
   private static final String BSLLS_ENGINE_ID = "bsl-language-server";
 
   private final SensorContext context;
@@ -212,7 +211,7 @@ public class IssuesLoader {
       location.on(fileOrProject.getRight());
     }
 
-    location.message(diagnostic.getMessage());
+    location.message(DiagnosticMessage.getStringValue(diagnostic.getMessage()));
     newIssueAtConsumer.accept(location);
 
     var relatedInformation = diagnostic.getRelatedInformation();

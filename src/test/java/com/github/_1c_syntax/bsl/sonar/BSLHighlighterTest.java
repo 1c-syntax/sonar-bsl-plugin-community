@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2025
+ * Copyright (c) 2018-2026
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -21,8 +21,9 @@
  */
 package com.github._1c_syntax.bsl.sonar;
 
-import com.github._1c_syntax.bsl.languageserver.BSLLSBinding;
+import com.github._1c_syntax.bsl.languageserver.binding.BSLLSBinding;
 import com.github._1c_syntax.bsl.languageserver.context.DocumentContext;
+import com.github._1c_syntax.bsl.languageserver.infrastructure.WorkspaceContextHolder;
 import com.github._1c_syntax.bsl.parser.BSLLexer;
 import com.github._1c_syntax.bsl.parser.SDBLLexer;
 import com.github._1c_syntax.bsl.parser.SDBLTokenizer;
@@ -30,11 +31,14 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.Vocabulary;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 import java.io.File;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +49,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,6 +58,8 @@ class BSLHighlighterTest {
   private static final String BASE_PATH = "src/test/resources/src";
   private static final File BASE_DIR = new File(BASE_PATH).getAbsoluteFile();
   private static final String FILE_NAME = "src/test.bsl";
+  private static final Path BASEDIR_PATH = Path.of(".");
+  private static final URI BASEDIW_WS = BASEDIR_PATH.toUri();
 
   private SensorContextTester context;
   private BSLHighlighter highlighter;
@@ -83,13 +90,17 @@ class BSLHighlighterTest {
   @Test
   void testMergeHighlightingTokens() {
     // given
-    context = SensorContextTester.create(Path.of("."));
+    context = SensorContextTester.create(BASEDIR_PATH);
     highlighter = new BSLHighlighter(context);
     var fileName = "highlight.bsl";
     var baseDirName = "src/test/resources/examples";
     var path = Path.of(baseDirName, fileName);
-    documentContext = BSLLSBinding.getServerContext().addDocument(path.toUri());
-    BSLLSBinding.getServerContext().rebuildDocument(documentContext);
+    var bslServerContext = BSLLSBinding.getServerContextProvider().addWorkspace(BASEDIW_WS);
+    try (var ctx = WorkspaceContextHolder.forUri(BASEDIW_WS)) {
+      documentContext = bslServerContext.addDocument(path.toUri());
+      bslServerContext.rebuildDocument(documentContext);
+    }
+
     inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
 
     // when
@@ -130,6 +141,59 @@ class BSLHighlighterTest {
 
   }
 
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(strings = {
+    // Tab-indented query: ensures tabs producing position differences do not crash highlighting.
+    "highlightLongQuery.bsl",
+    // СГРУППИРОВАТЬ ПО on separate BSL continuation lines -> single multiline SDBL token.
+    "highlightCrmQuery.bsl",
+    // ИНДЕКСИРОВАТЬ ПО on separate lines (reproduces PR #424 comment from ERP 2.5 module).
+    "highlightErpIndexByQuery.bsl",
+    // Real-world reproducer from issue #318 (CRM_КлиентыСервер.bsl attachment).
+    "CRM_КлиентыСервер.bsl"
+  })
+  void testHighlightingDoesNotThrowOnFile(String fileName) {
+    // given
+    context = SensorContextTester.create(BASEDIR_PATH);
+    highlighter = new BSLHighlighter(context);
+    var baseDirName = "src/test/resources/examples";
+    var path = Path.of(baseDirName, fileName);
+    var bslServerContext = BSLLSBinding.getServerContextProvider().addWorkspace(BASEDIW_WS);
+    try (var ctx = WorkspaceContextHolder.forUri(BASEDIW_WS)) {
+      documentContext = bslServerContext.addDocument(path.toUri());
+      bslServerContext.rebuildDocument(documentContext);
+    }
+    inputFile = Tools.inputFileBSL(fileName, Path.of(baseDirName).toFile());
+
+    // when/then - should not throw, even for multiline SDBL tokens or tab-indented queries
+    assertThatNoException().isThrownBy(() ->
+      highlighter.saveHighlighting(inputFile, documentContext)
+    );
+  }
+
+  @Test
+  void testSaveHighlightingWithInvalidTokenPosition() {
+    // given
+    context = SensorContextTester.create(BASEDIR_PATH);
+    highlighter = new BSLHighlighter(context);
+    documentContext = mock(DocumentContext.class);
+
+    // Create a token with position exceeding line length
+    var token = new CommonToken(BSLLexer.IF_KEYWORD, "Если");
+    token.setLine(1);
+    token.setCharPositionInLine(20);
+
+    when(documentContext.getTokens()).thenReturn(List.of(token));
+
+    // Create InputFile with short content (line has less than 20 characters)
+    inputFile = Tools.inputFileBSL(FILE_NAME, BASE_DIR, "А = 1;");
+
+    // when/then - should not throw
+    assertThatNoException().isThrownBy(() ->
+      highlighter.saveHighlighting(inputFile, documentContext)
+    );
+  }
+
   private void testHighlighting(Vocabulary vocabulary, Map<String, TypeOfText> highlightingMap) {
     // given
     initContext(vocabulary);
@@ -149,7 +213,7 @@ class BSLHighlighterTest {
   }
 
   private void initContext(Vocabulary vocabulary) {
-    context = SensorContextTester.create(Path.of("."));
+    context = SensorContextTester.create(BASEDIR_PATH);
     highlighter = new BSLHighlighter(context);
     documentContext = mock(DocumentContext.class);
     List<Token> tokens = new ArrayList<>();
@@ -236,6 +300,8 @@ class BSLHighlighterTest {
     Set<String> noOpTypes = Set.of(
       "WHITE_SPACE",
       "DOT",
+      "DOT_TRAILING",
+      "Async_DOT",
       "LBRACK",
       "RBRACK",
       "LPAREN",
@@ -289,14 +355,14 @@ class BSLHighlighterTest {
   private Map<String, TypeOfText> getHighlightingMapSDBL(Vocabulary vocabulary) {
 
     Set<String> keywords = Set.of(
-      "ALL",
+      "ADD",
       "ALLOWED",
       "AND",
       "AS",
       "ASC",
       "AUTOORDER",
       "BETWEEN",
-      "BY_EN",
+      "BY",
       "CASE",
       "CAST",
       "DESC",
@@ -307,45 +373,47 @@ class BSLHighlighterTest {
       "ESCAPE",
       "EMPTYREF",
       "FALSE",
-      "FOR",
+      "FOR_UPDATE",
       "FROM",
-      "FULL",
-      "GROUP",
+      "FULL_JOIN",
+      "FULL_OUTER_JOIN",
+      "GROUP_BY",
+      "GROUP_BY_GROUPING_SETS",
       "GROUPEDBY",
-      "GROUPING",
       "HAVING",
       "HIERARCHY",
-      "HIERARCHY_FOR_IN",
+      "IN_HIERARCHY",
       "IN",
-      "INDEX",
-      "INNER",
+      "INDEX_BY",
+      "INDEX_BY_SETS",
+      "INNER_JOIN",
       "INTO",
       "IS",
       "ISNULL",
       "JOIN",
       "LEFT",
+      "LEFT_JOIN",
+      "LEFT_OUTER_JOIN",
       "LIKE",
       "NOT",
       "OF",
-      "ON_EN",
+      "ONLY_HIERARCHY",
       "OR",
-      "ORDER",
+      "ORDER_BY",
       "OVERALL",
-      "OUTER",
-      "PO_RU",
+      "PERIODS",
+      "REFS",
       "RIGHT",
+      "RIGHT_JOIN",
+      "RIGHT_OUTER_JOIN",
       "SELECT",
-      "SET",
       "THEN",
       "TOP",
       "TOTALS",
       "UNION",
+      "UNION_ALL",
       "WHEN",
-      "WHERE",
-      "ONLY",
-      "PERIODS",
-      "REFS",
-      "UPDATE"
+      "WHERE"
     );
 
     Set<String> functions = Set.of(
@@ -405,7 +473,8 @@ class BSLHighlighterTest {
       "STOREDDATASIZE",
       "UUID",
       "STRFIND",
-      "STRREPLACE"
+      "STRREPLACE",
+      "UNIQUE"
     );
 
     Set<String> metadataTypes = Set.of(
@@ -467,7 +536,8 @@ class BSLHighlighterTest {
       "GREATER",
       "COMMA",
       "BRACE",
-      "BRACE_START"
+      "BRACE_START",
+      "NUMBER_SIGH"
     );
 
     Set<String> noOpTypes = Set.of(
@@ -478,9 +548,7 @@ class BSLHighlighterTest {
       "ROUTEPOINT_FIELD",
       "IDENTIFIER",
       "INCORRECT_IDENTIFIER",
-      "BRACE_IDENTIFIER",
-      "UNKNOWN",
-      "BAR" // TODO: Убрать из лексера
+      "UNKNOWN"
     );
 
     Set<String> eds = Set.of(

@@ -1,7 +1,7 @@
 /*
  * This file is a part of SonarQube 1C (BSL) Community Plugin.
  *
- * Copyright (c) 2018-2025
+ * Copyright (c) 2018-2026
  * Alexey Sosnoviy <labotamy@gmail.com>, Nikita Fedkin <nixel2007@gmail.com>
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
@@ -23,8 +23,9 @@ package com.github._1c_syntax.bsl.sonar;
 
 import com.github._1c_syntax.bsl.languageserver.reporters.data.AnalysisInfo;
 import com.github._1c_syntax.bsl.languageserver.reporters.data.FileInfo;
-import com.github._1c_syntax.bsl.languageserver.reporters.databind.AnalysisInfoObjectMapper;
+import com.github._1c_syntax.bsl.languageserver.reporters.databind.AnalysisInfoJsonMapper;
 import com.github._1c_syntax.bsl.sonar.language.BSLLanguage;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lsp4j.Diagnostic;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -33,8 +34,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 import javax.annotation.CheckForNull;
@@ -46,9 +45,8 @@ import java.nio.file.Path;
 
 import static com.github._1c_syntax.bsl.sonar.BSLCommunityProperties.LANG_SERVER_REPORT_PATH_KEY;
 
+@Slf4j
 public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
-
-  private static final Logger LOGGER = Loggers.get(LanguageServerDiagnosticsLoaderSensor.class);
 
   private final SensorContext context;
   private final IssuesLoader issueLoader;
@@ -77,11 +75,11 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
     LOGGER.info(analysisResultsFile.getAbsolutePath());
 
     var analysisInfo = getAnalysisInfo(analysisResultsFile);
-    if (analysisInfo == null) {
+    if (analysisInfo == null || analysisInfo.fileinfos() == null) {
       return;
     }
 
-    var fileinfos = analysisInfo.getFileinfos();
+    var fileinfos = analysisInfo.fileinfos();
     for (var fileInfo : fileinfos) {
       processFileInfo(fileInfo);
     }
@@ -127,11 +125,10 @@ public class LanguageServerDiagnosticsLoaderSensor implements Sensor {
       return null;
     }
 
-    var objectMapper = new AnalysisInfoObjectMapper();
-
+    var objectMapper = new AnalysisInfoJsonMapper();
     try {
       return objectMapper.readValue(json, AnalysisInfo.class);
-    } catch (IOException e) {
+    } catch (Exception e) {
       LOGGER.error("Can't parse analysis report file", e);
       return null;
     }
