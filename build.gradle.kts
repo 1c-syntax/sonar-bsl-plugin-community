@@ -35,7 +35,7 @@ dependencies {
         exclude("org.springframework.ai", "spring-ai-starter-mcp-server-webmvc")
         exclude("org.springframework.ai", "spring-ai-starter-mcp-server")
     }
-    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:2.21.0.4626")
+    implementation("org.sonarsource.analyzer-commons:sonar-analyzer-commons:2.29.0.5138")
 
     // MD to HTML converter of BSL LS rule descriptions
     implementation("org.commonmark:commonmark:$commonmarkVersion")
