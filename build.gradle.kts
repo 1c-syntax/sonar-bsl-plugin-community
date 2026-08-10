@@ -23,7 +23,7 @@ repositories {
 }
 
 val sonarQubeVersion = "25.4.0.105899"
-val commonmarkVersion = "0.29.0"
+val commonmarkVersion = "0.30.0"
 
 dependencies {
     compileOnly("org.sonarsource.api.plugin:sonar-plugin-api:11.3.0.2824")
