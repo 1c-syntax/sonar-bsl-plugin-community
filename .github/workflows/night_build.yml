@@ -23,6 +23,7 @@ jobs:
           distribution: 'adopt'
       - name: Build with Gradle
         run: ./gradlew build
+        run: ./gradlew build --refresh-dependencies
       - name: Save file name
         run: echo "PLUGIN_FILE_NAME=$(ls -t ./build/libs | head -1)" >> $GITHUB_ENV
       - name: Save current date
