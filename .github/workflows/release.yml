@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-java@v6
       with:
         java-version: 21
-        distribution: 'adopt'
+        distribution: 'temurin'
     - name: Build with Gradle
       run: ./gradlew build
     - name: Upload jar to release

@@ -16,7 +16,7 @@ jobs:
       uses: actions/setup-java@v6
       with:
         java-version: ${{ matrix.java_version }}
-        distribution: 'adopt'
+        distribution: 'temurin'
     - name: Build with Gradle
       run: ./gradlew check --stacktrace
     - name: Archive test results
