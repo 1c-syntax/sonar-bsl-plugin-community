@@ -21,10 +21,14 @@
  */
 package com.github._1c_syntax.bsl.sonar.language;
 
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticSeverity;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticTag;
+import com.github._1c_syntax.bsl.languageserver.diagnostics.metadata.DiagnosticType;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.rule.RulesDefinition;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,5 +66,33 @@ class BSLLanguageServerRuleDefinitionTest {
       .filter(rule -> rule.tags().contains(BSLLanguageServerRuleDefinition.PARAMETERS_TAG_NAME))
       .count()
     ).isZero();
+  }
+
+  @Test
+  void smokyAllTags() {
+    var tags = Arrays.stream(DiagnosticTag.values()).toList();
+    assertThat(BSLLanguageServerRuleDefinition.IMPACTS_MAP.keySet())
+      .hasSize(tags.size())
+      .containsAll(tags);
+
+    assertThat(BSLLanguageServerRuleDefinition.CLEAN_CODE_ATTRIBUTE_MAP.keySet())
+      .hasSize(tags.size())
+      .containsAll(tags);
+  }
+
+  @Test
+  void smokyAllTypes() {
+    var types = Arrays.stream(DiagnosticType.values()).toList();
+    assertThat(BSLLanguageServerRuleDefinition.RULE_TYPE_MAP.keySet())
+      .hasSize(types.size())
+      .containsAll(types);
+  }
+
+  @Test
+  void smokyAllSeverity() {
+    var severities = Arrays.stream(DiagnosticSeverity.values()).toList();
+    assertThat(BSLLanguageServerRuleDefinition.OLD_SEVERITY_MAP.keySet())
+      .hasSize(severities.size())
+      .containsAll(severities);
   }
 }
