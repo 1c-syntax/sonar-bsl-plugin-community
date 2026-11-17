@@ -159,6 +159,7 @@ public class BSLCoreSensor implements Sensor {
         );
 
         bslServerContext.setConfigurationRoot(configurationRoot);
+        bslServerContext.awaitPreparation();
         bslServerContext.populateContext();
 
         int total = inputFilesList.size();
