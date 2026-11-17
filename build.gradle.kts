@@ -9,7 +9,7 @@ plugins {
     id("com.gradleup.shadow") version "9.6.1"
     id("com.github.ben-manes.versions") version "0.59.0"
     id("com.github.gradle-git-version-calculator") version "1.1.0"
-    id("io.freefair.lombok") version "9.5.0"
+    id("io.freefair.lombok") version "9.8.3"
     id("io.sentry.jvm.gradle") version "6.17.0"
 }
 
